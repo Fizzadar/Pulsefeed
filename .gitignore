@@ -1,4 +1,9 @@
-data/thumbs/*
-data/images/*
+data/thumbs/*.jpg
+data/thumbs/*.png
+data/thumbs/*.gif
+data/thumbs/*.jpeg
+data/images/*.jpg
+data/images/*.png
+data/images/*.gif
+data/images/*.jpeg
 core/
-core/*
