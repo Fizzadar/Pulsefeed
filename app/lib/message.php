@@ -17,16 +17,19 @@
 				$this->messages[] = $this->messagelist[$message];
 		}
 
-		public function display() {
+		public function get() {
 			//no messages?
 			if( !isset( $_SESSION['mod_messages'] ) )
 				$_SESSION['mod_messages'] = array();
 
-			//print messages
-			print_r( $_SESSION['mod_messages'] );
+			//store messages
+			$return = $_SESSION['mod_messages'];
 
 			//printed, now remove
 			$_SESSION['mod_messages'] = array();
+
+			//return
+			return $return;
 		}
 	}
 ?>

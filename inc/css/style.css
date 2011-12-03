@@ -43,16 +43,9 @@ div.wrap {
 	width: 96%;
 }
 
-img#fire {
-	background: #7A3C98;
-	position: fixed;
-	margin-left: -35px;
-	top: 10px;
-	z-index: 1;
-}
-
 div#top {
-	position: relative;
+	position: fixed;
+	top: 0;
 	z-index: 3;
 	width: 100%;
 	height: 40px;
@@ -70,7 +63,7 @@ div#top {
 			padding-top: 9px;
 			color: #FFFFFF;
 			text-decoration: none;
-			background: url( fire.png ) left 6px no-repeat;
+			background: url( ../img/pulse.png ) left 6px no-repeat;
 			padding-left: 35px;
 			margin-left: -35px;
 		}
@@ -101,6 +94,12 @@ div#top {
 				float: left;
 				margin-right: 5px;
 			}
+				div#top ul#account ul#login li img {
+					width: auto;
+					height: auto;
+					float: right;
+					margin-right: 0;
+				}
 		div#top ul#account li.top {
 			padding: 10px 0px 6px;
 			text-align: right;
@@ -177,7 +176,34 @@ div#top {
 			display: block;
 		}
 
+div#messages {
+	margin-top: 40px;
+	position: relative;
+}
+	div#messages div.message {
+		font-size: 20px;
+		font-weight: bold;
+		height: 24px;
+		padding: 10px 0;
+	}
+		div#messages div.message div.wrap {
+			text-indent: 150px;
+		}
+		div#messages div.message.success {
+			background: #DFF2BF;
+			color: #4F8A10;
+			text-shadow: 1px 1px 1px #FFF;
+			border-bottom: 1px solid #4F8A10;
+		}
+		div#messages div.message.warning {
+			border-bottom: 1px solid #9F6000;
+			color: #9F6000;
+			text-shadow: 1px 1px 1px #FFF;
+			background: #FEEFB3;
+		}
+
 div#header {
+	margin-top: 0px;
 	position: relative;
 	z-index: 2;
 	width: 100%;
@@ -248,55 +274,111 @@ div#header {
 		font-size: 24px;
 	}
 
-div#content {
-	margin-top: 30px;
+div#sidebars {
+	top: auto;
+	position: absolute;
+	width: 100%;
 }
-	div#content div.left {
+	div#sidebars div.bottom {
+		position: fixed;
+		bottom: 20px;
+	}
+	div#sidebars div.left {
 		width: 140px;
 		margin-right: 0px;
 	}
-		div#content div.left ul {
+		div#sidebars div.left ul {
 			margin: 0 0 30px 0;
 			padding: 0;
+			line-height: 16px;
 		}
-			div#content div.left li {
+			div#sidebars div.left li {
 				list-style: none;
+				margin: 7px 0;
 			}
-			div#content div.left li.title {
+			div#sidebars div.left li.title {
 				font-weight: bold;
 			}
-				div#content div.left li.title a.edit {
+				div#sidebars div.left li.title a.edit {
 					font-weight: normal;
 					display: none;
 					line-height: 0;
 				}
-				div#content div.left ul:hover li.title a.edit {
+				div#sidebars div.left li img {
+					float: left;
+					margin-top: 0px;
+					margin-left: -22px;
+				}
+				div#sidebars div.left ul:hover li.title a.edit {
 					display: inline;
 				}
-			div#content div.left li.title:first-child {
+			div#sidebars div.left li.title:first-child {
 				margin-top: 0;
 			}
-				div#content div.left li span.new {
+				div#sidebars div.left li span.new {
 					background: #EEEFF1;
 					padding: 0px 4px;
 					text-decoration: none;
 					border-radius: 10px;
 				}
-				div#content div.left li span.type {
+				div#sidebars div.left li span.type {
 					font-size: 11px;
 					color: #999;
 					font-family: Verdana;
 					display: none;
 				}
-				div#content div.left li:hover span.type {
+				div#sidebars div.left li span.type.shown {
 					display: inline;
 					line-height: 0;
 				}
-	div#content div.right {
+				div#sidebars div.left li:hover span.type {
+					display: inline;
+					line-height: 0;
+				}
+	div#sidebars div.right {
 		width: 234px;
 	}
+		div#sidebars div.right a.biglink {
+			font-size: 11px;
+			font-family: Verdana;
+			color: #666;
+			text-decoration: none;
+			line-height: 22px;
+			display: block;
+			border-bottom: 1px solid #F7F7F7;
+			padding: 10px 5px;
+			margin-left: -5px;
+		}
+		div#sidebars div.right a.biglink:hover {
+			background: #FCFCFC;
+		}
+		div#sidebars div.right div.biglinks {
+			margin-bottom: 20px;
+		}
+		div#sidebars div.right div.biglinks a.biglink:first-child {
+			margin-top: -10px;
+		}
+		div#sidebars div.right div.biglinks a.biglink:last-child {
+			border: none;
+		}
+			div#sidebars div.right a.biglink span {
+				font-size: 16px;
+				font-family: Trebuchet MS;
+				color: #7A3C98;
+				display: block;
+			}
+			div#sidebars div.right a.biglink:hover span {
+				color: #1A1B1B;
+				text-decoration: underline;
+			}
+
+div#content {
+	margin-top: 30px;
+	position: relative;
+	z-index: 2;
+}
 	div#content div.main {
-		margin: 0 244px 0 150px;
+		margin: 0 254px 0 150px;
 	}
 
 div#stream {
@@ -329,6 +411,21 @@ div.smallstatus {
 
 div.article {
 }
+	div.article table {
+		line-height: 0;
+	}
+	div.article img {
+		max-width: 100%;
+	}
+	div.article code, div.article pre {
+		background: #FAFAFA;
+		padding: 3px;
+		font-family: "Courier New", Courier;
+	}
+	div.article pre {
+		word-wrap: break-word;
+		padding: 10px;
+	}
 	div.article img.thumb {
 		float: left;
 		max-width: 150px;
@@ -415,3 +512,31 @@ div.article {
 					font-size: 11px;
 					color: #666;
 				}
+
+div.item.images {
+}
+	div.item.images a {
+		float: left;
+		width: 25%;
+		text-decoration: none;
+	}
+	div.item.images a:first-child {
+	}
+		div.item.images a img {
+			float: left;
+			width: 100%;
+		}
+		div.item.images a span {
+			position: absolute;
+			background: #FCFCFC;
+			border: 1px solid #D7D7D7;
+			border-left: none;
+			color: #666;
+			font-size: 16px;
+			display: none;
+			margin-top: 10px;
+			padding: 5px;
+		}
+		div.item.images a:hover span {
+			display: inline;
+		}

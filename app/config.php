@@ -23,8 +23,10 @@
 		'ajax' => $_SERVER['HTTP_HOST'] == 'ajax.feedbug.net',
 		'useragent' => 'Feedbug / v.' . FEEDBUG_VERSION,
 		'load' => array(
+			//js & css
 			'js' => 'js',
 			'css' => 'css',
+			//default
 			'default' => 'home',
 			'article' => 'article',
 		),
@@ -65,9 +67,10 @@
 			'LoggedIn' => array( 'Sucessfully logged in', 'success' ),
 			'LoggedOut' => array( 'You have logged out of Feedbug, come back soon!', 'success' ),
 			'MustLogin' => array( 'To do tha you need to login!', 'warning' ),
-			//posting
+			//posting & requests
 			'InvalidToken' => array( 'Invalid session token, please retry your last action', 'warning' ),
 			'InvalidPost' => array( 'Incorrect info was sent during the last action, please try again', 'warning' ),
+			'InvalidGet' => array( 'Invalid data was sent, please try again', 'warning' ),
 			//feed
 			'NoFeedFound' => array( 'Sorry but we could not find a feed on that website, please try another address or direct feed link', 'warning' ),
 			//source
@@ -76,6 +79,7 @@
 			//general errors
 			'DatabaseError' => array( 'Unfortunately there was some kind of database error!', 'warning' ),
 			'UnknownError' => array( 'An unknown error (eek!) occurred, please try again', 'warning' ),
+			'NotFound' => array( 'The page you requested could not be found!', 'warning' ),
 		),
 	);
 ?>

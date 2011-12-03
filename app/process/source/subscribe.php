@@ -28,7 +28,7 @@
 	//locate our source
 	$source = $mod_db->query( '
 		SELECT id
-		FROM nb_sources
+		FROM mod_sources
 		WHERE id = ' . $_POST['source_id'] . '
 		LIMIT 1
 	' );
@@ -39,7 +39,7 @@
 
 	//insert the subscription
 	$insert = $mod_db->query( '
-		REPLACE INTO nb_user_sources
+		REPLACE INTO mod_user_sources
 		( user_id, source_id )
 		VALUES( ' . $mod_user->get_userid() . ', ' . $_POST['source_id'] . ' )
 	' );

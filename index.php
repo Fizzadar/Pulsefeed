@@ -31,7 +31,7 @@
 
 	//message (after session to get that started)
 	$mod_message = new mod_message( $mod_config['messages'] );
-	
+
 	//process(must be posted)
 	if( isset( $_GET['process'] ) and isset( $mod_config['process'][$_GET['process']] ) ):
 		$mod_app->load( 'process/' . $mod_config['process'][$_GET['process']] );
@@ -42,14 +42,4 @@
 	else:
 		$mod_app->load( 'load/' . $mod_config['load']['default'] );
 	endif;
-
-	$mod_message->display();
-	$c_debug->display();
 ?>
-
-<form action="<?php echo $c_config['root']; ?>/?process=source-add" method="post">
-	enter a website or feed address
-	<input type="text" name="source_url" id="source_url" value="" />
-	<input type="submit" value="Add source &#187;" />
-	<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-</form>

@@ -13,18 +13,27 @@
 			return $this->get_date( 'U' );
 		}
 
+		//to-do: add get_endlink() to get the end like (i.e mashable.com > feedproxy.google.com)
+		
 		//get/save & generate locally image (select best/main/biggest image)
 		public function get_thumb() {
-			//if we've got an attached thumbnail, add it to our images
-			if( $e = $this->get_enclosure() and $e->get_thumbnail() )
-				$this->images[] = $e->get_thumbnail();
+			//if we've got an attached thumbnail, add it to our images (after saving!)
+			if( $e = $this->get_enclosure() and $e->get_thumbnail() and $e_thumb = $this->save_image( $e->get_thumbnail() ) )
+				$this->images[] = $e_thumb;
 
-			//loop the images for this item, pick the best (biggest?)
+			//to-do: search item description for images as well
+
+			//loop the images for this item, pick the best (biggest?) << to do: search by color (most colorful)
 			$max_size = 0;
 			$thumb_img = -1;
 			foreach( $this->images as $key => $image ):
+				//calculate size
 				$size = getimagesize( $image );
 				$size = $size[0] * $size[1];
+				//image too small? fuck it
+				if( $size < ( 200 * 110 ) )
+					continue;
+				//check max size
 				if( $size > $max_size ):
 					$thumb_img = $key;
 					$max_size = $size;
@@ -38,7 +47,7 @@
 				if( !file_exists( $thumb_name ) ):
 					//generate the thumbnail
 					$resize = new resize( $this->images[$thumb_img] );
-					$resize->resizeImage( 200, 100, 'crop' );
+					@$resize->resizeImage( 200, 110, 'crop' );
 					$resize->saveImage( $thumb_name );
 				endif;
 				//return the thumbnail
@@ -70,37 +79,20 @@
 				$img->width = 'auto';
 				$img->height = 'auto';
 
-				//work out the image extension
-				$ext = basename( $img->src ); //name only
-				$ext = explode( '?', $ext ); //split at query string
-				$ext = $ext[0]; //set to bit before query string
-				$ext = explode( '.', $ext ); //split at dot
-				$ext = $ext[count( $ext ) - 1]; //get item after last dot (extension)
-				//local name
-				$img_name = 'data/images/' . sha1( $img->src ) . '.' . $ext;
-
-				//allowed ext?
-				if( in_array( $ext, array( 'jpeg', 'jpg', 'png', 'gif' ) ) ):
-					//do we already have this?
-					if( !file_exists( $img_name ) ):
-						//download/save our image locally
-						$download = false;
-						$download = @file_put_contents( $img_name, @file_get_contents( $img->src ) );
-						//change src if downloaded & add to images
-						if( $download ):
-							$this->images[] = $img_name;
-							$img->src = $c_config['root'] . '/' . $img_name;
-						endif;
-					else:
-						//change src & add to available images
-						$this->images[] = $img_name;
-						$img->src = $c_config['root'] . '/' . $img_name;
-					endif;
+				//(try to) save the image locally
+				if( $img_name = $this->save_image( $img->src ) ):
+					$this->images[] = $img_name;
+					$img->src = $c_config['root'] . '/' . $img_name;
 				endif;
 
-				//testing
+				//testing/removing annoying feedburner shit
 				if( preg_match( '/feeds.feedburner.com/', $img->src ) )
-					$img->src= '';
+					$img->src= null;
+			endforeach;
+
+			//work links
+			foreach( $html->find( 'a' ) as $link ):
+				$link->target = '_blank';
 			endforeach;
 
 			//set article to our edited/fixed html
@@ -122,9 +114,14 @@
 
 			//build our summary
 			$summary = '';
-			foreach( $words as $id => $word )
-				if( $id < 30 )
+			$wordcount = 0;
+			foreach( $words as $id => $word ):
+				$word = trim( $word );
+				if( $wordcount < 30 and !empty( $word ) ):
 					$summary .= $word . ' ';
+					$wordcount++;
+				endif;
+			endforeach;
 			$summary = trim( $summary );
 
 			//summary smaller than article?
@@ -133,6 +130,39 @@
 
 			//return summary
 			return $summary;
+		}
+
+		//save a remote image locally
+		private function save_image( $image_url ) {
+			//work out the image extension
+			$ext = basename( $image_url ); //name only
+			$ext = explode( '?', $ext ); //split at query string
+			$ext = $ext[0]; //set to bit before query string
+			$ext = explode( '.', $ext ); //split at dot
+			$ext = $ext[count( $ext ) - 1]; //get item after last dot (extension)
+			//local name
+			$img_name = 'data/images/' . sha1( $image_url ) . '.' . $ext;
+
+			//allowed ext?
+			if( in_array( $ext, array( 'jpeg', 'jpg', 'png', 'gif' ) ) ):
+				//do we already have this?
+				if( !file_exists( $img_name ) ):
+					//download/save our image locally
+					$download = false;
+					if( $img_data = @file_get_contents( $image_url ) )
+						$download = @file_put_contents( $img_name, $img_data );
+					//change src if downloaded & add to images
+					if( $download ):
+						return $img_name;
+					endif;
+				else:
+					//file exists already, lets go
+					return $img_name;
+				endif;
+			endif;
+
+			//still here? aww
+			return false;
 		}
 	}
 ?>

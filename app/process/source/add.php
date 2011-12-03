@@ -39,7 +39,7 @@
 	$source_id = 0;
 	$exist = $mod_db->query( '
 		SELECT id
-		FROM nb_sources
+		FROM mod_sources
 		WHERE feed_url = "' . $feed['feed_url'] . '"
 		LIMIT 1
 	' );
@@ -49,7 +49,7 @@
 	else:
 		//create the source
 		$create = $mod_db->query( '
-			INSERT INTO nb_sources
+			INSERT INTO mod_sources
 			( site_title, site_url, feed_url, user_id, time )
 			VALUES ( "' . $feed['site_title'] . '", "' . $feed['site_url'] . '", "' . $feed['feed_url'] . '", ' . $mod_user->get_userid() . ', ' . time() . ' )
 		' );
