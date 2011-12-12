@@ -6,6 +6,7 @@
 
 	class mod_article extends SimplePie_Item {
 		private $images = array();
+		private $endlink;
 		private $article;
 
 		//return the time in unix epoch format
@@ -16,46 +17,74 @@
 		//to-do: add get_endlink() to get the end like (i.e mashable.com > feedproxy.google.com)
 		
 		//get/save & generate locally image (select best/main/biggest image)
-		public function get_thumb() {
+		public function get_thumbs() {
+			//config
+			$config = array(
+				'quarter' => array(
+					'w' => 200,
+					'h' => 110,
+				),
+				'third' => array(
+					'w' => 267,
+					'h' => 150,
+				),
+				'half' => array(
+					'w' => 400,
+					'h' => 220,
+				),
+				'wide' => array(
+					'w' => 800,
+					'h' => 220,
+				),
+			);
+
 			//if we've got an attached thumbnail, add it to our images (after saving!)
 			if( $e = $this->get_enclosure() and $e->get_thumbnail() and $e_thumb = $this->save_image( $e->get_thumbnail() ) )
 				$this->images[] = $e_thumb;
 
-			//to-do: search item description for images as well
+			$return = array();
 
-			//loop the images for this item, pick the best (biggest?) << to do: search by color (most colorful)
-			$max_size = 0;
-			$thumb_img = -1;
-			foreach( $this->images as $key => $image ):
-				//calculate size
-				$size = getimagesize( $image );
-				$size = $size[0] * $size[1];
-				//image too small? fuck it
-				if( $size < ( 200 * 110 ) )
-					continue;
-				//check max size
-				if( $size > $max_size ):
-					$thumb_img = $key;
-					$max_size = $size;
+			//loop size options
+			foreach( $config as $conf_key => $conf ):
+				//loop the images for this item, pick the best (biggest?)
+				$max_size = 0;
+				$thumb_img = -1;
+				foreach( $this->images as $key => $image ):
+					//calculate size
+					$s = getimagesize( $image );
+					$size = $s[0] * $s[1];
+					//image too small? fuck it
+					if( $size < ( $conf['w'] * $conf['h'] ) or $s[0] < $conf['w'] or $s[1] < $conf['h'] ):
+						continue;
+					endif;
+
+					//check some color shit (find most colorful)
+					//--COMINGSOON
+
+					//check max size
+					if( $size > $max_size ):
+						$thumb_img = $key;
+						$max_size = $size;
+					endif;
+				endforeach;
+
+				//got an image?
+				if( $thumb_img > -1 ):
+					$thumb_name = 'data/thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
+					//no thumb? generate it!
+					if( !file_exists( $thumb_name ) ):
+						//generate the thumbnail
+						$resize = new resize( $this->images[$thumb_img] );
+						@$resize->resizeImage( $conf['w'], $conf['h'], 'crop' );
+						@$resize->saveImage( $thumb_name );
+					endif;
+					//return the thumbnail
+					$return[$conf_key] = $thumb_name;
 				endif;
 			endforeach;
 
-			//got an image?
-			if( $thumb_img > -1 ):
-				$thumb_name = 'data/thumbs/' . basename( $this->images[$thumb_img] );
-				//no thumb? generate it!
-				if( !file_exists( $thumb_name ) ):
-					//generate the thumbnail
-					$resize = new resize( $this->images[$thumb_img] );
-					@$resize->resizeImage( 200, 110, 'crop' );
-					$resize->saveImage( $thumb_name );
-				endif;
-				//return the thumbnail
-				return $thumb_name;
-			endif;
-
 			//still here? obv no thumb
-			return false;
+			return $return;
 		}
 
 		//get/rip the article
@@ -117,7 +146,7 @@
 			$wordcount = 0;
 			foreach( $words as $id => $word ):
 				$word = trim( $word );
-				if( $wordcount < 30 and !empty( $word ) ):
+				if( $wordcount < 60 and !empty( $word ) ):
 					$summary .= $word . ' ';
 					$wordcount++;
 				endif;

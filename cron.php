@@ -1,12 +1,14 @@
 <?php
-	/*
-		file: cron.php
-		desc: runs the repeat-jobs (fetches articles, etc)
-	*/
+	//invalid cron?
+	if( !defined( 'STDIN' ) or !isset( $argv[1] ) or !in_array( $argv[1], array( 'popularity', 'update', 'cleanup' ) ) )
+		die( 'Invalid cron' );
 
-	//set the process
-	$_GET['process'] = 'cron';
-
-	//now get/load index
+	//set some stuff
+	$_SERVER['HTTP_HOST'] = '';
+	
+	//ok lets go
+	$_GET['process'] = 'cron-' . $argv[1];
 	require( 'index.php' );
+
+	exit( 1 );
 ?>
