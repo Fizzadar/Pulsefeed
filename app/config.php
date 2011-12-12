@@ -4,7 +4,7 @@
 		desc: configuration for feedbug app
 	*/
 	
-	define( 'FEEDBUG_VERSION', 0.1 );
+	define( 'PULSEFEED_VERSION', 0.1 );
 
 	//templates from hostnames!
 	$templates = array(
@@ -20,15 +20,20 @@
 		'dbpass' => 'root',
 		'template' => isset( $templates[$_SERVER['HTTP_HOST']] ) ? $templates[$_SERVER['HTTP_HOST']] : 'main',
 		'api' => $_SERVER['HTTP_HOST'] == 'api.feedbug.net',
-		'ajax' => $_SERVER['HTTP_HOST'] == 'ajax.feedbug.net',
-		'useragent' => 'Feedbug / v.' . FEEDBUG_VERSION,
+		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.feedbug.net' or isset( $_GET['ajax'] ) ),
+		'useragent' => 'Pulsefeed / v.' . PULSEFEED_VERSION,
 		'load' => array(
 			//js & css
 			'js' => 'js',
 			'css' => 'css',
 			//default
 			'default' => 'home',
+			//article
 			'article' => 'article',
+			//user/stream
+			'user' => 'user',
+			//source list
+			'source' => 'source',
 		),
 		'process' => array(
 			//user
@@ -45,7 +50,9 @@
 			//collection
 			'collection-new' => 'collection/new',
 			//cron
-			'cron' => 'cron',
+			'cron-update' => 'cron/update',
+			'cron-popularity' => 'cron/popularity',
+			'cron-cleanup' => 'cron/cleanup',
 		),
 		'libs' => array(
 			//internal libs
@@ -53,6 +60,10 @@
 			'mod_message' => 'message',
 			'mod_source' => 'source',
 			'mod_article' => 'article',
+			'mod_stream' => 'stream',
+			'mod_stream_site' => 'stream_site',
+			'mod_data' => 'data',
+			'mod_cookie' => 'cookie',
 			//external libs
 			'SimplePie' => 'external/simplepie',
 			'simple_html_dom' => 'external/simpledom',
@@ -71,7 +82,7 @@
 			'InvalidToken' => array( 'Invalid session token, please retry your last action', 'warning' ),
 			'InvalidPost' => array( 'Incorrect info was sent during the last action, please try again', 'warning' ),
 			'InvalidGet' => array( 'Invalid data was sent, please try again', 'warning' ),
-			//feed
+			//not found/etc
 			'NoFeedFound' => array( 'Sorry but we could not find a feed on that website, please try another address or direct feed link', 'warning' ),
 			//source
 			'NoSource' => array( 'The source you are trying to subscribe to doesn\'t exist!', 'warning' ),
@@ -80,6 +91,16 @@
 			'DatabaseError' => array( 'Unfortunately there was some kind of database error!', 'warning' ),
 			'UnknownError' => array( 'An unknown error (eek!) occurred, please try again', 'warning' ),
 			'NotFound' => array( 'The page you requested could not be found!', 'warning' ),
+		),
+		//how much each type of share/save is worth
+		'popularity' => array(
+			'hour' => 6, //points each hour of time is worth (removed)
+			'recommend' => 20, //internal recommendations
+			'facebook_shares' => 1,
+			'facebook_comments' => 0, //0 due to biased on blogs with fb comments?
+			'delicious_saves' => 10,
+			'twitter_links' => 5,
+			'digg_diggs' => 7,
 		),
 	);
 ?>

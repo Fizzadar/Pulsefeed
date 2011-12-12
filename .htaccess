@@ -1,5 +1,29 @@
+#Engage config!
 RewriteEngine On
 
-RewriteRule ^test(/api)?$ index.php?test=$1
 
-RewriteRule ^article/([0-9]+)$ index.php?load=article&id=$1
+#Error Docs
+#Document Code								#File
+#											#
+ErrorDocument 404							/inc/error/404.html
+ErrorDocument 500							/inc/error/500.html
+
+
+
+
+#Rewrites									#
+#RewriteRule								#Location
+#											#
+
+#Article
+RewriteRule ^article/([0-9]+)/original$		index.php?load=article&id=$1&original=1 [QSA,L]
+RewriteRule ^article/([0-9]+)$				index.php?load=article&id=$1 [QSA,L]
+
+
+#Source
+RewriteRule ^source/([0-9]+)$				index.php?load=source&id=$1 [QSA,L]
+
+
+#User
+RewriteRule ^user/([0-9]+)$					index.php?load=user&id=$1 [QSA,L]
+RewriteRule ^user/([0-9]+)/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]

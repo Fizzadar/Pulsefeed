@@ -1,9 +1,5 @@
-data/thumbs/*.jpg
-data/thumbs/*.png
-data/thumbs/*.gif
-data/thumbs/*.jpeg
-data/images/*.jpg
-data/images/*.png
-data/images/*.gif
-data/images/*.jpeg
+data/*.jpeg
+data/*.jpg
+data/*.png
+data/*.gif
 core/
