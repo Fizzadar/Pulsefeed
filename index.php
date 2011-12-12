@@ -29,8 +29,14 @@
 	$mod_session = new c_session;
 	$mod_token = $mod_session->generate();
 
+	//cookie management
+	$mod_cookie = new mod_cookie( 'feedbug_' );
+
 	//message (after session to get that started)
 	$mod_message = new mod_message( $mod_config['messages'] );
+
+	//data
+	$mod_data = new mod_data;
 
 	//process(must be posted)
 	if( isset( $_GET['process'] ) and isset( $mod_config['process'][$_GET['process']] ) ):
