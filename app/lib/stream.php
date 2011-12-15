@@ -160,6 +160,7 @@
 				$article['source_domain'] = $mod_data->domain_url( $article['source_url'] );
 				$article['type'] = 'article';
 				$article['recommended'] = ( isset( $article['recommended'] ) and is_numeric( $article['recommended'] ) and $article['recommended'] == $article['id'] );
+				$article['short_description'] = substr( $article['description'], 0, 150 ) . ( strlen( $article['description'] ) > 150 ? '...' : '' );
 				$return['items'][] = $article;
 			endforeach;
 			//recommendations
@@ -192,8 +193,9 @@
 			$order = 'mod_article.popularity';
 			switch( $this->stream_type ):
 				//unread
-				case 'hybrid':
 				case 'unread':
+					$order = 'mod_article.time';
+				case 'hybrid':
 					$extra_tables .= ', mod_user_unread';
 					break;
 				//all
@@ -229,6 +231,9 @@
 			switch( $this->stream_type ):
 				//unread only items
 				case 'hybrid':
+					$sql .= '
+						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
+					';
 				case 'unread':
 					$sql .= '
 						AND mod_user_unread.article_id = mod_article.id
@@ -237,9 +242,12 @@
 					break;
 				//popular
 				case 'popular':
+				case 'public':
 					$sql .= '
 						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
 					';
+					if( $this->stream_type == 'public' )
+						break;
 				//new
 				case 'newest':
 					$sql .= '
@@ -261,7 +269,7 @@
 			$sql .= '
 				GROUP BY mod_article.id
 				ORDER BY ' . $order . ' DESC
-				LIMIT ' . $this->offset . ', 64
+				LIMIT ' . $this->offset . ', 32
 			';
 
 			//run our query, return the data
@@ -355,11 +363,11 @@
 			//sort according to stream type
 			switch( $this->stream_type ):
 				case 'hybrid':
-				case 'unread':
 				case 'public':
 					$this->sort_poptime();
 					break;
 				case 'newest':
+				case 'unread':
 					$this->sort_time();
 					break;
 				case 'popular':

@@ -71,22 +71,33 @@
 					if( $got_item ) continue;
 
 					//try to stick two next to each other (as images if possible)
-					if( false and isset( $this->data['items'][$key + 1] ) and !empty( $item['image_half'] ) and !empty( $this->data['items'][$key + 1]['image_half'] ) ):
-						$template = 'item_half';
+					if( isset( $this->data['items'][$key + 1] ) ):
+						$template = false;
+
+						//two text-only items in a row?
+						if( empty( $item['image_quarter'] ) and empty( $this->data['items'][$key + 1]['image_quarter'] ) ):
+							$template = 'item_half';
+						endif;
+
+						//two half images in a row
 						if( !empty( $item['image_half'] ) and !empty( $this->data['items'][$key + 1]['image_half'] ) ):
 							$template = 'item_half_image';
 						endif;
-						$return[] = array(
-							'template' => $template,
-							'items' => array(
-								$item,
-								$this->data['items'][$key + 1]
-							)
-						);
-						unset( $this->data['items'][$key] );
-						unset( $this->data['items'][$key + 1] );
-						$got_item = true;
-						continue;
+
+						//template set?
+						if( $template ):
+							$return[] = array(
+								'template' => $template,
+								'items' => array(
+									$item,
+									$this->data['items'][$key + 1]
+								)
+							);
+							unset( $this->data['items'][$key] );
+							unset( $this->data['items'][$key + 1] );
+							$got_item = true;
+							continue;
+						endif;
 					endif;
 
 					//still here?

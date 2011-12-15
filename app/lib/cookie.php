@@ -13,6 +13,7 @@
 
 		public function set( $key, $value ) {
 			global $c_config;
+			$_COOKIE[$this->cookie_id . $key] = $value;
 			return setcookie( $this->cookie_id . $key, $value, time() + ( 3600 * 24 * 365 ), $c_config['dir'] );
 		}
 

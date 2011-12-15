@@ -4,7 +4,7 @@
 	//are we logged in? load hybrid feed
 	if( $mod_user->check_login() ):
 		$_GET['id'] = $mod_user->get_userid();
-		die( $mod_app->load( 'load/user' ) );
+		//die( $mod_app->load( 'load/user' ) );
 	endif;
 
 	//start template
