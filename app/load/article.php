@@ -5,7 +5,7 @@
 	*/
 	
 	//modules
-	global $mod_db, $mod_user, $mod_message, $mod_data;
+	global $mod_db, $mod_user, $mod_message, $mod_data, $mod_cookie;
 
 	//no id?
 	if( !isset( $_GET['id'] ) or !is_numeric( $_GET['id'] ) ):
@@ -54,6 +54,8 @@
 			AND article_id = ' . $article[0]['id'] . '
 			LIMIT 1
 		' );
+		if( $mod_cookie->get( 'Unread' ) )
+			$mod_cookie->set( 'Unread', $mod_cookie->get( 'Unread' ) - $mod_db->affected_rows() );
 	endif;
 
 	//load header

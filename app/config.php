@@ -41,6 +41,7 @@
 			'openid' => 'user/openid',
 			'login-facebook' => 'user/login',
 			'login-openid' => 'user/login',
+			'load' => 'user/load',
 			//source
 			'source-add' => 'source/add',
 			'source-subscribe' => 'source/subscribe',
