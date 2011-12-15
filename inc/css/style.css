@@ -13,7 +13,7 @@ body {
 }
 
 a {
-	color: #7A3C98;
+	color: #356FA8;
 	text-decoration: none;
 }
 a:hover {
@@ -58,10 +58,10 @@ div.wrap {
 div#top {
 	position: fixed;
 	top: 0;
-	z-index: 3;
+	z-index: 4;
 	width: 100%;
 	height: 40px;
-	background: #7A3C98;
+	background: #356FA8;
 	border-bottom: 1px solid #000;
 }
 	div#top h3 {
@@ -134,7 +134,7 @@ div#top {
 				color: #FFFFFF;
 			}
 			div#top ul#account:hover li.top a {
-				color: #7A3C98;
+				color: #356FA8;
 			}
 			div#top ul#account:hover li.top a:hover {
 				color: #1A1B1B;
@@ -229,8 +229,8 @@ div#messages {
 
 div#header {
 	margin-top: 0px;
-	position: relative;
-	z-index: 2;
+	position: fixed;
+	z-index: 3;
 	width: 100%;
 	background: #ECECEC;
 	border-bottom: 1px solid #C7C7C7;
@@ -289,7 +289,7 @@ div#header {
 			list-style: none;
 		}
 		div#header ul li label {
-			color: #7A3C98;
+			color: #356FA8;
 			cursor: pointer;
 		}
 		div#header ul li label:hover {
@@ -303,8 +303,9 @@ div#header {
 
 div#sidebars {
 	top: auto;
-	position: absolute;
+	position: fixed;
 	width: 100%;
+	top: 120px;
 }
 	div#sidebars div.bottom {
 		position: fixed;
@@ -336,7 +337,7 @@ div#sidebars {
 					margin-top: 0px;
 					margin-left: -22px;
 					border-radius: 3px;
-					opacity: 0.2;
+					opacity: 0;
 				}
 				div#sidebars div.left li.source img {
 					margin: 0;
@@ -453,7 +454,7 @@ div#sidebars {
 			div#sidebars div.right a.biglink span {
 				font-size: 16px;
 				font-family: Trebuchet MS;
-				color: #7A3C98;
+				color: #356FA8;
 				display: block;
 			}
 			div#sidebars div.right a.biglink:hover span {
@@ -463,6 +464,7 @@ div#sidebars {
 
 div#content {
 	margin-top: 30px;
+	padding-top: 90px;
 	position: relative;
 	z-index: 2;
 }
@@ -553,6 +555,13 @@ div.article {
 		font-family: Delicious;
 		font-weight: bold;
 	}
+		div.article h2 a, div.article h3 a, div.article h4 a {
+			color: #1A1B1B;
+			
+		}
+		div.article h2 a:hover, div.article h3 a:hover, div.article h4 a:hover {
+			color: #356FA8;
+		}
 	div.article.level_1 h2 {
 		font-size: 24px;
 		margin-bottom: 10px;
@@ -601,7 +610,7 @@ div.article {
 				color: #666;
 			}
 				div.article div.meta div.details span a {
-					color: #7A3C98;
+					color: #356FA8;
 				}
 		div.article div.meta ul.similar {
 			float: right;
@@ -633,11 +642,17 @@ div.article {
 
 div.article.half {
 }
+	div.article.half:hover div.meta {
+		opacity: 0.5;
+	}
 	div.article.half div.posthalf {
 		float: left;
 		width: 48%;
 		position: relative;
 	}
+		div.article.half div.posthalf:hover div.meta {
+			opacity: 1;
+		}
 	div.article.half div.posthalf:last-child {
 		float: right;
 	}
@@ -653,13 +668,16 @@ div.article.half {
 	div.item.article.half.image h2 a {
 		position: absolute;
 		background: #1A1B1B;
-		color: #F1F1F1;
+		color: #F3F3F3;
 		opacity: 0.8;
 		padding: 10px;
 		margin-top: -80px;
 		max-height: 45px;
 		overflow: hidden;
 	}
+		div.item.article.half.image h2 a:hover {
+			text-decoration: underline;
+		}
 
 div.item.images {
 }
