@@ -31,24 +31,24 @@
 		$url = $bits['scheme'] . '://' . $bits['host'] . $bits['path'];
 
 		//get facebook data
-		$fb = file_get_contents( 'http://graph.facebook.com/' . $url );
-		$fb = json_decode( $fb );
+		$fb = @file_get_contents( 'http://graph.facebook.com/' . $url );
+		$fb = @json_decode( $fb );
 		$fb_shares = isset( $fb->shares ) ? $fb->shares : 0;
 		$fb_comments = isset( $fb->comments ) ? $fb->comments : 0;
 
 		//get twitter data
-		$tw = file_get_contents( 'http://search.twitter.com/search.json?q=' . $url );
-		$tw = json_decode( $tw );
+		$tw = @file_get_contents( 'http://search.twitter.com/search.json?q=' . $url );
+		$tw = @json_decode( $tw );
 		$tw_links = count( $tw->results );
 
 		//get delicious data
-		$dl = file_get_contents( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) );
-		$dl = json_decode( $dl );
+		$dl = @file_get_contents( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) );
+		$dl = @json_decode( $dl );
 		$dl_saves = isset( $dl[0] ) ? $dl[0]->total_posts : 0;
 
 		//get digg data
-		$dg = file_get_contents( 'http://services.digg.com/2.0/story.getInfo?links=' . $url );
-		$dg = json_decode( $dg );
+		$dg = @file_get_contents( 'http://services.digg.com/2.0/story.getInfo?links=' . $url );
+		$dg = @json_decode( $dg );
 		$dg_diggs = isset( $dg->stories[0] ) ? $dg->stories[0]->diggs : 0;
 
 		//calculate popularity
