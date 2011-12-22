@@ -50,8 +50,8 @@ ul {
 
 div.wrap {
 	margin: 0 auto;
-	max-width: 1200px;
-	min-width: 980px;
+	max-width: 1300px;
+	min-width: 920px;
 	width: 96%;
 }
 
@@ -67,8 +67,9 @@ div#top {
 	div#top h3 {
 		margin: 0;
 		font-family: Delicious;
-		font-size: 20px;
-		font-weight: normal;
+		font-size: 24px;
+		font-weight: bold;
+		letter-spacing: 0px;
 		text-shadow: 1px 1px 1px #000000;
 		display: inline;
 	}
@@ -202,12 +203,14 @@ div#top {
 		}
 
 div#messages {
-	margin-top: 40px;
+	top: 98px;
 	position: relative;
+	margin-bottom: 50px;
 }
 	div#messages div.message {
 		font-size: 20px;
 		font-weight: bold;
+		font-family: Delicious;
 		height: 24px;
 		padding: 10px 0;
 	}
@@ -229,12 +232,13 @@ div#messages {
 
 div#header {
 	margin-top: 0px;
-	position: fixed;
+	position: absolute;
 	z-index: 3;
 	width: 100%;
 	background: #ECECEC;
 	border-bottom: 1px solid #C7C7C7;
 	border-top: 1px solid #fff;
+	top: 40px;
 }
 	div#header div.left, div#header div.right {
 		width: 140px;
@@ -303,9 +307,8 @@ div#header {
 
 div#sidebars {
 	top: auto;
-	position: fixed;
+	position: absolute;
 	width: 100%;
-	top: 120px;
 }
 	div#sidebars div.bottom {
 		position: fixed;
@@ -397,14 +400,14 @@ div#sidebars {
 					color: #999;
 					font-family: Verdana;
 					font-weight: normal;
-					display: none;
+					visibility: hidden;
 				}
 				div#sidebars div.left li span.type.shown {
-					display: inline;
+					visibility: visible;
 					line-height: 0;
 				}
 				div#sidebars div.left li:hover span.type {
-					display: inline;
+					visibility: visible;
 					line-height: 0;
 				}
 				div#sidebars div.left li ul {
@@ -414,15 +417,15 @@ div#sidebars {
 					margin-top: -22px;
 					background: #FFF;
 					padding: 0 5px;
-					width: 150px;
+					widthh: 200px;
 					border: 1px solid #D7D7D7;
 					display: none;
 				}
 					div#sidebars div.left li:hover ul span.type {
-						display: none;
+						visibility: hidden;
 					}
 					div#sidebars div.left li:hover ul li:hover span.type {
-						display: inline;
+						visibility: visible;
 					}
 	div#sidebars div.right {
 		width: 234px;
@@ -442,6 +445,11 @@ div#sidebars {
 		div#sidebars div.right a.biglink:hover {
 			background: #FCFCFC;
 		}
+			div#sidebars div.right a.biglink img {
+				float: left;
+				margin-right: 5px;
+				margin-top: 3px;
+			}
 		div#sidebars div.right div.biglinks {
 			margin-bottom: 20px;
 		}
@@ -548,6 +556,8 @@ div.article {
 	}
 	div.article img.thumb.alt {
 		float: right;
+		margin-right: 0;
+		margin-left: 10px;
 	}
 	div.article h2, div.article h3, div.article h4 {
 		margin: 0 0 5px 0;
