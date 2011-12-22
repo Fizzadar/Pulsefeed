@@ -12,12 +12,12 @@
 	//load modules
 	global $mod_db, $mod_config;
 
-	//24 hour update time
-	$update_time = time() - ( 3600 * 24 );
+	//48 hour update time
+	$update_time = time() - ( 3600 * $mod_config['article_expire'] );
 
-	//select articles to update (last 24 hours, 30 max, lowest popularity first [0 ones])
+	//select articles to update (last article_expire hours, 30 max, lowest popularity first [0 ones])
 	$articles = $mod_db->query( '
-		SELECT id, end_url
+		SELECT id, end_url, time, recommendations
 		FROM mod_article
 		WHERE time > ' . $update_time . '
 		ORDER BY popularity ASC
@@ -39,17 +39,17 @@
 		//get twitter data
 		$tw = @file_get_contents( 'http://search.twitter.com/search.json?q=' . $url );
 		$tw = @json_decode( $tw );
-		$tw_links = count( $tw->results );
+		$tw_links = is_array( $tw->results ) ? count( $tw->results ) : 0;
 
 		//get delicious data
 		$dl = @file_get_contents( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) );
 		$dl = @json_decode( $dl );
-		$dl_saves = isset( $dl[0] ) ? $dl[0]->total_posts : 0;
+		$dl_saves = ( is_array( $dl ) and isset( $dl[0] ) ) ? $dl[0]->total_posts : 0;
 
 		//get digg data
 		$dg = @file_get_contents( 'http://services.digg.com/2.0/story.getInfo?links=' . $url );
 		$dg = @json_decode( $dg );
-		$dg_diggs = isset( $dg->stories[0] ) ? $dg->stories[0]->diggs : 0;
+		$dg_diggs = ( is_array( $dg->stories ) and isset( $dg->stories[0] ) ) ? $dg->stories[0]->diggs : 0;
 
 		//calculate popularity
 		$pop = $fb_shares * $mod_config['popularity']['facebook_shares'];
@@ -57,6 +57,12 @@
 		$pop += $tw_links * $mod_config['popularity']['twitter_links'];
 		$pop += $dl_saves * $mod_config['popularity']['delicious_saves'];
 		$pop += $dg_diggs * $mod_config['popularity']['digg_diggs'];
+		$pop += $article['recommendations'] * $mod_config['popularity']['recommend'];
+
+		//calculate popularity time (poptime!)
+		$time = time() - $article['time'];
+		$time = round( $time / 3600 );
+		$pop_time = $pop - ( $time * $mod_config['popularity']['hour'] );
 
 		//update the article
 		$update = $mod_db->query( '
@@ -67,7 +73,8 @@
 				twitter_links = ' . $tw_links . ',
 				delicious_saves = ' . $dl_saves . ',
 				digg_diggs = ' . $dg_diggs . ',
-				popularity = ' . $pop . '
+				popularity = ' . $pop . ',
+				popularity_time = ' . $pop_time . '
 			WHERE id = ' . $article['id'] . '
 			LIMIT 1
 		' );

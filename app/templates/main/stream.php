@@ -207,7 +207,7 @@
 				</ul>
 			</div>
 
-			<h1><?php echo ucfirst( $this->content['title'] ); ?> Stream</h1>
+			<h1><?php echo $this->get( 'pageTitle' ); ?></h1>
 		</div><!--end wrap-->
 	</div><!--end header-->
 
@@ -220,13 +220,17 @@
 				else:
 					switch( $this->content['title'] ):
 						case 'hybrid':
+							echo 'popular unread articles';
+							break;
 						case 'public':
 						case 'popular':
 							echo 'popular articles';
 							break;
 						case 'newest':
-						case 'unread':
 							echo 'latest articles';
+							break;
+						case 'unread':
+							echo 'latest unread articles';
 							break;
 					endswitch;
 					echo isset( $_GET['list'] ) ? ', list style' : '';
@@ -338,19 +342,19 @@
 			<div class="right">
 				<div class="biglinks">
 					<a href="#" class="biglink">
-						<span>Pusefeed on your Mobile</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/phone.png" alt="" /> Pusefeed on your Mobile</span>
 						stay updated while on the move
 					</a>
 					<a href="#" class="biglink">
-						<span>Browser Addons</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/browser.png" alt="" /> Browser Addons</span>
 						install pulsefeed on your web-browser
 					</a>
 					<a href="#" class="biglink">
-						<span>Make a Suggestion</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/suggestion.png" alt="" /> Make a Suggestion</span>
 						how would you improve pulsefeed?
 					</a>
 					<a href="#" class="biglink">
-						<span>Pulsefeed API</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/api.png" alt="" /> Pulsefeed API</span>
 						develop services using our api
 					</a>
 				</div><!--end biglinks-->

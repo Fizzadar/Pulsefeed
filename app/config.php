@@ -103,5 +103,7 @@
 			'twitter_links' => 5,
 			'digg_diggs' => 7,
 		),
+		//expire time for articles
+		'article_expire' => 48,
 	);
 ?>

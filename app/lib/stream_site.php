@@ -21,18 +21,19 @@
 			while( count( $this->data['items'] ) > 0 and $item_count < 64 ):
 				$item_count++;
 
-				//first item
-				if( $item_count == 1 and isset( $this->data['items'][0] ) ):
+				//first item try wide
+				if( $item_count == 1 and isset( $this->data['items'][0] ) and !empty( $this->data['items'][0]['image_wide'] ) ):
 					$return[] = array(
-						'template' => empty( $this->data['items'][0]['image_wide'] ) ? 'item_wide' : 'item_wide_image',
+						'template' => 'item_wide_image',
 						'items' => array( $this->data['items'][0] )
 					);
 					unset( $this->data['items'][0] );
 					continue;
 				endif;
 
+/*
 				//second item (try two half images)
-				if( $item_count == 2 ):
+				if( $item_count == 2 and false ):
 					if( isset( $this->data['items'][1] ) and isset( $this->data['items'][2] ) and !empty( $this->data['items'][1]['image_half'] ) and !empty( $this->data['items'][2]['image_half'] ) ):
 						$return[] = array(
 								'template' => 'item_half_image',
@@ -64,6 +65,7 @@
 					endif;
 					continue;
 				endif;
+*/
 
 				//other items, one by one
 				$got_item = false;
@@ -100,7 +102,7 @@
 						endif;
 					endif;
 
-					//still here?
+					//still here, single image
 					$return[] = array(
 						'template' => 'item_wide',
 						'items' => array( $item )

@@ -7,7 +7,7 @@
 	//no time limits
 	set_time_limit( 0 );
 	//ignore abort
-	//ignore_user_abort( true );
+	ignore_user_abort( true );
 
 	//load modules
 	global $mod_db;
@@ -26,7 +26,7 @@
 
 	if( count( $sources ) < 1 )
 		echo 'No sources to be updated';
-		
+
 	//now loop the sources
 	foreach( $sources as $source ):
 		//load the feed
@@ -36,14 +36,14 @@
 		$skipped_count = 0;
 
 		//loop our items
-		foreach( $items as $item ):
+		foreach( $items as $key => $item ):
 			//skip duplicates
 			$got = $mod_db->query( '
 				SELECT id
 				FROM mod_article
 				WHERE url = "' . $item->get_permalink() . '"
-				LIMIT 1'
-			);
+				LIMIT 1
+			');
 			if( count( $got ) != 0 ):
 				$skipped_count++;
 				continue;
@@ -67,10 +67,16 @@
 				'time' => $item->get_time(),
 			);
 			$articles[] = $input;
+
+			//free the ram
+			unset( $article );
+			unset( $images );
 		endforeach;
+
 		//free some ram
 		unset( $items );
 		unset( $feed );
+
 		//clean all the items
 		$articles = $mod_db->clean( $articles );
 
@@ -137,4 +143,7 @@
 		' );
 		echo 'update <strong>complete</strong> on: ' . $source['feed_url'] . ', added <strong>' . count( $articles ) . '</strong> articles, ' . $skipped_count . ' skipped<br />';
 	endforeach;
+
+
+	echo 'update complete';
 ?>

@@ -99,17 +99,17 @@
 			<div class="right">
 				<div class="biglinks">
 					<a href="<?php echo $c_config['root']; ?>/article/<?php echo $this->content['article']['id']; ?>/original" class="biglink">
-						<span>View original article &rarr;</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/original.png" alt="" /> View original article &rarr;</span>
 						<?php echo $this->content['article']['trim_url']; ?>
 					</a>
 
 					<a href="#" class="biglink">
-						<span>Recommend this article</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/recommend.png" alt="" /> Recommend this article</span>
 						<?php echo $this->content['article']['recommendations']; ?> already have
 					</a>
 
 					<a href="#" class="biglink">
-						<span>Add to collection</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/collect.png" alt="" /> Add to collection</span>
 						Keep this article archived for later
 					</a>
 				</div><!--end biglinks-->

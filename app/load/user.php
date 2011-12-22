@@ -16,7 +16,7 @@
 
 	//check the user exists
 	$exists = $mod_db->query( '
-		SELECT id
+		SELECT name
 		FROM core_user
 		WHERE id = ' . $user_id . '
 		LIMIT 1
@@ -28,6 +28,12 @@
 	
 	//start template
 	$mod_template = new mod_template();
+
+	//set our username
+	if( $user_id == $mod_user->get_userid() )
+		$name = 'Your';
+	else
+		$name = $exists[0]['name'] . '\'s';
 
 	//load the users sources
 	$sources = $mod_db->query( '
@@ -79,6 +85,7 @@
 	//add data
 	$mod_template->add( 'stream', $mod_config['api'] ? $mod_stream->get_data() : $mod_stream->build() );
 	$mod_template->add( 'title', $stream_type );
+	$mod_template->add( 'pageTitle', $name . ' ' . ucfirst( $stream_type ) . ' Stream' );
 
 	//load templates
 	$mod_template->load( 'core/header' );

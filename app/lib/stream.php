@@ -69,27 +69,6 @@
 			$this->source_id = $id;
 		}
 
-		//calculate popularity+time (poptime)
-		private function calc_popularitytime( $item_id ) {
-			global $mod_config;
-			//get item
-			$item = $this->data['items'][$item_id];
-			//get time difference
-			$time = time() - $item['time'];
-			$time = round( $time / 3600 );
-			//chop off time * config
-			return $item['popularity'] - ( $time * $mod_config['popularity']['hour'] );
-		}
-
-		//calculate popularity (includes recommends)
-		private function calc_popularity( $item_id ) {
-			global $mod_config;
-			//get item
-			$item = $this->data['items'][$item_id];
-			//add recommendations * config
-			return $item['popularity'] + ( $item['recommendations'] * $mod_config['popularity']['recommend'] );
-		}
-
 		//usort poptime
 		private function usort_poptime( $a, $b ) {
 			return $a['popularity_time'] < $b['popularity_time'];
@@ -190,7 +169,7 @@
 				$logged_userid = $mod_user->get_userid();
 
 			$extra_tables = '';
-			$order = 'mod_article.popularity';
+			$order = 'mod_article.popularity_time';
 			switch( $this->stream_type ):
 				//unread
 				case 'unread':
@@ -213,7 +192,7 @@
 			//build query, start selecting basic stuff
 			$sql = '
 				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.image_wide, mod_article.facebook_shares, mod_article.facebook_comments, mod_article.delicious_saves, mod_article.twitter_links, mod_article.digg_diggs,
+					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_time, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.image_wide,
 					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended,' : '' ) . '
 					mod_source.site_title AS source_title, mod_source.site_url AS source_url
 				FROM
@@ -231,9 +210,6 @@
 			switch( $this->stream_type ):
 				//unread only items
 				case 'hybrid':
-					$sql .= '
-						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
-					';
 				case 'unread':
 					$sql .= '
 						AND mod_user_unread.article_id = mod_article.id
@@ -262,6 +238,7 @@
 						AND mod_stream_sources.stream_id = mod_stream.id
 						AND mod_stream.id = ' . $this->stream_id . '
 						AND mod_stream.user_id = ' . $this->user_id . '
+						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
 					';
 			endswitch;
 
@@ -339,26 +316,20 @@
 			//do we have our required info to start (user_id, stream_id, source_id)
 			switch( $this->stream_type ):
 				case 'user':
-					if( !$this->stream_id ) return false;
+					if( !isset( $this->stream_id ) ) return false;
 				case 'hybrid':
 				case 'unread':
 				case 'popular':
 				case 'newest':
-					if( !$this->user_id ) return false;
+					if( !isset( $this->user_id ) ) return false;
 					break;
 				case 'source':
-					if( !$this->source_id ) return false;
+					if( !isset( $this->source_id ) ) return false;
 			endswitch;
 			//load our articles & recommendations
 			$this->data = $this->load_data();
 			if( !$this->data )
 				return false;
-
-			//generate popularity time for each item
-			foreach( $this->data['items'] as $k => $item ):
-				$this->data['items'][$k]['popularity'] = $this->calc_popularity( $k );
-				$this->data['items'][$k]['popularity_time'] = $this->calc_popularitytime( $k );
-			endforeach;
 
 			//sort according to stream type
 			switch( $this->stream_type ):
