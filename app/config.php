@@ -32,6 +32,8 @@
 			'article' => 'article',
 			//user/stream
 			'user' => 'user',
+			//public stream
+			'public' => 'public',
 			//source list
 			'source' => 'source',
 		),

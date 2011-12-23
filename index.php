@@ -23,7 +23,7 @@
 	$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
 
 	//user
-	$mod_user = new c_user( $mod_db, 'feedbug_' );
+	$mod_user = new c_user( $mod_db, 'feedbug_', '346508828699100', '85804588b0a5a0e005bdca184dae17b5' );
 
 	//session
 	$mod_session = new c_session;

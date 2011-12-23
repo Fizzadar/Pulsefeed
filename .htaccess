@@ -1,4 +1,4 @@
-#Engage config! 
+#Engage config!
 RewriteEngine On
 
 
@@ -27,3 +27,7 @@ RewriteRule ^source/([0-9]+)$				index.php?load=source&id=$1 [QSA,L]
 #User
 RewriteRule ^user/([0-9]+)$					index.php?load=user&id=$1 [QSA,L]
 RewriteRule ^user/([0-9]+)/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]
+
+
+#Public
+RewriteRule ^public$						index.php?load=public [QSA,L]

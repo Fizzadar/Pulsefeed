@@ -14,7 +14,7 @@
 			'public', //24 hour all articles, sorted by pop + time
 			//'discover', //non-subscribed + popular recommendations listed as articles + popular unsubscribed articles, sorted by pop + time
 			'user', //user-created consisting of user sources
-			//'source', //stream from an individual source, sorted by time
+			'source', //stream from an individual source, sorted by time
 		);
 		private $db;
 		protected $stream_type; //stream type
@@ -127,12 +127,14 @@
 			);
 
 			//articles
-			foreach( $articles as $article ):
+			foreach( $articles as $key => $article ):
 				//find (& skip less popular) duplicate articles
 				$dup = false;
-				foreach( $articles as $a )
-					if( $article['title'] == $a['title'] and $article['popularity'] < $a['popularity'] )
+				foreach( $articles as $k => $a ):
+					if( $k != $key and $article['title'] == $a['title'] and $article['popularity'] <= $a['popularity'] ):
 						$dup = true;
+					endif;
+				endforeach;
 				if( $dup )
 					continue;
 
@@ -240,13 +242,19 @@
 						AND mod_stream.user_id = ' . $this->user_id . '
 						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
 					';
+					break;
+				//source stream
+				case 'source':
+					$sql .= '
+						AND mod_source.id = ' . $this->source_id . '
+					';
 			endswitch;
 
 			//end of query
 			$sql .= '
 				GROUP BY mod_article.id
 				ORDER BY ' . $order . ' DESC
-				LIMIT ' . $this->offset . ', 32
+				LIMIT ' . $this->offset . ', 64
 			';
 
 			//run our query, return the data
@@ -258,23 +266,18 @@
 
 		//load recommendations (from db)
 		private function load_recommendations() {
-			$extra_tables = '';
-			switch( $this->stream_type ):
-				case 'hybrid':
-					$extra_tables .= ', mod_user_unread';
-			endswitch;
-
 			//build query, start selecting basic stuff
 			$sql = '
 				SELECT
 					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.recommendations, mod_article.popularity, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.image_wide, mod_article.facebook_shares, mod_article.facebook_comments, mod_article.delicious_saves, mod_article.twitter_links, mod_article.digg_diggs,
 					core_user.id AS user_id, core_user.name AS user_name, mod_user_recommends.time
 				FROM
-					mod_article, core_user, mod_user_recommends, mod_user_follows' . $extra_tables . '
+					mod_article, core_user, mod_user_recommends, mod_user_follows
 				WHERE
 					mod_article.id = mod_user_recommends.article_id
 					AND mod_user_recommends.user_id = mod_user_follows.following_id
 					AND core_user.id = mod_user_recommends.user_id
+					AND mod_user_follows.user_id = ' . $this->user_id . '
 			';
 
 			//decide our where values according to feed type
@@ -283,16 +286,6 @@
 				case 'unread':
 				case 'user':
 					return array();
-				case 'hybrid':
-					$sql .= '
-						AND mod_user_unread.article_id = mod_article.id
-						AND mod_user_unread.user_id = ' . $this->user_id . '
-					';
-				case 'popular':
-				case 'newest':
-					$sql .= '
-						AND mod_user_follows.user_id = ' . $this->user_id . '
-					';
 			endswitch;
 
 			//end
@@ -339,6 +332,7 @@
 					break;
 				case 'newest':
 				case 'unread':
+				case 'source':
 					$this->sort_time();
 					break;
 				case 'popular':

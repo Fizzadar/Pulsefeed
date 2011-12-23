@@ -14,8 +14,11 @@
 			$number = 0;
 			$text = 'nanosecond';
 
+			//in the future?!
+			if( $diff < 0 ):
+				return 'in the future';
 			//less than a minute?
-			if( $diff < 60 ):
+			elseif( $diff < 60 ):
 				$number = $diff;
 				$text = 'second';
 			//less than an hour?

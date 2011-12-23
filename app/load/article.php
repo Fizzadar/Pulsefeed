@@ -35,7 +35,8 @@
 	$article[0]['site_domain'] = $mod_data->domain_url( $article[0]['site_url'] );
 	//add to template
 	$mod_template->add( 'article', $article[0] );
-
+	$mod_template->add( 'pageTitle', $article[0]['title'] );
+	
 	//external site?
 	$orig = false;
 	if( ( isset( $_GET['original'] ) and $_GET['original'] == 1 ) or $article[0]['not_full'] ):
@@ -54,8 +55,6 @@
 			AND article_id = ' . $article[0]['id'] . '
 			LIMIT 1
 		' );
-		if( $mod_cookie->get( 'Unread' ) )
-			$mod_cookie->set( 'Unread', $mod_cookie->get( 'Unread' ) - $mod_db->affected_rows() );
 	endif;
 
 	//load header

@@ -1,7 +1,7 @@
 <?php
 	/*
 		file: app/process/user/load.php
-		desc: load users unread count, etc
+		desc: load users settings
 	*/
 
 	//modules
@@ -13,13 +13,14 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
-	//select our unread
-	$unread = $mod_db->query( '
-		SELECT article_id
-		FROM mod_user_unread
-		WHERE user_id = ' . $mod_user->get_userid() . '
+	//load our settings
+	$settings = $mod_db->query( '
+		SELECT setting_color
+		FROM core_user
+		WHERE id = ' . $mod_user->get_userid() . '
+		LIMIT 1
 	' );
-	//unread?
-	if( $unread )
-		$mod_cookie->set( 'Unread', count( $unread ) );
+	if( isset( $settings ) and count( $settings ) == 1 ):
+		$mod_cookie->set( 'SettingColor', $settings[0]['setting_color'] );
+	endif;
 ?>

@@ -17,9 +17,29 @@
 			$return = array();
 			$item_count = 0;
 
-			//while we still have items to deal with/display
-			while( count( $this->data['items'] ) > 0 and $item_count < 64 ):
+			//while we still have items to deal with/display (item count just in case)
+			while( count( $this->data['items'] ) > 0 and $item_count < 200 ):
 				$item_count++;
+
+				//got a recommendation with a higher time than the next item?
+				if( $item_count > 1 ):
+					$insert = false;
+					foreach( $this->data['recommends'] as $key => $recommend ):
+						foreach( $this->data['items'] as $item ):
+							if( $recommend['time'] > $item['time'] ):
+								$return[] = array(
+									'template' => 'item_recommend',
+									'items' => array( $recommend )
+								);
+								unset( $this->data['recommends'][$key] );
+								$insert = true;
+								break;
+							endif;
+						endforeach;
+						if( $insert )
+							break;
+					endforeach;
+				endif;
 
 				//first item try wide
 				if( $item_count == 1 and isset( $this->data['items'][0] ) and !empty( $this->data['items'][0]['image_wide'] ) ):
