@@ -14,14 +14,26 @@
 	else
 		$user_id = $mod_user->get_userid();
 
+	//since id
+	$since_id = 0;
+	if( isset( $_GET['since'] ) and is_numeric( $_GET['since'] ) and $_GET['since'] > 0 )
+		$since_id = $_GET['since'];
+
+	//offset
+	$offset = 0;
+	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
+		$offset = $_GET['offset'];
+
 	//work out stream type
 	$stream_type = 'hybrid';
 	if( isset( $_GET['stream'] ) )
 		$stream_type = $_GET['stream'];
 
 	//public stream on user? no,no
-	if( $stream_type == 'public' )
+	if( $stream_type == 'public' ):
+		header( 'HTTP/1.1 301 Moved Permanently' );
 		die( header( 'Location: ' . $c_config['root'] . '/public' ) );
+	endif;
 
 	//check the user exists
 	$exists = $mod_db->query( '
@@ -103,7 +115,8 @@
 	//set user & stream id 
 	$mod_stream->set_userid( $user_id );
 	$mod_stream->set_streamid( $stream_id );
-	$mod_stream->set_offset( ( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) ) ? $_GET['offset'] : 0 );
+	$mod_stream->set_offset( $offset * 64 );
+	$mod_stream->set_sinceid( $since_id );
 
 	//prepare, ok to go after this
 	if( !$mod_stream->prepare() ):
@@ -117,6 +130,7 @@
 	$mod_template->add( 'pageTitle', $name . ' ' . ( isset( $stream_name ) ? $stream_name : ucfirst( $stream_type ) ) . ' Stream' );
 	$mod_template->add( 'userid', $user_id );
 	$mod_template->add( 'streamid', $stream_id );
+	$mod_template->add( 'nextOffset', $offset + 1 );
 
 	//load templates
 	$mod_template->load( 'core/header' );

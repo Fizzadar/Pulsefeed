@@ -1,4 +1,11 @@
-<?php global $mod_user, $mod_cookie; ?>
+<?php
+	global $mod_user, $mod_cookie;
+
+	if( $this->get( 'unread' ) ):
+?>
+<?php
+	endif;
+?>
 	<div id="header">
 		<div class="wrap">
 			<div class="left">
@@ -7,16 +14,13 @@
 				</a>
 			</div>
 
-			<div class="right">
-			</div>
-
 			<h1><?php echo $this->content['article']['title']; ?></h1>
 		</div><!--end wrap-->
 	</div><!--end header-->
 
 	<div class="wrap" id="content">
 		<div class="main" id="stream">
-			<div class="item article level_1">
+			<div class="item article articlepage level_1">
 				<span class="content">
 					<?php echo $this->content['article']['content']; ?>
 				</span>
@@ -44,11 +48,11 @@
 					<li class="title">Article Info</li>
 					<li>
 						<span class="type shown">date</span><br />
-						<?php echo date( 'jS F, Y', $this->content['article']['time'] ); ?>
+						<?php echo date( 'jS M Y', $this->content['article']['time'] ); ?>
 					</li>
 					<li>
 						<span class="type shown">source</span><br />
-						<a target="_blank" href="<?php echo $this->content['article']['site_url']; ?>">
+						<a href="<?php echo $c_config['root']; ?>/source/<?php echo $this->content['article']['site_id']; ?>">
 							<img src="http://www.google.com/s2/favicons?domain=<?php echo $this->content['article']['site_domain']; ?>" class="favicon" />
 							<?php echo $this->content['article']['site_title']; ?>
 						</a>

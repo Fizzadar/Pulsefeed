@@ -16,17 +16,18 @@
 			//ajax page? no cores
 			if( $mod_config['ajax'] && substr( $template, 0, 5 ) == 'core/' )
 				return;
+			//api page? nothing
+			if( $mod_config['api'] )
+				return;
 			//load template
 			parent::load( $template );
 		}
 
 		public function __destruct() {
-			global $mod_config, $c_debug, $mod_user;
+			global $mod_config;
 			//if api page, dump the content as json
 			if( $mod_config['api'] )
-				echo json_encode( parent::$content );
-			else
-				if( @$mod_user->check_permission( 'Debug' ) ) @$c_debug->display();
+				echo json_encode( $this->content );
 		}
 	}
 ?>

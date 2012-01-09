@@ -4,7 +4,7 @@ RewriteEngine On
 
 #Error Docs
 #Document Code								#File
-#											#
+
 ErrorDocument 404							/inc/error/404.html
 ErrorDocument 500							/inc/error/500.html
 
@@ -13,21 +13,43 @@ ErrorDocument 500							/inc/error/500.html
 
 #Rewrites									#
 #RewriteRule								#Location
-#											#
 
 #Article
 RewriteRule ^article/([0-9]+)/original$		index.php?load=article&id=$1&original=1 [QSA,L]
+RewriteRule ^article/([0-9]+)/recipe$		index.php?load=article&id=$1&recipe=1 [QSA,L]
 RewriteRule ^article/([0-9]+)$				index.php?load=article&id=$1 [QSA,L]
 
 
-#Source
+#Public Stream
+RewriteRule ^public$						index.php?load=public [QSA,L]
+
+#Source Stream
 RewriteRule ^source/([0-9]+)$				index.php?load=source&id=$1 [QSA,L]
 
 
-#User
+#Source Browsing
+RewriteRule ^sources$						index.php?load=source-browse [QSA,L]
+RewriteRule ^sources/add$					index.php?load=source-add [QSA,L]
+RewriteRule ^sources/([a-z0-9]+)$			index.php?load=source-browse&tag=$1 [QSA,L]
+
+
+#User Streams
 RewriteRule ^user/([0-9]+)$					index.php?load=user&id=$1 [QSA,L]
 RewriteRule ^user/([0-9]+)/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]
 
+#User Welcome
+RewriteRule ^user/welcome$					index.php?load=user-new [QSA,L]
 
-#Public
-RewriteRule ^public$						index.php?load=public [QSA,L]
+#User settings
+RewriteRule ^user/settings$					index.php?load=settings [QSA,L]
+RewriteRule ^user/settings/sources$			index.php?load=settings-sources [QSA,L]
+RewriteRule ^user/settings/collections$		index.php?load=settings-collections [QSA,L]
+RewriteRule ^user/settings/streams$			index.php?load=settings-streams [QSA,L]
+
+
+#Login Page
+RewriteRule ^login$							index.php?load=login [QSA,L]
+
+
+#Logout
+RewriteRule ^logout$						index.php?process=logout [QSA,L]

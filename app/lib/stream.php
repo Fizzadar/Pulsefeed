@@ -24,6 +24,7 @@
 		private $user_id;
 		public $valid = false;
 		private $offset = 0;
+		private $since_id = 0;
 
 		//setup
 		public function __construct( $db, $stream_type = 'hybrid' ) {
@@ -45,6 +46,12 @@
 			$this->valid = true;
 		}
 
+		//set since_id
+		public function set_sinceid( $id ) {
+			if( !is_numeric( $id ) ) return false;
+			$this->since_id = $id;
+		}
+		
 		//set offset
 		public function set_offset( $count ) {
 			if( !is_numeric( $count ) ) return false;
@@ -69,43 +76,19 @@
 			$this->source_id = $id;
 		}
 
-		//usort poptime
-		private function usort_poptime( $a, $b ) {
-			return $a['popularity_time'] < $b['popularity_time'];
-		}
+		//match end urls
+		private function match_endurls( $a, $b ) {
+			//equal?
+			if( $a == $b ) return true;
 
-		//usort pop
-		private function usort_pop( $a, $b ) {
-			return $a['popularity'] < $b['popularity'];
-		}
+			//a substring of b?
+			if( substr( $a, 0, strlen( $b ) ) == $b ) return true;
 
-		//usort time
-		private function usort_time( $a, $b ) {
-			return $a['time'] < $b['time'];
-		}
+			//b substring of a?
+			if( substr( $b, 0, strlen( $a ) ) == $a ) return true;
 
-		//sort data by pop_time
-		private function sort_poptime() {
-			if( !$this->data )
-				return false;
-			//sort
-			return usort( $this->data['items'], array( 'mod_stream', 'usort_poptime' ) );
-		}
-
-		//sort data by pop
-		private function sort_pop() {
-			if( !$this->data )
-				return false;
-			//sort
-			return usort( $this->data['items'], array( 'mod_stream', 'usort_pop' ) );
-		}
-
-		//sort data by time
-		private function sort_time() {
-			if( !$this->data )
-				return false;
-			//sort
-			return usort( $this->data['items'], array( 'mod_stream', 'usort_time' ) );
+			//fail
+			return false;
 		}
 
 		//load our data from the database
@@ -126,24 +109,30 @@
 				'recommends' => array()
 			);
 
+			//duplicates
+			$dups = array();
+
 			//articles
 			foreach( $articles as $key => $article ):
-				//find (& skip less popular) duplicate articles
-				$dup = false;
+				//no dupes
+				if( in_array( $key, $dups ) ) continue;
+
+				//check if duplicate
 				foreach( $articles as $k => $a ):
-					if( $k != $key and $article['title'] == $a['title'] and $article['popularity'] <= $a['popularity'] ):
-						$dup = true;
+					if( $k != $key and $this->match_endurls( $article['end_url'], $a['end_url'] ) ):
+						//$dups[] = $k;
 					endif;
 				endforeach;
-				if( $dup )
-					continue;
 
+				//work out stuffs
 				$article['source_domain'] = $mod_data->domain_url( $article['source_url'] );
 				$article['type'] = 'article';
 				$article['recommended'] = ( isset( $article['recommended'] ) and is_numeric( $article['recommended'] ) and $article['recommended'] == $article['id'] );
+				$article['unread'] = ( isset( $article['unread'] ) and is_numeric( $article['unread'] ) and $article['unread'] == $article['id'] );
 				$article['short_description'] = substr( $article['description'], 0, 150 ) . ( strlen( $article['description'] ) > 150 ? '...' : '' );
 				$return['items'][] = $article;
 			endforeach;
+
 			//recommendations
 			foreach( $recommendations as $key => $recommend ):
 				//already displaying the article?
@@ -165,13 +154,13 @@
 		//load articles (db)
 		private function load_articles() {
 			//get our logged in user (for recommend check)
-			global $mod_user;
+			global $mod_user, $mod_config;
 			$logged_userid = false;
 			if( $mod_user->check_login() )
 				$logged_userid = $mod_user->get_userid();
 
 			$extra_tables = '';
-			$order = 'mod_article.popularity_time';
+			$order = 'mod_article.popularity_score';
 			switch( $this->stream_type ):
 				//unread
 				case 'unread':
@@ -187,20 +176,25 @@
 					break;
 				//custom stream
 				case 'user':
+					$order = 'mod_article.time';
 					$extra_tables .= ', mod_stream, mod_stream_sources';
 					break;
+				//source
+				case 'source':
+					$order = 'mod_article.time';
 			endswitch;
 
 			//build query, start selecting basic stuff
 			$sql = '
 				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_time, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.image_wide,
-					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended,' : '' ) . '
+					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_score, mod_article.popularity_time, mod_article.image_quarter, mod_article.image_third, mod_article.image_half,
+					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended, uread.article_id AS unread,' : '' ) . '
 					mod_source.site_title AS source_title, mod_source.site_url AS source_url
 				FROM
 					' . (
 							$logged_userid ? 
-							'mod_article LEFT JOIN mod_user_recommends ON mod_article.id = mod_user_recommends.article_id AND mod_user_recommends.user_id = ' . $logged_userid . '' : 
+							'mod_article LEFT JOIN mod_user_recommends ON mod_article.id = mod_user_recommends.article_id AND mod_user_recommends.user_id = ' . $logged_userid . '
+							LEFT JOIN mod_user_unread AS uread ON mod_article.id = uread.article_id AND uread.user_id = ' . $logged_userid . '' : 
 							'mod_article'
 						) . ',
 					mod_source' . $extra_tables . '
@@ -212,6 +206,9 @@
 			switch( $this->stream_type ):
 				//unread only items
 				case 'hybrid':
+					$sql .= '
+						AND mod_article.popularity_score > 0
+					';
 				case 'unread':
 					$sql .= '
 						AND mod_user_unread.article_id = mod_article.id
@@ -222,10 +219,10 @@
 				case 'popular':
 				case 'public':
 					$sql .= '
-						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
+						AND mod_article.time > ' . ( time() - $mod_config['article_expire'] * 3600 ) . '
+						AND mod_article.popularity_score > 0
 					';
-					if( $this->stream_type == 'public' )
-						break;
+					if( $this->stream_type == 'public' ) break;
 				//new
 				case 'newest':
 					$sql .= '
@@ -240,7 +237,6 @@
 						AND mod_stream_sources.stream_id = mod_stream.id
 						AND mod_stream.id = ' . $this->stream_id . '
 						AND mod_stream.user_id = ' . $this->user_id . '
-						AND mod_article.time > ' . ( time() - 24 * 3600 ) . '
 					';
 					break;
 				//source stream
@@ -250,8 +246,9 @@
 					';
 			endswitch;
 
-			//end of query
+			//end of query (popularity_score must be above 0, aka must be ranked [min = 5])
 			$sql .= '
+				AND mod_article.id > ' . $this->since_id . '
 				GROUP BY mod_article.id
 				ORDER BY ' . $order . ' DESC
 				LIMIT ' . $this->offset . ', 64
@@ -266,10 +263,20 @@
 
 		//load recommendations (from db)
 		private function load_recommendations() {
+			//decide our where values according to feed type
+			switch( $this->stream_type ):
+				//nothing if unread & user streams
+				case 'unread':
+				case 'user':
+				case 'public':
+				case 'source':
+					return array();
+			endswitch;
+			
 			//build query, start selecting basic stuff
 			$sql = '
 				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.recommendations, mod_article.popularity, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.image_wide, mod_article.facebook_shares, mod_article.facebook_comments, mod_article.delicious_saves, mod_article.twitter_links, mod_article.digg_diggs,
+					mod_article.id, mod_article.source_id, mod_article.title,
 					core_user.id AS user_id, core_user.name AS user_name, mod_user_recommends.time
 				FROM
 					mod_article, core_user, mod_user_recommends, mod_user_follows
@@ -280,19 +287,11 @@
 					AND mod_user_follows.user_id = ' . $this->user_id . '
 			';
 
-			//decide our where values according to feed type
-			switch( $this->stream_type ):
-				//nothing if unread & user streams
-				case 'unread':
-				case 'user':
-					return array();
-			endswitch;
-
 			//end
 			$sql .= '
 				GROUP BY mod_article.id
 				ORDER BY mod_user_recommends.time
-				LIMIT ' . $this->offset . ', 32
+				LIMIT ' . $this->offset . ', 64
 			';
 
 			//run our query, return the data
@@ -324,21 +323,90 @@
 			if( !$this->data )
 				return false;
 
-			//sort according to stream type
+			//sort -> already sorted by poptime/pop/time, now to push articles to be from differing sources
 			switch( $this->stream_type ):
-				case 'hybrid':
-				case 'public':
-					$this->sort_poptime();
-					break;
-				case 'newest':
-				case 'unread':
-				case 'source':
-					$this->sort_time();
-					break;
 				case 'popular':
-					$this->sort_pop();
-					break;
+				case 'public':
+				case 'hybrid':
+					//array of used articles
+					$used_articles = array();
+
+					//get an array of our used source ids (none)
+					$source_ids = array();
+					foreach( $this->data['items'] as $item ):
+						$source_ids[] = 0;
+					endforeach;
+
+					//loop articles
+					$articles = array();
+					foreach( $this->data['items'] as $key => $item ):
+						//already used?
+						if( isset( $used_articles[$key] ) ) continue;
+
+						//less than two articles?
+						if( false and count( $articles ) < 2 ):
+							$articles[] = $item;
+							$used_articles[$key] = true;
+							$source_ids[$item['source_id']]++;
+							continue;
+						endif;
+
+						//has this source already got content (x2) in the stream? look for another.
+						if( $source_ids[$item['source_id']] > 2 ):
+							$found = false;
+
+							//locate an article with an unused source
+							foreach( $this->data['items'] as $k => $a ):
+								if( isset( $used_articles[$k] ) ) continue;
+
+								if( $source_ids[$a['source_id']] < 2 ):
+									$found = true;
+									$articles[] = $a;
+									$used_articles[$k] = true;
+									$source_ids[$a['source_id']]++;
+									break;
+								endif;
+							endforeach;
+
+							//found an article from an unused source? continue on
+							if( $found ):
+								continue;
+							endif;
+						endif;
+
+						//last two articles and this all from same source?
+						if( count( $articles ) > 1 and $item['source_id'] == $articles[count( $articles ) - 1]['source_id'] and $item['source_id'] == $articles[count( $articles ) - 2]['source_id'] ):
+							$found = false;
+
+							//find an article with a different source id
+							foreach( $this->data['items'] as $k => $a ):
+								if( isset( $used_articles[$k] ) ) continue;
+
+								if( $a['source_id'] != $item['source_id'] ):
+									$found = true;
+									$articles[] = $a;
+									$used_articles[$k] = true;
+									$source_ids[$a['source_id']]++;
+									break;
+								endif;
+							endforeach;
+
+							//did we find an article? woop woop
+							if( $found ):
+								continue;
+							endif;
+						endif;
+
+						//default action
+						$articles[] = $item;
+						$used_articles[$key] = true;
+						$source_ids[$item['source_id']]++;
+					endforeach;
+
+					//set our net articles
+					$this->data['items'] = $articles;
 			endswitch;
+			
 
 			return true;
 		}

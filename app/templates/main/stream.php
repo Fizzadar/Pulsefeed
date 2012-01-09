@@ -4,37 +4,46 @@
 		desc: stream template for main design
 	*/
 	
-	global $mod_data, $mod_user, $mod_cookie;
+	global $mod_data, $mod_user, $mod_cookie, $mod_token;
 ?>
 
+<?php if( !$this->get( 'mainOnly' ) ): ?>
 	<div id="header">
 		<div class="wrap">
 			<div class="left">
-				<a class="top">stream options &darr;</a>
-				<ul>
-					<li>
-						<?php if( isset( $_GET['list'] ) ): ?>
-						<a href="<?php echo str_replace( '?list', '', $_SERVER['REQUEST_URI'] ); ?>">Dynamic style</a>
-						<?php else: ?>
-						<a href="<?php echo $_SERVER['REQUEST_URI']; ?>?list">List style</a>
-						<?php endif; ?>
-				</ul>
-			</div>
-
-			<div class="right">
-				<a class="top">&darr; add source</a>
-				<ul>
-					<li><a href="#">Browse Sources</a></li>
-					<li><a href="#">Add a source</a></li>
-				</ul>
+				<?php if( $this->content['title'] != 'public' and $this->content['title'] != 'source' and $mod_user->session_login() ): ?>
+				<a href="<?php echo $c_config['root']; ?>/sources" class="button" onclick="$( '#add_source' ).slideToggle(); return false;">+ add sources</a>
+				<?php elseif( $this->content['title'] == 'source' and $mod_user->session_login() ): ?>
+					<?php if( $this->get( 'subscribed' ) ): ?>
+						<form action="<?php echo $c_config['root']; ?>/?process=source-unsubscribe" method="post">
+							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+							<input type="hidden" name="source_id" value="<?php echo $this->get( 'source_id' ); ?>" />
+							<input type="submit" value="Unsubscibe" class="button" />
+						</form>
+					<?php else: ?>
+						<form action="<?php echo $c_config['root']; ?>/?process=source-subscribe" method="post">
+							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+							<input type="hidden" name="source_id" value="<?php echo $this->get( 'source_id' ); ?>" />
+							<input type="submit" value="Subscibe" class="button" />
+						</form>
+					<?php endif; ?>
+				<?php endif; ?>
 			</div>
 
 			<h1><?php echo $this->get( 'pageTitle' ); ?></h1>
 		</div><!--end wrap-->
 	</div><!--end header-->
+<?php endif; ?>
 
 	<div class="wrap" id="content">
 		<div class="main" id="stream">
+
+			<div id="add_source" class="hidden">
+				<span class="edit">add sources / <a href="#" onclick="$( '#add_source' ).slideToggle(); return false;">close</a></span>
+				<a href="<?php echo $c_config['root']; ?>/sources" class="widelink">Browse Sources<span>Browse the directory of sources</span></a>
+				<a href="<?php echo $c_config['root']; ?>/sources/add" class="widelink right">Add Directly<span>Enter a website / feed url</span></a>
+			</div><!--end add_source-->
+
 			<span class="edit">
 			<?php
 				if( count( $this->content['stream'] ) < 1 ):
@@ -46,9 +55,9 @@
 							break;
 						case 'public':
 						case 'popular':
-						case 'user':
 							echo 'popular articles';
 							break;
+						case 'user':
 						case 'newest':
 						case 'source':
 							echo 'latest articles';
@@ -58,22 +67,17 @@
 							break;
 					endswitch;
 					echo isset( $_GET['list'] ) ? ', list style' : '';
+					echo ( $this->get( 'nextOffset' ) > 1 ) ? ', page ' . ( $this->get( 'nextOffset' ) ) : '';
 				endif;
 			?>
 			</span>
-
+			
 			<?php
 				//loop our items (layers within the stream)
 				foreach( $this->content['stream'] as $key => $item ):
-					if( isset( $_GET['list'] ) ):
-						$this->add( 'currentStreamItems', $item['items'] );
-						$this->add( 'currentStreamKey', $key );
-						$this->load( 'stream/item_wide_list' );
-					else:
-						$this->add( 'currentStreamItems', $item['items'] );
-						$this->add( 'currentStreamKey', $key );
-						$this->load( 'stream/' . $item['template'] );
-					endif;
+					$this->add( 'currentStreamItems', $item['items'] );
+					$this->add( 'currentStreamKey', $key );
+					$this->load( 'stream/' . $item['template'] );
 				endforeach;
 
 				//empty stream
@@ -81,77 +85,76 @@
 			?>
 				<div class="item article level_1">
 					<span class="content">
-					<h2>This stream is (currently) empty</h2>
-					<p>For whatever reason, there is no content to be displayed here now, please try one of the other streams listed on the left.</p>
-
-					<p>If this is one of your streams, it's probably empty because you don't have enough news sources or the ones you have don't update often enough. <a href="#">Manage your sources here</a>.</p>
+					<h2>There are no more articles :(</h2>
+					<p>We couldn't find any more articles for this stream.</p>
 					</span>
 				</div>
 			<?php
 				endif;
 			?>
+
+			<a class="morelink" href="?offset=<?php echo $this->get( 'nextOffset' ); ?>">load more articles &darr;</a>
 		</div><!--end main-->
 	</div><!--end content-->
 
-<div id="sidebars">
-
+<?php if( !$this->get( 'mainOnly' ) ): ?>
+	<div id="sidebars">
 		<div class="wrap">
-
 			<div class="left" id="leftbar">
 				<ul>
 					<li class="title">Streams <a href="#" class="edit">&larr; what?</a></li>
 					<?php if( $this->get( 'userid' ) ): ?>
 						<li>
 							<?php if( $this->content['title'] == 'hybrid' ): ?>
-							<u>Hybrid</u> &rarr;
+							Hybrid &rarr;
 							<?php else: ?>
-							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?><?php echo isset( $_GET['list'] ) ? '?list' : ''; ?>">Hybrid</a>
+							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>">Hybrid</a>
 							<?php endif; ?>
 						</li>
 						<li>
 							<?php if( $this->content['title'] == 'unread' ): ?>
-							<u>Unread</u> &rarr;
+							Unread &rarr;
 							<?php else: ?>
-							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/unread<?php echo isset( $_GET['list'] ) ? '?list' : ''; ?>">Unread</a>
+							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/unread">Unread</a>
 							<?php endif; ?>
 						</li>
 						<li>Discover <span class="type">coming soon</span></li>
 						<li>
 							<?php if( $this->content['title'] == 'popular' ): ?>
-							<u>Popular</u> &rarr;
+							Popular &rarr;
 							<?php else: ?>
-							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/popular<?php echo isset( $_GET['list'] ) ? '?list' : ''; ?>">Popular</a>
+							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/popular">Popular</a>
 							<?php endif; ?>
 						</li>
 						<li>
 							<?php if( $this->content['title'] == 'newest' ): ?>
-							<u>Newest</u> &rarr;
+							Newest &rarr;
 							<?php else: ?>
-							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/newest<?php echo isset( $_GET['list'] ) ? '?list' : ''; ?>">Newest</a>
+							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/newest">Newest</a>
 							<?php endif; ?>
 						</li>
 					<?php endif; ?>
 
 					<li>
 						<?php if( $this->get( 'title' ) == 'public' ): ?>
-							<u>All/Public</u> &rarr;
+							All/Public &rarr;
 						<?php else: ?>
-							<a href="<?php echo $c_config['root']; ?>/public<?php echo isset( $_GET['list'] ) ? '?list' : ''; ?>">All/Public</a>
+							<a href="<?php echo $c_config['root']; ?>/public">All/Public</a>
 						<?php endif; ?>
 					</li>
 
 					<?php if( $this->get( 'streams' ) ): foreach( $this->get( 'streams' ) as $stream ): ?>
 						<li>
 							<?php if( $this->get( 'streamid' ) == $stream['id'] ): ?>
-							<u><?php echo $stream['name']; ?></u> &rarr;
+							<?php echo $stream['name']; ?> &rarr;
 							<?php else: ?>
-							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/<?php echo $stream['id']; ?><?php echo isset( $_GET['list'] ) ? '?list' : ''; ?>"><?php echo $stream['name']; ?></a>
+							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/<?php echo $stream['id']; ?>"><?php echo $stream['name']; ?></a>
 							<?php endif; ?>
 						</li>
 					<?php endforeach; if( $mod_user->session_login() ): ?>
 
 						<li>
-							<a class="edit" href="#">add streams</a>
+							<a class="edit" href="<?php echo $c_config['root']; ?>/user/settings/streams">add streams</a>
 						</li>
 
 					<?php endif; endif; ?>
@@ -161,7 +164,7 @@
 				<ul>
 					<li class="title">Collections <a href="#" class="edit">edit</a></li>
 					<li>
-						<a href="#">Queenstown</a> <span class="type">10 articles</span>
+						<a href="#">Queenstown</a> <span class="type">1 article</span>
 					</li>
 					<li><a href="#">Web Design</a> <span class="type">5 articles</span></li>
 				</ul>
@@ -204,6 +207,6 @@
 
 				<img src="<?php echo $c_config['root']; ?>/inc/img/ads/234x60.gif" alt="" />
 			</div><!--end right-->
-
 		</div><!--end wrap-->
 	</div><!--end sidebars-->
+<?php endif; ?>

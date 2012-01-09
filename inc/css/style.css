@@ -1,3 +1,16 @@
+/*
+	fonts
+*/
+
+@font-face { font-family: Delicious; src: url( '../font/Delicious-Roman.otf' ); }
+@font-face { font-family: Delicious; font-weight: bold; src: url( '../font/Delicious-Bold.otf' ); }
+
+
+
+/*
+	basics
+*/
+
 html {
 	width: 100%;
 	min-height: 100%;
@@ -12,27 +25,18 @@ body {
 	min-height: 100%;
 }
 
+img {
+	border: none;
+}
+
 a {
-	color: #356FA8;
+	color: #454E9B;
 	text-decoration: none;
+	cursor: pointer;
 }
 a:hover {
 	color: #1A1B1B;
 	text-decoration: underline;
-}
-
-a.edit {
-	color: #666;
-	font-size: 11px;
-	font-family: Verdana;
-	text-transform: lowercase;
-}
-
-.left {
-	float: left;
-}
-.right {
-	float: right;
 }
 
 small {
@@ -48,11 +52,101 @@ ul {
 		list-style: square;
 	}
 
+form {
+	display: block;
+	margin: 20px 0;
+}
+	form label {
+		display: block;
+		font-family: Verdana;
+		color: #666;
+		font-size: 11px;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	form input {
+		display: block;
+		width: 300px;
+		border: 1px solid #D7D7D7;
+		font-size: 16px;
+		font-family: Trebuchet MS;
+		padding: 5px;
+		outline: none;
+		background: #FFF;
+		margin-bottom: 20px;
+	}
+	form input[type=submit] {
+		background: #454E9B;
+		border: 1px solid #454E9B;
+		border-left: 5px solid #D7D7D7;
+		color: #FFF;
+		min-width: 150px;
+		width: auto;
+		font-size: 14px;
+		margin-left: 0;
+		cursor: pointer;
+	}
+	form input:hover {
+		border: 1px solid #A7A7A7;
+	}
+	form input:focus {
+		background: #FFFECC;
+		border: 1px solid #A1A1A1;
+	}
+	form input[type=submit]:hover, form input[type=submit]:focus {
+		border: 1px solid #454E9B;
+		border-left: 5px solid #888;
+	}
+
+a.edit {
+	color: #666;
+	font-size: 11px;
+	font-family: Verdana;
+	text-transform: lowercase;
+}
+
+.button, form input.button {
+	padding: 3px 5px;
+	border: 1px solid #d7d7d7;
+	border-radius: 0px;
+	background: #FAFAFA;
+	color: #1a1b1b;
+	text-decoration: none;
+}
+	form input[type=submit].button {
+		float: none;
+		width: auto;
+		min-width: 0;
+		border: 1px solid #d7d7d7;
+		font-size: 13px;
+	}
+.button:hover, form input.button:hover {
+	background: #efefef;
+	border: 1px solid #d7d7d7;
+	text-decoration: none;
+}
+
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}
+
+.hidden {
+	display: none;
+}
+
+
+/*
+	layout
+*/
+
 div.wrap {
 	margin: 0 auto;
 	max-width: 1300px;
 	min-width: 920px;
-	width: 96%;
+	width: 86%;
 }
 
 div#top {
@@ -60,34 +154,41 @@ div#top {
 	top: 0;
 	z-index: 4;
 	width: 100%;
-	height: 40px;
-	background: #356FA8;
+	height: 35px;
+	background: #454E9B;
 	border-bottom: 1px solid #000;
 }
 	div#top h3 {
 		margin: 0;
-		font-family: Delicious;
+		font-family: Delicious, Arial;
 		font-size: 24px;
-		font-weight: bold;
+		font-weight: normal;
 		letter-spacing: 0px;
-		text-shadow: 1px 1px 1px #000000;
+		-text-shadow: 1px 1px 1px #000000;
 		display: inline;
 	}
 		div#top h3 a {
 			float: left;
-			padding-top: 9px;
+			padding-top: 5px;
+			padding-bottom: 1px;
 			color: #FFFFFF;
 			text-decoration: none;
-			background: url( ../img/pulse.png ) left 6px no-repeat;
+			background: url( ../img/pulse.png ) left 2px no-repeat;
 			padding-left: 35px;
 			margin-left: -35px;
+			position: absolute;
+		}
+		div#top h3 span {
+			position: absolute;
+			margin-top: 7px;
+			margin-left: 1px;
 		}
 	div#top span.external {
 		float: left;
-		margin-left: 20px;
+		margin-left: 110px;
 		font-size: 11px;
 		font-family: Verdana;
-		margin-top: 10px;
+		margin-top: 6px;
 		color: #FAFAFA;
 	}
 		div#top span.external a {
@@ -103,12 +204,16 @@ div#top {
 		border-top: none;
 		border-bottom: none;
 		padding: 0 10px;
-		margin-right: -10px;
+		margin-right: 0px;
 	}
 	div#top ul#account:hover {
 		background: #FFF;
 		color: #1A1B1B;
 		border-color: #C7C7C7;
+	}
+	div#top ul#account.nologin:hover {
+		background: transparent;
+		border-color: transparent;
 	}
 		div#top ul#account li {
 			list-style: none;
@@ -127,7 +232,7 @@ div#top {
 					margin-right: 0;
 				}
 		div#top ul#account li.top {
-			padding: 10px 0px 6px;
+			padding: 7px 0px 6px;
 			text-align: right;
 			width: 100%;
 		}
@@ -135,10 +240,13 @@ div#top {
 				color: #FFFFFF;
 			}
 			div#top ul#account:hover li.top a {
-				color: #356FA8;
+				color: #454E9B;
 			}
 			div#top ul#account:hover li.top a:hover {
 				color: #1A1B1B;
+			}
+			div#top ul#account.nologin:hover li.top a {
+				color: #FFF;
 			}
 		div#top ul#account:hover {
 			border-color: #000;
@@ -161,7 +269,7 @@ div#top {
 			margin: 0;
 			padding: 10px 10px 0 10px;
 			text-align: right;
-			margin-top: 40px;
+			margin-top: 35px;
 			margin-left: -11px;
 			border: 1px solid #C7C7C7;
 			border-top: none;
@@ -209,16 +317,18 @@ div#top {
 		}
 
 div#messages {
-	top: 98px;
+	top: 35px;
 	position: relative;
 	margin-bottom: 50px;
+	z-index: 3;
 }
 	div#messages div.message {
 		font-size: 20px;
 		font-weight: bold;
-		font-family: Delicious;
+		font-family: Delicious, Arial;
 		height: 24px;
 		padding: 10px 0;
+		cursor: pointer;
 	}
 		div#messages div.message div.wrap {
 			text-indent: 150px;
@@ -235,24 +345,38 @@ div#messages {
 			text-shadow: 1px 1px 1px #FFF;
 			background: #FEEFB3;
 		}
+	div#messages span.right {
+		float: right;
+		margin-right: 120px;
+		text-indent: 0;
+	}
 
 div#header {
-	margin-top: 0px;
+	margin-top: -15px;
 	position: absolute;
 	z-index: 3;
 	width: 100%;
 	background: #ECECEC;
-	border-bottom: 1px solid #C7C7C7;
-	border-top: 1px solid #fff;
-	top: 40px;
+	background: #FFF;
+	border-bottom: 0px solid #D7D7D7;
+	top: auto;
+	height: 43px;
 }
 	div#header div.left, div#header div.right {
 		width: 140px;
 		margin-right: 10px;
+		margin-top: 1px;
+		padding-top: 19px;
 	}
+	div#header div.left {
+		border-right: 1px solid #D7D7D7;
+		width: 130px;
+	}
+		div#header div.left form {
+			margin: 0;
+		}
 	div#header div.right {
 		text-align: right;
-		margin-right: 0;
 	}
 	div#header a.top {
 		display: block;
@@ -299,7 +423,7 @@ div#header {
 			list-style: none;
 		}
 		div#header ul li label {
-			color: #356FA8;
+			color: #454E9B;
 			cursor: pointer;
 		}
 		div#header ul li label:hover {
@@ -307,12 +431,20 @@ div#header {
 		}
 	div#header h1 {
 		font-size: 24px;
-		font-family: Delicious;
+		padding-top: 20px;
+		margin-top: 0;
+		font-family: Delicious, Arial;
 		font-weight: normal;
+		margin-left: 130px;
+		border-left: 1px solid #D7D7D7;
+		padding-left: 20px;
+		padding-bottom: 15px;
+	}
+	div#header h1.noborder {
+		border-left: 1px solid #FFF;
 	}
 
 div#sidebars {
-	top: auto;
 	position: absolute;
 	width: 100%;
 }
@@ -321,8 +453,13 @@ div#sidebars {
 		bottom: 20px;
 	}
 	div#sidebars div.left {
-		width: 140px;
+		width: 130px;
 		margin-right: 0px;
+		border-right: 1px solid #D7D7D7;
+		padding: 46px 0;
+	}
+	div#sidebars div.left.noborder {
+		border-right: 0;
 	}
 		div#sidebars div.left ul {
 			margin: 0 0 30px 0;
@@ -335,11 +472,16 @@ div#sidebars {
 			}
 			div#sidebars div.left li.title {
 				font-weight: bold;
+				border-bottom: 1px solid #D7D7D7;
 			}
 				div#sidebars div.left li.title a.edit {
 					font-weight: normal;
 					display: none;
 					line-height: 0;
+				}
+				div#sidebars div.left li.title a.edit:hover {
+					text-decoration: none;
+					color: #1A1B1B;
 				}
 				div#sidebars div.left li img {
 					float: left;
@@ -348,11 +490,15 @@ div#sidebars {
 					border-radius: 3px;
 					opacity: 0;
 				}
+			div#sidebars div.left li.source {
+				float: left;
+				margin: 0;
+				padding-right: 5px;
+				padding-bottom: 5px;
+			}
 				div#sidebars div.left li.source img {
 					margin: 0;
-					opacity: 0.2;
-					margin-right: 3px;
-					margin-bottom: 3px;
+					opacity: 0.6;
 				}
 					div#sidebars div.left li.source a {
 						text-decoration: none;
@@ -361,6 +507,8 @@ div#sidebars {
 						position: absolute;
 						z-index: 9;
 						display: none;
+						top: auto;
+						left: auto;
 						margin-top: -43px;
 						margin-left: -70px;
 						padding-bottom: 16px;
@@ -380,7 +528,7 @@ div#sidebars {
 						background: #FFF;
 						text-align: center;
 					}
-					div#sidebars div.left li.source:hover span {
+					div#sidebars div.left li.source a:hover span {
 						display: inline;
 					}
 				div#sidebars div.left li img.favicon {
@@ -435,7 +583,7 @@ div#sidebars {
 					}
 	div#sidebars div.right {
 		width: 234px;
-		margin-top: -10px;
+		margin-top: 35px;
 	}
 		div#sidebars div.right a.biglink {
 			font-size: 11px;
@@ -468,33 +616,108 @@ div#sidebars {
 			div#sidebars div.right a.biglink span {
 				font-size: 16px;
 				font-family: Trebuchet MS;
-				color: #356FA8;
+				color: #454E9B;
 				display: block;
 			}
 			div#sidebars div.right a.biglink:hover span {
 				color: #1A1B1B;
 				text-decoration: underline;
 			}
+		div#sidebars h3 {
+			font-weight: normal;
+		}
+
+
+
+/*
+	main
+*/
+div.main {
+	margin: 0 254px 0 130px;
+	padding-left: 20px;
+	float: left;
+}
+div.main.wide {
+	margin-right: 0;
+}
 
 div#content {
-	margin-top: 30px;
-	padding-top: 90px;
+	margin-top: 0px;
+	padding-top: 29px;
 	position: relative;
 	z-index: 2;
 }
 	div#content div.main {
-		margin: 0 254px 0 150px;
+		padding-top: 15px;
 	}
 
 	div.main span.edit {
-		float: left;
 		font-size: 11px;
 		font-family: Verdana;
 		color: #999;
 		line-height: 20px;
-		margin-top: -20px;
+		display: block;
 	}
 
+	div.main a.widelink {
+		width: 30%;
+		float: left;
+		text-align: center;
+		background: #F7F7F7;
+		padding: 8% 10%;
+		margin-bottom: 20px;
+		border-top-left-radius: 5px;
+		border-bottom-left-radius: 5px;
+		font-size: 18px;
+	}
+	div.main a.widelink:hover {
+		background: #F1F1F1;
+		text-decoration: none;
+	}
+	div.main a.widelink.right {
+		border-radius: 0;
+		border-top-right-radius: 5px;
+		border-bottom-right-radius: 5px;
+	}
+		div.main a.widelink span {
+			display: block;
+			font-size: 13px;
+		}
+	div.main a.quarterlink {
+		float: left;
+		width: 25%;
+		opacity: 0.6;
+		overflow: hidden;
+	}
+		div.main a.quarterlink img {
+			width: 98%;
+		}
+	div.main a.quarterlink:hover {
+		opacity: 1;
+	}
+
+	div.main a.morelink {
+		font-size: 24px;
+		font-family: Delicious, Arial;
+		display: block;
+		text-align: center;
+		background: #FAFAFA;
+		float: left;
+		width: 100%;
+		padding: 20px 0;
+		border-bottom-left-radius: 5px;
+		border-bottom-right-radius: 5px;
+	}
+	div.main a.morelink:hover {
+		background: #F1F1F1;
+		text-decoration: none;
+	}
+
+
+
+/*
+	stream
+*/
 div#stream {
 }
 	div#stream div.item {
@@ -524,17 +747,26 @@ div.smallstatus {
 		opacity: 1;
 	}
 
+
+/*
+	article
+*/
 div.article {
 	font-size: 13px;
 }
 	div#stream div.article {
 		font-size: 13px;
 	}
+	div#stream div.article.articlepage {
+		font-size: 15px;
+		line-height: 25px;
+	}
 	div.article table {
 		line-height: 0;
 	}
 	div.article img {
 		max-width: 60%;
+		margin: 5px;
 	}
 	div.article blockquote {
 		border-left: 10px solid #FAFAFA;
@@ -550,12 +782,11 @@ div.article {
 		font-family: "Courier New", Courier;
 	}
 	div.article pre {
-		word-wrap: break-word;
+		white-space: pre-line;
 		padding: 10px;
 	}
 	div.article img.thumb {
 		float: left;
-		max-width: 200px;
 		padding: 3px;
 		margin-right: 10px;
 		background: #F7F7F7;
@@ -569,7 +800,7 @@ div.article {
 	div.article h2, div.article h3, div.article h4 {
 		margin: 0 0 5px 0;
 		font-family: Arial;
-		font-family: Delicious;
+		font-family: Delicious, Arial;
 		font-weight: bold;
 	}
 		div.article h2 a, div.article h3 a, div.article h4 a {
@@ -577,7 +808,8 @@ div.article {
 			
 		}
 		div.article h2 a:hover, div.article h3 a:hover, div.article h4 a:hover {
-			color: #356FA8;
+			color: #454E9B;
+			text-decoration: none;
 		}
 	div.article.level_1 h2 {
 		font-size: 24px;
@@ -601,14 +833,14 @@ div.article {
 	div.article div.meta {
 		clear: both;
 		padding-top: 5px;
-		opacity: 0.5;
+		opacity: 0.6;
 	}
 	div.article:hover div.meta {
 		opacity: 1;
 	}
 		div.article div.meta div.details {
 			float: left;
-			width: 100%;
+			width: 50%;
 		}
 			div.article div.meta div.details img {
 				float: left;
@@ -627,7 +859,7 @@ div.article {
 				color: #666;
 			}
 				div.article div.meta div.details span a {
-					color: #356FA8;
+					color: #454E9B;
 				}
 		div.article div.meta ul.similar {
 			float: right;
@@ -656,6 +888,27 @@ div.article {
 					font-size: 11px;
 					color: #666;
 				}
+				div.article div.meta form {
+					margin: 0;
+					display: inline;
+					width: auto;
+				}
+					div.article div.meta form input {
+						background: transparent;
+						font-size: 11px;
+						border: none;
+						color: #454E9B;
+						font-family: Verdana;
+						display: inline;
+						width: auto;
+						margin: 0;
+						padding: 0;
+						min-width: 0;
+					}
+					div.article div.meta form input:hover {
+						color: #1A1B1B;
+						text-decoration: underline;
+					}
 
 div.article.half {
 }
@@ -695,6 +948,9 @@ div.article.half {
 		div.item.article.half.image h2 a:hover {
 			text-decoration: underline;
 		}
+	div.item.article.half div.details {
+		width: 100%;
+	}
 
 div.item.images {
 }
@@ -734,7 +990,7 @@ div.item.images {
 
 div.item.wide_image {
 }
-	div.item.wide_image h2 a {
+	div.item.wide_image h2 a, div.item.wide_image h2 a:hover {
 		position: absolute;
 		background: #1A1B1B;
 		color: #F1F1F1;
@@ -750,7 +1006,7 @@ div.item.wide_image {
 div#article_frame {
 	width: 100%;
 	position: absolute;
-	top: 41px;
+	top: 36px;
 	bottom: 0px;
 }
 	div#article_frame iframe {
@@ -758,3 +1014,208 @@ div#article_frame {
 		width: 100%;
 		height: 100%;
 	}
+
+
+/*
+	home
+*/
+div#home {
+	position: relative;
+	z-index: 2;
+}
+
+div#home-info {
+	display: block;
+	float: left;
+	width: 100%;
+	padding-top: 70px;
+	padding-bottom: 20px;
+	background: #F7F7F7;
+	margin-top: -15px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+	div#home-info h3 {
+		font-size: 100px;
+		font-family: Georgia;
+		font-weight: normal;
+		font-style: italic;
+		text-align: center;
+		margin-top: 0;
+		margin-bottom: 70px;
+	}
+	div#home-info h1 {
+		font-weight: normal;
+		text-align: center;
+		font-family: Delicious;
+		line-height: 34px;
+		margin-top: 0;
+	}
+	div#home-login img {
+		opacity: 0.6;
+	}
+	div#home-login img:hover {
+		opacity: 1;
+	}
+
+div.home-boxes {
+	float: left;
+	width: 100%;
+}
+	div.home-boxes div {
+		float: left;
+		width: 32%;
+		text-align: center;
+		border-bottom: 1px dashed #D7D7D7;
+		border-right: 1px dashed #D7D7D7;
+		padding-bottom: 20px;
+		margin-top: 40px;
+	}
+	div.home-boxes div:first-child {
+		padding-right: 2%;
+		margin-left: -1px;
+	}
+	div.home-boxes div:last-child {
+		float: right;
+		padding-left: 2%;
+		border-right: 0;
+		margin-right: -1px;
+	}
+	div.home-boxes:last-child div {
+		border-bottom: 0;
+		margin-top: 0;
+	}
+		div.home-boxes div h2 {
+			font-family: Delicious;
+			font-weight: bold;
+		}
+		div.home-boxes div p {
+			font-size: 16px;
+		}
+
+div.biglinks.home {
+	margin-top: 10px;
+}
+		div#sidebars div.biglinks.home a.biglink {
+			background: transparent;
+		}
+
+
+
+/*
+	footer
+*/
+div#footer {
+	float: left;
+	width: 100%;
+	margin-top: 50px;
+	margin-bottom: 20px;
+}
+	div#footer div.wrap {
+		position: relative;
+		z-index: 2;
+	}
+	div#footer div#links {
+		margin: 0 254px 0 150px;
+	}
+		div#footer div#links ul {
+			float: left;
+			width: 23%;
+			margin: 0;
+			padding: 0;
+			margin-right: 2%;
+		}
+		div#footer div#links ul:first-child {
+			margin-right: 3%;
+		}
+		div#footer div#links ul:last-child {
+			float: right;
+			margin-right: 0;
+		}
+			div#footer div#links ul li {
+				list-style: none;
+			}
+			div#footer div#links ul li.title {
+				font-size: 14px;
+				font-weight: bold;
+			}
+				div#footer div#links ul li a {
+					display: block;
+					margin-left: -5px;
+					padding: 2px 5px;
+				}
+				div#footer div#links ul li a:hover {
+					background: #F7F7F7;
+				}
+
+
+
+/*
+	source browser
+*/
+div#sources {
+	float: left;
+	width: 100%;
+	position: relative;
+	z-index: 2;
+}
+div.source {
+	float: left;
+	width: 33%;
+	margin-bottom: 20px;
+	word-wrap: break-word;
+}
+	div.source img {
+		float: left;
+		width: 30%;
+		margin-right: 10px;
+		margin-top: 10px;
+	}
+	div.source h2 {
+		margin: 0;
+		font-weight: normal;
+		font-family: Delicious, Arial;
+	}
+		div.source h2 a {
+			color: #1A1B1B;
+		}
+		div.source h2 a:hover {
+			text-decoration: none;
+			color: #454E9B;
+		}
+	div.source span {
+		display: block;
+		font-size: 11px;
+		font-family: Verdana;
+		color: #666;
+	}
+		div.source span a {
+			color: #888;
+		}
+	div.source span.url {
+		margin-top: -3px;
+		margin-bottom: -5px;
+	}
+	div.source form {
+		display: inline;
+	}
+		div#sources form input {
+			width: auto;
+			min-width: 0;
+			padding: 3px 5px;
+			border: 1px solid #d7d7d7;
+			border-radius: 0px;
+			background: #FAFAFA;
+			color: #1a1b1b;
+			text-decoration: none;
+			font-size: 13px;
+		}
+		div#sources form input:hover {
+			background: #efefef;
+		}
+		div#sources form input.unsubscribe {
+			background: transparent;
+			border: 1px solid transparent;
+			padding-left: 0;
+			color: #666;
+		}

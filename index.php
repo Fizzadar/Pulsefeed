@@ -3,18 +3,21 @@
 		 _____           _ _           
 		|   __|___ ___ _| | |_ _ _ ___ 
 		|   __| -_| -_| . | . | | | . |
-		|__|  |___|___|___|___|___|_  |
+		|__|  |___|___|___|___|___|_  |  <--- pulsefeed that
 		                          |___|
                           
 		file: index.php
 		desc: class loading, app routing
 	*/
-
+	
 	//get the config
 	require( 'app/config.php' );
 	
 	//get the core
 	require( 'core/core.php' );
+
+	//enable debug
+	$c_debug->enable();
 
 	//start the app
 	$mod_app = new c_app( $mod_config['libs'] );
@@ -22,8 +25,10 @@
 	//start our db
 	$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
 
-	//user
-	$mod_user = new c_user( $mod_db, 'feedbug_', '346508828699100', '85804588b0a5a0e005bdca184dae17b5' );
+	//user & setup
+	$mod_user = new c_user( $mod_db, 'feedbug_' );
+	$mod_user->set_facebook( '346508828699100', '85804588b0a5a0e005bdca184dae17b5' );
+	$mod_user->set_twitter( '9CxR2vqndROknYPJ9vlpw', 'bPnQZYzamUsUoqmdsuztxBmNwEqiqDSsg9IVj9WujyA' );
 
 	//session
 	$mod_session = new c_session;
@@ -48,4 +53,7 @@
 	else:
 		$mod_app->load( 'load/' . $mod_config['load']['default'] );
 	endif;
+
+	//debug
+	$c_debug->display();
 ?>

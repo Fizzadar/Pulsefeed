@@ -6,16 +6,14 @@
 
 	class mod_article extends SimplePie_Item {
 		private $images = array();
-		private $endlink;
-		private $article;
+		private $endlink = false;
+		private $article = false;
 
 		//return the time in unix epoch format
 		public function get_time() {
 			return $this->get_date( 'U' );
 		}
 
-		//to-do: add get_endlink() to get the end like (i.e mashable.com > feedproxy.google.com)
-		
 		//get/save & generate locally image (select best/main/biggest image)
 		public function get_thumbs() {
 			//config
@@ -30,10 +28,6 @@
 				),
 				'half' => array(
 					'w' => 400,
-					'h' => 220,
-				),
-				'wide' => array(
-					'w' => 800,
 					'h' => 220,
 				),
 			);
@@ -87,17 +81,90 @@
 			return $return;
 		}
 
-		//get/rip the article
-		public function get_article( $hack = '' ) {
+		//get end url
+		public function get_end_url() {
+			if( $this->endlink ) return $this->endlink;
+
+			$return = '';
+
+			//find end-url by curling it
+			$curl = curl_init( $this->get_permalink() );
+			curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
+			curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+			curl_exec( $curl );
+
+			//worked?
+			if( !curl_errno( $curl ) )
+				$return = curl_getinfo( $curl, CURLINFO_EFFECTIVE_URL );
+			curl_close( $curl );
+
+			//return whatever we got
+			$this->endlink = $return;
+			return $return;
+		}
+
+		//gets the raw article from the site
+		/*
+			1. try pure feed article
+				working out if it's full or not:
+					a. check content == description
+					b. check link to self (i.e more/continue links) <= uses end_url, ofc
+					c. check length
+			2. instapper's site patterns?
+			3. hNews?
+			4. readability
+		*/
+		private function get_raw_article() {
+			//start with our normal feed content
+			$return = $this->get_content();
+
+			//are we happy?
+			$happy = true;
+
+			//feed content == summary? no good; no happy
+			if( $return == $this->get_description() )
+				$happy = false;
+
+			//links to self? no good; no happy
+			$html = new simple_html_dom();
+			$html->load( $return );
+			foreach( $html->find( 'a' ) as $link ):
+				if( $link->href == $this->get_end_url() ):
+					$happy = false;
+				endif;
+			endforeach;
+			
+			//length under 30 words? no good; no happy
+			$words = explode( ' ', $return );
+			if( count( $words ) <= 30 ):
+				$happy = false;
+			endif;
+
+			//are we unhappy? lets rip this thing!
+			if( !$happy ):
+				//try instapper
+
+				//try hnews
+
+				//try readability; get file contents
+				$contents = file_get_contents( $this->get_end_url() );
+				$readability = new Readability( $contents, $this->get_end_url() );
+				//works?
+				if( $readability->init() ):
+					return $readability->getContent()->innerHTML;
+				endif;
+			endif;
+
+			return $return;
+		}
+
+		//get article, after processing images/etc
+		public function get_article() {
 			global $c_config;
 
 			//already got the article?
 			if( !$this->article ):
-				//do we have a hack?
-				if( !empty( $hack ) and file_exists( 'app/lib/hacks/' . $hack . '.php' ) )
-					$this->article = include( 'app/lib/hacks/' . $hack . '.php' );
-				else
-					$this->article = $this->get_content();
+				$this->article = $this->get_raw_article();
 			endif;
 
 			//now we have our article, lets process the images/html
@@ -111,7 +178,7 @@
 				//(try to) save the image locally
 				if( $img_name = $this->save_image( $img->src ) ):
 					$this->images[] = $img_name;
-					$img->src = $c_config['root'] . '/' . $img_name;
+					$img->src = 'PULSEFEED_ROOT_DIR/' . $img_name;
 				endif;
 
 				//testing/removing annoying feedburner shit
@@ -126,6 +193,9 @@
 
 			//set article to our edited/fixed html
 			$this->article = $html;
+
+			//remove the html from the ram
+			unset( $html );
 
 			//return our article
 			return $this->article;
@@ -163,12 +233,21 @@
 
 		//save a remote image locally
 		private function save_image( $image_url ) {
+			//work out/convert url
+			$image_url = parse_url( $image_url );
+
 			//work out the image extension
-			$ext = basename( $image_url ); //name only
-			$ext = explode( '?', $ext ); //split at query string
-			$ext = $ext[0]; //set to bit before query string
+			$ext = basename( $image_url['path'] ); //name only
 			$ext = explode( '.', $ext ); //split at dot
 			$ext = $ext[count( $ext ) - 1]; //get item after last dot (extension)
+
+			//no bits we need?
+			if( !isset( $image_url['scheme'] ) or !isset( $image_url['host'] ) or !isset( $image_url['path'] ) )
+				return false;
+				
+			//convert back to url
+			$image_url = $image_url['scheme'] . '://' . $image_url['host'] . $image_url['path'];
+
 			//local name
 			$img_name = 'data/images/' . sha1( $image_url ) . '.' . $ext;
 

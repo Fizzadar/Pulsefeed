@@ -10,15 +10,23 @@
 	//start template
 	$mod_template = new mod_template();
 
+	//offset
+	$offset = 0;
+	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
+		$offset = $_GET['offset'];
+
 	//load our source (and check)
 	if( !isset( $_GET['id'] ) or !is_numeric( $_GET['id'] ) ):
 		$mod_message->add( 'NotFound' );
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 	$source = $mod_db->query( '
-		SELECT site_title
+		SELECT mod_source.id, mod_source.site_title' . ( $mod_user->check_login() ? ', mod_user_sources.user_id AS subscribed' : '' ) . '
 		FROM mod_source
-		WHERE id = ' . $_GET['id'] . '
+		' . ( $mod_user->check_login() ?
+			'LEFT JOIN mod_user_sources ON mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : ''
+		) . '
+		WHERE mod_source.id = ' . $_GET['id'] . '
 		LIMIT 1
 	' );
 	if( !isset( $source ) or count( $source ) != 1 ):
@@ -48,7 +56,7 @@
 	endif;
 
 	//set user & stream id 
-	$mod_stream->set_offset( ( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) ) ? $_GET['offset'] : 0 );
+	$mod_stream->set_offset( $offset * 64 );
 
 	//set source id
 	$mod_stream->set_sourceid( $_GET['id'] );
@@ -65,6 +73,9 @@
 	$mod_template->add( 'pageTitle', $source[0]['site_title'] . ' Stream' );
 	$mod_template->add( 'userid', $mod_user->session_userid() );
 	$mod_template->add( 'streamid', 0 );
+	$mod_template->add( 'nextOffset', $offset + 1 );
+	$mod_template->add( 'subscribed', isset( $source[0]['subscribed'] ) and $source[0]['subscribed'] != NULL );
+	$mod_template->add( 'source_id', $_GET['id'] );
 
 	//load templates
 	$mod_template->load( 'core/header' );

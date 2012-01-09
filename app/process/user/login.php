@@ -1,16 +1,19 @@
 <?php
 	//modules
-	global $mod_user, $mod_app, $mod_message;
+	global $mod_user, $mod_app, $mod_message, $mod_cookie;
 
 	//login
 	$login = 0;
-	$redir = $c_config['root'];
+	$redir = $mod_cookie->get( 'redirectUrl' ) ? $mod_cookie->get( 'redirectUrl' ) : $c_config['root'];
+	//facebook
 	if( $_GET['process'] == 'login-facebook' ):
 		$login = $mod_user->fb_login();
-		$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'];
+	//twitter
+	elseif( $_GET['process'] == 'login-twitter' ):
+		$login = $mod_user->tw_login();
+	//openid
 	elseif( $_GET['process'] == 'login-openid' ):
 		$login = $mod_user->openid_login();
-		$redir = isset( $_GET['return_url'] ) ? $_GET['return_url'] : $c_config['root'];
 	endif;
 
 	//logged in?
@@ -20,12 +23,15 @@
 	//redirect on new/fail
 	if( $login == 2 ):
 		$mod_message->add( 'NewUser' );
-		header( 'Location: ' . $c_config['root'] . '/user/new' );
+		header( 'Location: ' . $c_config['root'] . '/user/welcome' );
 	elseif( $login == 1 ):
 		$mod_message->add( 'LoggedIn' );
 		header( 'Location: ' . $redir );
+	elseif( $login == 4 ):
+		$mod_message->add( 'ReLoggedIn' );
+		header( 'Location: ' . $redir );
 	elseif( $login == 3 ):
-		$mod_message->add( 'OpenidAdded' );
+		$mod_message->add( 'AccountAdded' );
 		header( 'Location: ' . $redir );
 	else:
 		$mod_message->add( 'FailedLogin' );

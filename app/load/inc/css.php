@@ -2,7 +2,7 @@
 	//modules
 	global $mod_cookie;
 
-	$color = '356FA8';
+	$color = '454E9B';
 	if( $mod_cookie->get( 'SettingColor' ) )
 		$color = $mod_cookie->get( 'SettingColor' );
 
