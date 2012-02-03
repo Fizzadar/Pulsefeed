@@ -401,7 +401,7 @@ div#sidebars {
 		padding: 46px 0;
 		background: #FFF;
 		position: relative;
-		z-index: 2;
+		z-index: 3;
 	}
 	div#sidebars div.left.noborder {
 		border-right: 0;
@@ -541,6 +541,8 @@ div#sidebars {
 	div#sidebars div.right {
 		width: 234px;
 		margin-top: 35px;
+		z-index: 3;
+		position: relative;
 	}
 		div#sidebars div.right button.biglink {
 			text-align: left;
