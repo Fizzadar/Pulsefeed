@@ -3,53 +3,61 @@ RewriteEngine On
 
 
 #Error Docs
-#Document Code								#File
+#Document Code											#File
 
-ErrorDocument 404							/inc/error/404.html
-ErrorDocument 500							/inc/error/500.html
-
-
+ErrorDocument 404										/inc/error/404.html
+ErrorDocument 500										/inc/error/500.html
 
 
-#Rewrites									#
-#RewriteRule								#Location
+
+
+#Rewrites												#
+#RewriteRule											#Location
 
 #Article
-RewriteRule ^article/([0-9]+)/original$		index.php?load=article&id=$1&original=1 [QSA,L]
-RewriteRule ^article/([0-9]+)/recipe$		index.php?load=article&id=$1&recipe=1 [QSA,L]
-RewriteRule ^article/([0-9]+)$				index.php?load=article&id=$1 [QSA,L]
+RewriteRule ^article/([0-9]+)/recipe$					index.php?load=article&id=$1&recipe=1 [QSA,L]
+RewriteRule ^article/([0-9]+)$							index.php?load=article&id=$1 [QSA,L]
 
 
 #Public Stream
-RewriteRule ^public$						index.php?load=public [QSA,L]
+RewriteRule ^public$									index.php?load=public [QSA,L]						#the public stream
+
+#Tag Stream
+RewriteRule ^tag/([0-9]+)$								index.php?load=tag&id=$1 [QSA,L]					#tag stream
 
 #Source Stream
-RewriteRule ^source/([0-9]+)$				index.php?load=source&id=$1 [QSA,L]
+RewriteRule ^source/([0-9]+)$							index.php?load=source&id=$1 [QSA,L]					#source stream
+
+#User Streams
+RewriteRule ^user/([0-9]+)/[aA-zZ0-9]+$					index.php?load=user&id=$1 [QSA,L]					#user streams (hybrid)
+RewriteRule ^user/([0-9]+)/[aA-zZ0-9]+/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]			#user streams (unread, popular, newest, discover?)
 
 
 #Source Browsing
-RewriteRule ^sources$						index.php?load=source-browse [QSA,L]
-RewriteRule ^sources/add$					index.php?load=source-add [QSA,L]
-RewriteRule ^sources/([a-z0-9]+)$			index.php?load=source-browse&tag=$1 [QSA,L]
+RewriteRule ^sources$									index.php?load=source-browse [QSA,L]				#browse popular
+RewriteRule ^sources/new$								index.php?load=source-browse&new [QSA,L]			#browse newest
+RewriteRule ^sources/me$								index.php?load=source-browse&me [QSA,L]				#browse subscribed
+RewriteRule ^sources/add$								index.php?load=source-add [QSA,L]					#add source
+RewriteRule ^sources/([a-z0-9]+)$						index.php?load=source-browse&tag=$1 [QSA,L]			#browse by tag
 
 
-#User Streams
-RewriteRule ^user/([0-9]+)$					index.php?load=user&id=$1 [QSA,L]
-RewriteRule ^user/([0-9]+)/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]
+#Collection Browsing
+RewriteRule ^collections$								index.php?load=collection-browse [QSA,L]			#browse collections
+RewriteRule ^collections/me$							index.php?load=collection-browse&me [QSA,L]			#my collections
+RewriteRule ^collections/add$							index.php?load=collection-add [QSA,L]				#add collections
+RewriteRule ^collections/([0-9]+)						index.php?load=collection-view [QSA,L]				#see a specific collection
+
 
 #User Welcome
-RewriteRule ^user/welcome$					index.php?load=user-new [QSA,L]
+RewriteRule ^user/welcome$								index.php?load=user-new [QSA,L]						#welcome new user page
 
 #User settings
-RewriteRule ^user/settings$					index.php?load=settings [QSA,L]
-RewriteRule ^user/settings/sources$			index.php?load=settings-sources [QSA,L]
-RewriteRule ^user/settings/collections$		index.php?load=settings-collections [QSA,L]
-RewriteRule ^user/settings/streams$			index.php?load=settings-streams [QSA,L]
+RewriteRule ^user/settings$								index.php?load=settings [QSA,L]						#user settings
 
 
 #Login Page
-RewriteRule ^login$							index.php?load=login [QSA,L]
+RewriteRule ^login$										index.php?load=login [QSA,L]						#login page
 
 
-#Logout
-RewriteRule ^logout$						index.php?process=logout [QSA,L]
+#Process?
+RewriteRule ^process/([aA-zZ-]+)						index.php?process=$1 [QSA,L]						#processes?

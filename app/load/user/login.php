@@ -7,12 +7,6 @@
 	//start template
 	$template = new mod_template();
 
-	//load header
-	$template->load( 'core/header' );
-
-	//home
+	//login template (contains header/footer)
 	$template->load( 'login' );
-	
-	//footer
-	$template->load( 'core/footer' );
 ?>

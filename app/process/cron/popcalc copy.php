@@ -32,9 +32,16 @@
 		$time = time() - $article['time'];
 		$time = round( $time / 3600 );
 
+		//get inverse percentage of hours / config hours
+		//$percentage = 1 - ( ( ( $time / 2 ) ^ 2 ) / 48 );
+
 		//poptime = popularity / hours
 		$pop_time = $article['popularity'] / $time;
-		
+
+		//time bigger than 48? = 60% off [old]
+		if( $time > 48 )
+			$pop_time = $pop_time * 0.6;
+
 		//set array
 		$articles[$key]['popularity_time'] = $pop_time;
 
@@ -50,23 +57,24 @@
 		$sources[$article['source_id']]['popTotal'] += $pop_time;
 	endforeach;
 
-	//work out average for each source
-	foreach( $sources as $key => $source )
-		$sources[$key]['average'] = $source['popTotal'] / $source['articleCount'];
+	//no work out scores for each article
+	foreach( $articles as $key => $article ):
+		//get average poptime for an article for this source
+		$average = $sources[$article['source_id']]['popTotal'] / $sources[$article['source_id']]['articleCount'];
+		//cant divide by 0
+		if( $average == 0 ) $average = 1;
 
-	//locate the highest source
-	$bigSource = 0;
-	foreach( $sources as $key => $source )
-		if( $bigSource == 0 or $source['average'] > $sources[$bigSource]['average'] )
-			$bigSource = $key;
-	
-	//now scale all our sources
-	foreach( $sources as $key => $source )
-		$sources[$key]['scale'] = $sources[$bigSource]['average'] / ( $source['average'] + 1 );
+		//get percentage in relation to the sources articles
+		$percentage = abs( $article['popularity_time'] ) / abs( $average );
+		if( $percentage == 0 ) $percentage = 0.01;
 
-	//now work out scores for each article
-	foreach( $articles as $key => $article )
-		$articles[$key]['popularity_score'] = round( $article['popularity_time'] * $sources[$article['source_id']]['scale'] * 10000 );
+		//calculate time in hours since posting
+		$time = time() - $article['time'];
+		$time = round( $time / 3600 );
+
+		//now make the score (starts at 1000) - 100/hour
+		$articles[$key]['popularity_score'] = round( $percentage * 500 ) - ( 100 * $time );
+	endforeach;
 
 	//loop articles, update
 	foreach( $articles as $article ):

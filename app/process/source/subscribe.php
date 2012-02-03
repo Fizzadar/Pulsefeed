@@ -52,13 +52,14 @@
 		( user_id, source_id )
 		VALUES( ' . $mod_user->get_userid() . ', ' . $_POST['source_id'] . ' )
 	' );
+	$insert_rows = $mod_db->affected_rows();
 
 	//get the articles from this source in the last x hours
 	$articles = $mod_db->query( '
 		SELECT id
 		FROM mod_article
 		WHERE source_id = ' . $_POST['source_id'] . '
-		AND time > ' . ( time() - 3600 * $mod_config['article_expire'] ) . '
+		AND time > ' . ( time() - ( 3600 * 24 * 7 ) ) . '
 	' );
 	if( $articles and count( $articles ) > 0 ):
 		//insert back into unread
@@ -72,13 +73,12 @@
 		$sql = rtrim( $sql, ',' );
 		//run it
 		$mod_db->query( $sql );
-		die( mysql_error() );
 	endif;
 
 	//redirect
 	if( $insert ):
 		//add subscriber (if affected = 1)
-		if( $mod_db->affected_rows() == 1 ):
+		if( $insert_rows == 1 ):
 			$mod_db->query( '
 				UPDATE mod_source
 				SET subscribers = subscribers + 1
@@ -91,6 +91,7 @@
 		$mod_message->add( 'SourceSubscribed' );
 		header( 'Location: ' . $redir );
 	else:
+		//still here?
 		$mod_message->add( 'UnknownError' );
 		header( 'Location: ' . $redir );
 	endif;

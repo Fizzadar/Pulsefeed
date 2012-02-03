@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_db, $mod_user;
+	global $mod_db, $mod_user, $mod_message;
 
 	//offset
 	$offset = 0;
@@ -16,6 +16,14 @@
 	$order = 'mod_source.subscribers';
 	if( isset( $_GET['new'] ) )
 		$order = 'mod_source.time';
+	if( isset( $_GET['me'] ) )
+		$order = 'mod_source.articles';
+
+	//my sources/no login?
+	if( isset( $_GET['me'] ) and !$mod_user->check_login() ):
+		$mod_message->add( 'MustLogin' );
+		die( header( 'Location: ' . $c_config['root'] . '/sources' ) );
+	endif;
 
 	//start template
 	$mod_template = new mod_template();
@@ -27,8 +35,11 @@
 		' . ( $mod_user->check_login() ?
 			'LEFT JOIN mod_user_sources ON mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : ''
 		) . '
+		' . ( isset( $_GET['me'] ) ?
+			'WHERE mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : ''
+		) . '
 		ORDER BY ' . $order . ' DESC
-		LIMIT ' . ( $offset * 30 ) . ', 30
+		LIMIT ' . ( $offset * 15 ) . ', 15
 	' );
 	//manage bits
 	foreach( $sources as $key => $source ):

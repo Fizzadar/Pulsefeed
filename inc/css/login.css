@@ -1,0 +1,57 @@
+body#body_login {
+	background: #F7F7F7;
+}
+
+div#login {
+	width: 500px;
+	height: 300px;
+	margin: 150px auto 0 auto;
+}
+	div#login h1 {
+		background: #454E9B;
+		color: #000;
+		font-family: 'PT Sans', Arial;
+		font-style: italic;
+		font-weight: normal;
+		padding: 10px;
+		border-radius: 5px 5px 0 0;
+		margin: 0;
+	}
+		div#login h1 span {
+			position: absolute;
+			color: #FFF;
+			margin-left: -1px;
+			margin-top: -2px;
+		}
+			div#login h1 span small {
+				display: inline;
+				font-size: 14px;
+				font-family: 'Trebuchet MS';
+			}
+	div#login div#buttons {
+		float: left;
+		width: 498px;
+		border: 1px solid #D7D7D7;
+		border-top: none;
+		border-radius: 0 0 5px 5px;
+		background: #FFF;
+		padding-bottom: 10px;
+	}
+		div#login div#buttons p {
+			margin: 0 0 10px 0;
+			background: #F7F7F7;
+			border-bottom: 1px solid #D7D7D7;
+			padding: 10px;
+		}
+		div#login div#buttons a.login {
+			float: left;
+			width: 230px;
+			font-size: 20px;
+			font-family: Delicious;
+			margin: 15px 0 15px 15px;
+		}
+			div#login div#buttons a.login img {
+				float: left;
+				margin-top: -5px;
+				margin-right: 10px;
+			}

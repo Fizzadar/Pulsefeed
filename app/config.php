@@ -1,26 +1,25 @@
 <?php
 	/*
 		file: app/config.php
-		desc: configuration for feedbug app
+		desc: configuration for pulsefeed app
 	*/
 	
 	define( 'PULSEFEED_VERSION', '0.5.0' );
 
 	//templates from hostnames!
 	$templates = array(
-		'facebook.feedbug.net' => 'facebook',
-		'mobile.feedbug.net' => 'mobile'
+		'mobile.pulsefeed.com' => 'mobile'
 	);
 
 	//config array
 	$mod_config = array(
-		'dbhost' => 'localhost',
+		'dbhost' => '127.0.0.1',
 		'dbname' => 'feedbug',
 		'dbuser' => 'root',
 		'dbpass' => 'root',
 		'template' => isset( $templates[$_SERVER['HTTP_HOST']] ) ? $templates[$_SERVER['HTTP_HOST']] : 'main',
-		'api' => ( $_SERVER['HTTP_HOST'] == 'api.feedbug.net' or isset( $_GET['api'] ) ),
-		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.feedbug.net' or isset( $_GET['ajax'] ) ),
+		'api' => ( $_SERVER['HTTP_HOST'] == 'api.pulsefeed.com' or isset( $_GET['api'] ) ),
+		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.pulsefeed.com' or isset( $_GET['ajax'] ) ),
 		'useragent' => 'Pulsefeed / v.' . PULSEFEED_VERSION,
 		'load' => array(
 			//js & css
@@ -34,9 +33,12 @@
 			'user' => 'stream/user',
 			'public' => 'stream/public',
 			'source' => 'stream/source',
+			'tag' => 'stream/tag', //todo
 			//sources
 			'source-browse' => 'source/browse',
 			'source-add' => 'source/add',
+			//search
+			'search' => 'search', //todo
 			//login page
 			'login' => 'user/login',
 			'user-new' => 'user/new', //todo
@@ -62,10 +64,15 @@
 			'source-add' => 'source/add',
 			'source-subscribe' => 'source/subscribe',
 			'source-unsubscribe' => 'source/unsubscribe',
+			'source-tag' => 'source/tag', //todo
+			'source-untag' => 'source/untag', //todo
 			//article
-			'article-recommend' => 'article/recommend', //todo
+			'article-recommend' => 'article/recommend',
+			'article-unrecommend' => 'article/unrecommend',
 			'article-collect' => 'article/collect', //todo
 			'article-read' => 'article/read',
+			'article-tag' => 'article/tag', //todo
+			'article-untag' => 'article/untag', //todo
 			//collection
 			'collection-add' => 'collection/add', //todo
 			'collection-delete' => 'collection/delete', //todo
@@ -121,10 +128,11 @@
 			'NotFound' => array( 'The page you requested could not be found!', 'warning' ),
 			//article
 			'ArticleRead' => array( 'Article marked as read', 'success' ),
+			'ArticleRecommended' => array( 'Article recommended', 'success' ),
+			'ArticleUnRecommended' => array( 'Article un-recommended', 'success' ),
 		),
 		//how much each type of share/save is worth
 		'popularity' => array(
-			'hour' => 25, //points each hour of time is worth (removed)
 			'recommend' => 20, //internal recommendations
 			'facebook_shares' => 2,
 			'facebook_comments' => 1,
@@ -132,7 +140,15 @@
 			'twitter_links' => 2,
 			'digg_diggs' => 3,
 		),
-		//expire time for articles (in hours)
-		'article_expire' => 48,
+		//no-go tag words (words must be larger than 2 already)
+		'no_tag' => array(
+			'the',
+			'what',
+			'you',
+			'and',
+			'when',
+			'any',
+			'into',
+		),
 	);
 ?>

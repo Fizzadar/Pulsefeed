@@ -46,14 +46,14 @@
 		die( header( 'Location: ' . $redir ) );
 	endif;
 
-	//insert our recommendation
-	$insert = $mod_db->query( '
-		REPLACE INTO
+	//delete our recommendation
+	$delete = $mod_db->query( '
+		DELETE FROM
 		mod_user_recommends
-		( user_id, article_id, time )
-		VALUES ( ' . $mod_user->get_userid() . ', ' . $_POST['article_id'] . ', ' . time() . ' )
+		WHERE user_id = ' . $mod_user->get_userid() . '
+		AND article_id = ' . $_POST['article_id'] . '
 	' );
-	if( !$insert ):
+	if( !$delete ):
 		$mod_message->add( 'UnknownError' );
 		die( header( 'Location: ' . $redir ) );
 	endif;
@@ -62,13 +62,13 @@
 	if( $mod_db->affected_rows() == 1 ):
 		$mod_db->query( '
 			UPDATE mod_article
-			SET recommendations = recommendations + 1
+			SET recommendations = recommendations - 1
 			WHERE id = ' . $_POST['article_id'] . '
 			LIMIT 1
 		' );
 	endif;
 
 	//& finally, redirect
-	$mod_message->add( 'ArticleRecommended' );
+	$mod_message->add( 'ArticleUnRecommended' );
 	header( 'Location: ' . $redir );
 ?>

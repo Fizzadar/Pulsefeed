@@ -10,14 +10,20 @@
 	//start template
 	$mod_template = new mod_template();
 
+	//logged in?
 	if( $mod_user->check_login() ):
-		//load users streams
-		$streams = $mod_db->query( '
-			SELECT id, name
-			FROM mod_stream
-			WHERE user_id = ' . $mod_user->get_userid() . '
+		//load the users sources
+		$sources = $mod_db->query( '
+			SELECT id, site_title AS source_title, site_url AS source_url
+			FROM mod_source, mod_user_sources
+			WHERE mod_source.id = mod_user_sources.source_id
+			AND mod_user_sources.user_id = ' . $mod_user->get_userid() . '
 		' );
-		$mod_template->add( 'streams', $streams );
+		foreach( $sources as $k => $s ):
+			$sources[$k]['source_domain'] = $mod_data->domain_url( $s['source_url'] );
+			$sources[$k]['source_title'] = substr( $sources[$k]['source_title'], 0, 13 ) . ( strlen( $sources[$k]['source_title'] ) > 13 ? '...' : '' );
+		endforeach;
+		$mod_template->add( 'sources', $sources );
 	endif;
 
 	//set stream to cookie
@@ -40,11 +46,16 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
+	//get the data
+	$stream_data = $mod_config['api'] ? $mod_stream->get_data() : $mod_stream->build();
+
 	//add data
-	$mod_template->add( 'stream', $mod_config['api'] ? $mod_stream->get_data() : $mod_stream->build() );
+	$mod_template->add( 'stream', $stream_data['items'] );
+	$mod_template->add( 'recommends', $stream_data['recommends'] );
 	$mod_template->add( 'title', 'public' );
 	$mod_template->add( 'pageTitle', 'Public Stream' );
 	$mod_template->add( 'userid', $mod_user->session_userid() );
+	$mod_template->add( 'username', $mod_user->session_username() );
 	$mod_template->add( 'streamid', 0 );
 
 	//load templates

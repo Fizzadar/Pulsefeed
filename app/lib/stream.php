@@ -13,7 +13,6 @@
 			'newest', //all, recommendations, sorted by time
 			'public', //24 hour all articles, sorted by pop + time
 			//'discover', //non-subscribed + popular recommendations listed as articles + popular unsubscribed articles, sorted by pop + time
-			'user', //user-created consisting of user sources
 			'source', //stream from an individual source, sorted by time
 		);
 		private $db;
@@ -62,12 +61,6 @@
 		public function set_userid( $id ) {
 			if( !is_numeric( $id ) ) return false;
 			$this->user_id = $id;
-		}
-
-		//set streamid
-		public function set_streamid( $id ) {
-			if( !is_numeric( $id ) ) return false;
-			$this->stream_id = $id;
 		}
 
 		//set sourceid
@@ -129,20 +122,13 @@
 				$article['type'] = 'article';
 				$article['recommended'] = ( isset( $article['recommended'] ) and is_numeric( $article['recommended'] ) and $article['recommended'] == $article['id'] );
 				$article['unread'] = ( isset( $article['unread'] ) and is_numeric( $article['unread'] ) and $article['unread'] == $article['id'] );
-				$article['short_description'] = substr( $article['description'], 0, 150 ) . ( strlen( $article['description'] ) > 150 ? '...' : '' );
+				$article['short_description'] = substr( $article['description'], 0, 200 ) . ( strlen( $article['description'] ) > 200 ? '...' : '' );
+				$article['expired'] = $article['time'] < time() - ( 7 * 24 * 3600 );
 				$return['items'][] = $article;
 			endforeach;
 
 			//recommendations
 			foreach( $recommendations as $key => $recommend ):
-				//already displaying the article?
-				$dup = false;
-				foreach( $articles as $article )
-					if( $article['id'] == $recommend['id'] )
-						$dup = true;
-				if( $dup )
-					continue;
-				 
 				$recommend['type'] = 'recommend';
 				$return['recommends'][] = $recommend;
 			endforeach;
@@ -174,11 +160,6 @@
 				case 'popular':
 					$extra_tables .= ', mod_user_sources';
 					break;
-				//custom stream
-				case 'user':
-					$order = 'mod_article.time';
-					$extra_tables .= ', mod_stream, mod_stream_sources';
-					break;
 				//source
 				case 'source':
 					$order = 'mod_article.time';
@@ -187,14 +168,16 @@
 			//build query, start selecting basic stuff
 			$sql = '
 				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_score, mod_article.popularity_time, mod_article.image_quarter, mod_article.image_third, mod_article.image_half,
-					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended, uread.article_id AS unread,' : '' ) . '
+					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_score, mod_article.image_quarter, mod_article.image_third, mod_article.image_half,
+					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended, uread.article_id AS unread, usub.source_id AS subscribed,' : '' ) . '
 					mod_source.site_title AS source_title, mod_source.site_url AS source_url
 				FROM
 					' . (
 							$logged_userid ? 
-							'mod_article LEFT JOIN mod_user_recommends ON mod_article.id = mod_user_recommends.article_id AND mod_user_recommends.user_id = ' . $logged_userid . '
-							LEFT JOIN mod_user_unread AS uread ON mod_article.id = uread.article_id AND uread.user_id = ' . $logged_userid . '' : 
+							'mod_article
+							LEFT JOIN mod_user_recommends ON mod_article.id = mod_user_recommends.article_id AND mod_user_recommends.user_id = ' . $logged_userid . '
+							LEFT JOIN mod_user_unread AS uread ON mod_article.id = uread.article_id AND uread.user_id = ' . $logged_userid . '
+							LEFT JOIN mod_user_sources AS usub ON mod_article.source_id = usub.source_id AND usub.user_id = ' . $logged_userid : 
 							'mod_article'
 						) . ',
 					mod_source' . $extra_tables . '
@@ -207,7 +190,7 @@
 				//unread only items
 				case 'hybrid':
 					$sql .= '
-						AND mod_article.popularity_score > 0
+						AND mod_article.popularity_score != 0
 					';
 				case 'unread':
 					$sql .= '
@@ -219,8 +202,8 @@
 				case 'popular':
 				case 'public':
 					$sql .= '
-						AND mod_article.time > ' . ( time() - $mod_config['article_expire'] * 3600 ) . '
-						AND mod_article.popularity_score > 0
+						AND mod_article.time > ' . ( time() - 48 * 3600 ) . '
+						AND mod_article.popularity_score != 0
 					';
 					if( $this->stream_type == 'public' ) break;
 				//new
@@ -228,15 +211,6 @@
 					$sql .= '
 						AND mod_user_sources.source_id = mod_article.source_id
 						AND mod_user_sources.user_id = ' . $this->user_id . '
-					';
-					break;
-				//user stream
-				case 'user':
-					$sql .= '
-						AND mod_stream_sources.source_id = mod_article.source_id
-						AND mod_stream_sources.stream_id = mod_stream.id
-						AND mod_stream.id = ' . $this->stream_id . '
-						AND mod_stream.user_id = ' . $this->user_id . '
 					';
 					break;
 				//source stream
@@ -267,7 +241,6 @@
 			switch( $this->stream_type ):
 				//nothing if unread & user streams
 				case 'unread':
-				case 'user':
 				case 'public':
 				case 'source':
 					return array();
@@ -277,20 +250,23 @@
 			$sql = '
 				SELECT
 					mod_article.id, mod_article.source_id, mod_article.title,
-					core_user.id AS user_id, core_user.name AS user_name, mod_user_recommends.time
+					core_user.id AS user_id, core_user.name AS user_name, mod_user_recommends.time,
+					mod_source.site_title, mod_source.site_url
 				FROM
-					mod_article, core_user, mod_user_recommends, mod_user_follows
+					mod_article, core_user, mod_user_recommends, mod_user_follows, mod_source, mod_user_unread
 				WHERE
 					mod_article.id = mod_user_recommends.article_id
+					AND mod_source.id = mod_article.source_id
 					AND mod_user_recommends.user_id = mod_user_follows.following_id
 					AND core_user.id = mod_user_recommends.user_id
 					AND mod_user_follows.user_id = ' . $this->user_id . '
+					AND mod_user_unread.article_id = mod_user_recommends.article_id
 			';
 
 			//end
 			$sql .= '
 				GROUP BY mod_article.id
-				ORDER BY mod_user_recommends.time
+				ORDER BY mod_user_recommends.time DESC
 				LIMIT ' . $this->offset . ', 64
 			';
 
@@ -307,8 +283,6 @@
 			if( $this->data ) return true;
 			//do we have our required info to start (user_id, stream_id, source_id)
 			switch( $this->stream_type ):
-				case 'user':
-					if( !isset( $this->stream_id ) ) return false;
 				case 'hybrid':
 				case 'unread':
 				case 'popular':
@@ -317,6 +291,7 @@
 					break;
 				case 'source':
 					if( !isset( $this->source_id ) ) return false;
+					break;
 			endswitch;
 			//load our articles & recommendations
 			$this->data = $this->load_data();
@@ -334,7 +309,7 @@
 					//get an array of our used source ids (none)
 					$source_ids = array();
 					foreach( $this->data['items'] as $item ):
-						$source_ids[] = 0;
+						$source_ids[$item['source_id']] = 0;
 					endforeach;
 
 					//loop articles

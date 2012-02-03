@@ -1,43 +1,36 @@
 <?php
-	//modules
-	global $mod_cookie;
-
-	$color = '454E9B';
-	if( $mod_cookie->get( 'SettingColor' ) )
-		$color = $mod_cookie->get( 'SettingColor' );
-
 	//css
 	header( 'Content-type: text/css' );
+
+	//get our css files
+	$css_files = glob( 'inc/css/*.css' );
+
+	//build files list
+	if( isset( $_GET['type'] ) and !empty( $_GET['type'] ) ):
+		$list = explode( ',', $_GET['type'] );
+		foreach( $list as $k => $f ):
+			if( !in_array( 'inc/css/' . $f . '.css', $css_files ) )
+				unset( $list[$k] );
+			else
+				$list[$k] = $f . '.css';
+		endforeach;
+		$files = $list;
+	else:
+		$files = $css_files;
+	endif;
+
+	//loop the files, apply css
+	foreach( $files as $file ):
+		$css = file_get_contents( 'inc/css/' . basename( $file ) );
+		$css = str_replace(
+			array(
+				"\t",
+				"\n"
+			),
+			'',
+			$css
+		);
+		$css = str_replace( 'PULSEFEED_ROOT_DIR', $c_config['root'] . '/inc', $css );
+		echo $css;
+	endforeach;
 ?>
-
-a {
-	color: #<?php echo $color; ?>;
-}
-
-
-div#top {
-	background: #<?php echo $color; ?>;
-}
-	div#top ul#account:hover li.top a {
-		color: #<?php echo $color; ?>;
-	}
-
-
-div#header ul li label {
-	color: #<?php echo $color; ?>;
-}
-
-
-div#sidebars div.right a.biglink span {
-	color: #<?php echo $color; ?>;
-}
-
-
-div.article h2 a:hover, div.article h3 a:hover, div.article h4 a:hover {
-	color: #<?php echo $color; ?>;
-}
-
-
-div.article div.meta div.details span a {
-	color: #<?php echo $color; ?>;
-}

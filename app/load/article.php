@@ -13,13 +13,18 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
+	$logged_userid = $mod_user->get_userid();
+	
 	//start template
 	$mod_template = new mod_template();
 
 	//load the article
 	$article = $mod_db->query( '
 		SELECT mod_article.*, mod_source.site_title, mod_source.site_url, mod_source.id AS site_id
-		FROM mod_article, mod_source
+		' . ( $logged_userid ? ', mod_user_recommends.article_id AS recommended' : '' ) . '
+		FROM mod_article
+		' . ( $logged_userid ? 'LEFT JOIN mod_user_recommends ON mod_article.id = mod_user_recommends.article_id AND mod_user_recommends.user_id = ' . $logged_userid : '' ) . '
+		, mod_source
 		WHERE mod_source.id = mod_article.source_id
 		AND mod_article.id = ' . $_GET['id'] . '
 		LIMIT 1
@@ -31,9 +36,8 @@
 	//setup bits
 	$url = empty( $article[0]['end_url'] ) ? $article[0]['url'] : $article[0]['end_url'];
 	$article[0]['trim_url'] = substr( $url, 0, 30 ) . ( strlen( $url ) > 30 ? '...' : '' );
-	$article[0]['not_full'] = $article[0]['content'] == $article[0]['description'];
 	$article[0]['site_domain'] = $mod_data->domain_url( $article[0]['site_url'] );
-	$article[0]['content'] = str_replace( 'PULSEFEED_ROOT_DIR', $c_config['root'], $article[0]['content'] );
+	
 	//add to template
 	$mod_template->add( 'article', $article[0] );
 	$mod_template->add( 'pageTitle', $article[0]['title'] );
@@ -41,16 +45,6 @@
 	//facebook recipie?
 	if( isset( $_GET['recipe'] ) and $_GET['recipe'] == 1 )
 		die( $mod_template->load( 'article/recipe' ) );
-
-	//external site?
-	$orig = false;
-	if( ( isset( $_GET['original'] ) and $_GET['original'] == 1 ) or $article[0]['not_full'] ):
-		$orig = true;
-		$mod_template->add( 'external', array(
-			'title' => $article[0]['title'],
-			'id' => $article[0]['id']
-		) );
-	endif;
 
 	//delete unread
 	$unread = false;
@@ -67,15 +61,9 @@
 	$mod_template->add( 'unread', $unread );
 	
 	//load header
+	$mod_template->add( 'externalHeader', true );
 	$mod_template->load( 'core/header' );
 
-	//original
-	if( $orig )
-		$mod_template->load( 'article/frame' );
-	else
-		$mod_template->load( 'article/main' );
-
-	//footer
-	if( !$orig )
-		$mod_template->load( 'core/footer' );
+	//article template
+	$mod_template->load( 'article/main' );
 ?>

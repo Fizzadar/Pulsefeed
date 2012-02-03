@@ -1,21 +1,22 @@
 <?php
 	/*
-		 _____           _ _           
-		|   __|___ ___ _| | |_ _ _ ___ 
-		|   __| -_| -_| . | . | | | . |
-		|__|  |___|___|___|___|___|_  |  <--- pulsefeed that
-		                          |___|
+		  _____        _           __              _ 
+		 |  __ \      | |         / _|            | |
+		 | |__) |_   _| |___  ___| |_ ___  ___  __| |
+		 |  ___/| | | | / __|/ _ \  _/ _ \/ _ \/ _` |
+		 | |    | |_| | \__ \  __/ ||  __/  __/ (_| |
+		 |_|     \__,_|_|___/\___|_| \___|\___|\__,_|
                           
 		file: index.php
 		desc: class loading, app routing
 	*/
 	
-	//get the config
-	require( 'app/config.php' );
-	
 	//get the core
 	require( 'core/core.php' );
 
+	//get the config
+	require( 'app/config.php' );
+	
 	//enable debug
 	$c_debug->enable();
 
@@ -55,5 +56,6 @@
 	endif;
 
 	//debug
-	$c_debug->display();
+	if( $mod_user->check_permission( 'Debug' ) )
+		$c_debug->display();
 ?>

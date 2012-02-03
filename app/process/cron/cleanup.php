@@ -5,16 +5,18 @@
 	*/
 
 	//no time limits
-	set_time_limit( 0 );
+	set_time_limit( 300 );
 	//ignore abort
 	ignore_user_abort( true );
 
 	//load modules
 	global $mod_db, $mod_config;
 
-	//select articles older than our expire (but more recent than expire * 2)
-	$expire_time = time() - ( 3600 * $mod_config['article_expire'] );
-	$expire_old = $expire_time - ( 2 * ( 3600 * $mod_config['article_expire'] ) );
+	//a week ago
+	$expire_time = time() - ( 3600 * 24 * 7 );
+	//week + 24 hours
+	$expire_old = $expire_time - ( 3600 * 24 * 8 );
+
 	$articles = $mod_db->query( '
 		SELECT id
 		FROM mod_article
@@ -35,6 +37,6 @@
 			SET popularity_time = 0
 			WHERE article_id = ' . $article['id'] . '
 		' );
-		echo 'Unreads deleted for article #' . $article['id'] . '<br />';
+		echo 'Unreads deleted for article #' . $article['id'] . "\n";
 	endforeach;
 ?>

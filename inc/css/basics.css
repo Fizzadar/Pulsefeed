@@ -1,0 +1,153 @@
+/*
+	fonts
+*/
+
+@font-face { font-family: Delicious; src: url( 'PULSEFEED_ROOT_DIR/font/Delicious-Roman.otf' ); }
+@font-face { font-family: Delicious; font-weight: bold; src: url( 'PULSEFEED_ROOT_DIR/font/Delicious-Bold.otf' ); }
+
+
+
+/*
+	basics
+*/
+
+*::selection {
+	color: #FFF;
+	background: #1A1B1B;
+}
+
+html {
+	width: 100%;
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	font-size: 13px;
+	font-family: Trebuchet MS;
+	line-height: 24px;
+	color: #1A1B1B;
+	min-height: 100%;
+}
+
+img {
+	border: none;
+}
+
+a {
+	color: #454E9B;
+	text-decoration: none;
+	cursor: pointer;
+}
+a:hover {
+	color: #1A1B1B;
+	text-decoration: underline;
+}
+
+small {
+	display: block;
+	line-height: 16px;
+	font-size: 11px;
+	font-family: Verdana;
+}
+
+ul {
+}
+	ul li {
+		list-style: square;
+	}
+
+form {
+	display: block;
+	margin: 20px 0;
+}
+form#subunsub {
+	margin: 0;
+}
+	form label {
+		display: block;
+		font-family: Verdana;
+		color: #666;
+		font-size: 11px;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	form input {
+		display: block;
+		width: 300px;
+		border: 1px solid #D7D7D7;
+		font-size: 16px;
+		font-family: Trebuchet MS;
+		padding: 5px;
+		outline: none;
+		background: #FFF;
+		margin-bottom: 20px;
+	}
+	form input[type=submit] {
+		background: #454E9B;
+		border: 1px solid #000;
+		text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+		color: #FFF;
+		min-width: 150px;
+		width: auto;
+		font-size: 14px;
+		margin-left: 0;
+		cursor: pointer;
+	}
+	form input:hover {
+		border: 1px solid #A7A7A7;
+	}
+	form input:focus {
+		background: #FFFECC;
+		border: 1px solid #A1A1A1;
+	}
+	form input[type=submit]:hover, form input[type=submit]:focus {
+		border: 1px solid #fff;
+	}
+
+a.edit {
+	color: #666;
+	font-size: 11px;
+	font-family: Verdana;
+	text-transform: lowercase;
+}
+
+.button, form input.button {
+	padding: 3px 5px;
+	border: 1px solid #d7d7d7;
+	border-radius: 0px;
+	background: #FAFAFA;
+	color: #1a1b1b;
+	text-decoration: none;
+}
+	form input[type=submit].button {
+		float: none;
+		width: auto;
+		min-width: 0;
+		border: 1px solid #d7d7d7;
+		font-size: 13px;
+		text-shadow: none;
+	}
+.button:hover, form input.button:hover {
+	background: #efefef;
+	border: 1px solid #d7d7d7;
+	text-decoration: none;
+}
+
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}
+
+.hidden {
+	display: none;
+}
+
+div.wrap {
+	margin: 0 auto;
+	max-width: 1300px;
+	min-width: 920px;
+	width: 86%;
+}

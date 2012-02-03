@@ -11,7 +11,8 @@
 
 		//return the time in unix epoch format
 		public function get_time() {
-			return $this->get_date( 'U' );
+			$date = $this->get_date( 'U' );
+			return is_numeric( $date ) ? $date : time(); //time wrong? use now
 		}
 
 		//get/save & generate locally image (select best/main/biggest image)
@@ -20,15 +21,11 @@
 			$config = array(
 				'quarter' => array(
 					'w' => 200,
-					'h' => 110,
-				),
-				'third' => array(
-					'w' => 267,
-					'h' => 150,
+					'h' => 100,
 				),
 				'half' => array(
-					'w' => 400,
-					'h' => 220,
+					'w' => 430,
+					'h' => 150,
 				),
 			);
 
@@ -44,11 +41,21 @@
 				$max_size = 0;
 				$thumb_img = -1;
 				foreach( $this->images as $key => $image ):
+					//check!
+					if( !file_exists( $image ) )
+						continue;
+
 					//calculate size
-					$s = getimagesize( $image );
+					$s = @getimagesize( $image );
+					//fail?
+					if( !$s )
+						continue;
+
+					//work out size
 					$size = $s[0] * $s[1];
+
 					//image too small? fuck it
-					if( $size < ( $conf['w'] * $conf['h'] ) or $s[0] < $conf['w'] or $s[1] < $conf['h'] ):
+					if( $s[0] < ( $conf['w'] * 0.8 ) or $s[1] < ( $conf['h'] * 0.8 ) ):
 						continue;
 					endif;
 
@@ -65,19 +72,31 @@
 				//got an image?
 				if( $thumb_img > -1 ):
 					$thumb_name = 'data/thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
+
 					//no thumb? generate it!
-					if( !file_exists( $thumb_name ) ):
+					if( !file_exists( $thumb_name ) and file_exists( $this->images[$thumb_img] ) ):
 						//generate the thumbnail
 						$resize = new resize( $this->images[$thumb_img] );
-						@$resize->resizeImage( $conf['w'], $conf['h'], 'crop' );
-						@$resize->saveImage( $thumb_name );
+						//attempt resize, save
+						$resize->resizeImage( $conf['w'], $conf['h'], 'crop' );
+						$resize->saveImage( $thumb_name, 80 );
 					endif;
+
+					//last check!
+					if( !file_exists( $thumb_name ) )
+						continue;
+
 					//return the thumbnail
 					$return[$conf_key] = $thumb_name;
 				endif;
 			endforeach;
 
-			//still here? obv no thumb
+			//now delete the images (since we only use thumbs)
+			foreach( $this->images as $image )
+				if( file_exists( $image ) )
+					unlink( $image );
+
+			//return the shit
 			return $return;
 		}
 
@@ -85,7 +104,7 @@
 		public function get_end_url() {
 			if( $this->endlink ) return $this->endlink;
 
-			$return = '';
+			$return = $this->get_permalink();
 
 			//find end-url by curling it
 			$curl = curl_init( $this->get_permalink() );
@@ -117,6 +136,7 @@
 		private function get_raw_article() {
 			//start with our normal feed content
 			$return = $this->get_content();
+			$url = $this->get_end_url();
 
 			//are we happy?
 			$happy = true;
@@ -129,7 +149,7 @@
 			$html = new simple_html_dom();
 			$html->load( $return );
 			foreach( $html->find( 'a' ) as $link ):
-				if( $link->href == $this->get_end_url() ):
+				if( $link->href == $url ):
 					$happy = false;
 				endif;
 			endforeach;
@@ -140,15 +160,15 @@
 				$happy = false;
 			endif;
 
-			//are we unhappy? lets rip this thing!
-			if( !$happy ):
+			//are we unhappy? lets rip this thing! (only if we have an url)
+			if( !$happy and !empty( $url ) ):
 				//try instapper
 
 				//try hnews
 
 				//try readability; get file contents
 				$contents = file_get_contents( $this->get_end_url() );
-				$readability = new Readability( $contents, $this->get_end_url() );
+				$readability = new Readability( $contents, $url );
 				//works?
 				if( $readability->init() ):
 					return $readability->getContent()->innerHTML;
@@ -175,20 +195,15 @@
 				$img->width = 'auto';
 				$img->height = 'auto';
 
-				//(try to) save the image locally
-				if( $img_name = $this->save_image( $img->src ) ):
-					$this->images[] = $img_name;
-					$img->src = 'PULSEFEED_ROOT_DIR/' . $img_name;
+				//fix img src
+				if( substr( $img->src, 0, 1 ) == '/' ):
+					$img->src = rtrim( $this->get_feed()->get_permalink(), '/' ) . $img->src;
 				endif;
 
-				//testing/removing annoying feedburner shit
-				if( preg_match( '/feeds.feedburner.com/', $img->src ) )
-					$img->src= null;
-			endforeach;
-
-			//work links
-			foreach( $html->find( 'a' ) as $link ):
-				$link->target = '_blank';
+				//(try to) save the image locally
+				if( $img_name = $this->save_image( $img->src ) and file_exists( $img_name ) ):
+					$this->images[] = $img_name;
+				endif;
 			endforeach;
 
 			//set article to our edited/fixed html

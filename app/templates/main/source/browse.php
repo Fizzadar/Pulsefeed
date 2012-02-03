@@ -9,7 +9,7 @@
 				<a class="button" href="<?php echo $c_config['root']; ?>/sources/add">+ add new source</a>
 			</div>
 
-			<h1>Browse Sources</h1>
+			<h1><?php echo $this->get( 'sourceOrder' ) == 'mod_source.articles' ? 'Manage Your ' : 'Browse '; ?>Sources</h1>
 		</div><!--end wrap-->
 	</div><!--end header-->
 <?php endif; ?>
@@ -24,6 +24,9 @@
 						break;
 					case 'mod_source.subscribers':
 						echo 'popular sources';
+						break;
+					case 'mod_source.articles':
+						echo 'sources you subscribe to';
 						break;
 				endswitch;
 			?>
@@ -87,16 +90,24 @@
 
 				<ul>
 					<li class="title">Views</li>
+					<?php if( $mod_user->session_login() ): ?>
+						<?php if( $this->get( 'sourceOrder' ) == 'mod_source.articles' ): ?>
+							<li>My Sources &rarr;</li>
+						<?php else: ?>
+							<li><a href="<?php echo $c_config['root']; ?>/sources/me">My Sources</a></li>
+						<?php endif; ?>
+					<?php endif; ?>
+
 					<?php if( $this->get( 'sourceOrder' ) == 'mod_source.subscribers' ): ?>
-					<li>Popular Sources &rarr;</li>
+						<li>Popular Sources &rarr;</li>
 					<?php else: ?>
-					<li><a href="<?php echo $c_config['root']; ?>/sources">Popular Sources</a></li>
+						<li><a href="<?php echo $c_config['root']; ?>/sources">Popular Sources</a></li>
 					<?php endif; ?>
 
 					<?php if( $this->get( 'sourceOrder' ) == 'mod_source.time' ): ?>
-					<li>Newest Sources &rarr;</li>
+						<li>Newest Sources &rarr;</li>
 					<?php else: ?>
-					<li><a href="<?php echo $c_config['root']; ?>/sources?new">Newest Sources</a></li>
+						<li><a href="<?php echo $c_config['root']; ?>/sources/new">Newest Sources</a></li>
 					<?php endif; ?>
 				</ul>
 

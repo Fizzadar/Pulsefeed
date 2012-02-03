@@ -56,50 +56,18 @@
 	else
 		$name = $exists[0]['name'] . '\'s';
 
-	//load users streams
-	$streams = $mod_db->query( '
-		SELECT id, name
-		FROM mod_stream
-		WHERE user_id = ' . $user_id . '
-	' );
-	$mod_template->add( 'streams', $streams );
-
 	//set stream to cookie
 	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
-
-	//stream_id as stream_type?
-	$stream_id = 0;
-	if( is_numeric( $stream_type ) ):
-		//does this user own this stream?
-		$own = $mod_db->query( '
-			SELECT name
-			FROM mod_stream
-			WHERE id = ' . $stream_type . '
-			AND user_id = ' . $user_id . '
-			LIMIT 1
-		' );
-		if( !isset( $own ) or count( $own ) != 1 ):
-			$mod_message->add( 'NotFound' );
-			die( header( 'Location: ' . $c_config['root'] ) );
-		endif;
-		$stream_name = $own[0]['name'];
-		$stream_id = $stream_type;
-		$stream_type = 'user';
-	endif;
 
 	//load the users sources
 	$sources = $mod_db->query( '
 		SELECT id, site_title AS source_title, site_url AS source_url
-		FROM mod_source, mod_user_sources' . ( $stream_type == 'user' ? ', mod_stream_sources' : '' ) . '
+		FROM mod_source, mod_user_sources
 		WHERE mod_source.id = mod_user_sources.source_id
 		AND mod_user_sources.user_id = ' . $user_id . '
-		' . ( $stream_type == 'user' ?
-			'AND mod_source.id = mod_stream_sources.source_id
-			AND mod_stream_sources.stream_id = ' . $stream_id : ''
-		) . '
 	' );
-	foreach( $sources as $k => $source ):
-		$sources[$k]['source_domain'] = $mod_data->domain_url( $source['source_url'] );
+	foreach( $sources as $k => $s ):
+		$sources[$k]['source_domain'] = $mod_data->domain_url( $s['source_url'] );
 		$sources[$k]['source_title'] = substr( $sources[$k]['source_title'], 0, 13 ) . ( strlen( $sources[$k]['source_title'] ) > 13 ? '...' : '' );
 	endforeach;
 	$mod_template->add( 'sources', $sources );
@@ -114,7 +82,6 @@
 
 	//set user & stream id 
 	$mod_stream->set_userid( $user_id );
-	$mod_stream->set_streamid( $stream_id );
 	$mod_stream->set_offset( $offset * 64 );
 	$mod_stream->set_sinceid( $since_id );
 
@@ -124,12 +91,16 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
+	//get the data
+	$stream_data = $mod_config['api'] ? $mod_stream->get_data() : $mod_stream->build();
+
 	//add data
-	$mod_template->add( 'stream', $mod_config['api'] ? $mod_stream->get_data() : $mod_stream->build() );
+	$mod_template->add( 'stream', $stream_data['items'] );
+	$mod_template->add( 'recommends', $stream_data['recommends'] );
 	$mod_template->add( 'title', $stream_type );
 	$mod_template->add( 'pageTitle', $name . ' ' . ( isset( $stream_name ) ? $stream_name : ucfirst( $stream_type ) ) . ' Stream' );
 	$mod_template->add( 'userid', $user_id );
-	$mod_template->add( 'streamid', $stream_id );
+	$mod_template->add( 'username', $exists[0]['name'] );
 	$mod_template->add( 'nextOffset', $offset + 1 );
 
 	//load templates
