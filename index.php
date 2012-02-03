@@ -16,6 +16,7 @@
 
 	//get the config
 	require( 'app/config.php' );
+	require( 'app/config.ext.php' );
 	
 	//enable debug
 	$c_debug->enable();
