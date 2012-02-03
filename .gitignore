@@ -2,4 +2,4 @@ data/
 core/
 *.psd
 .DS_Store
-app/config.ext.php
+*.sh
