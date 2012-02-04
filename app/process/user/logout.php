@@ -4,6 +4,7 @@
 	
 	//logout user
 	var_dump( $mod_user->logout() );
+	die();
 	
 	//message
 	$mod_message->add( 'LoggedOut' );
