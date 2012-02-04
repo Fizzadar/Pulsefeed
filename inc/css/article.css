@@ -1,0 +1,62 @@
+/*
+	for pulsefeed article layouts
+*/
+
+div#pf_article {
+	font-size: 16px;
+	font-family: PT Sans;
+	margin-top: 20px;
+}
+	div#pf_article div#content {
+		margin-left: 150px;
+		margin-right: 254px;
+	}
+
+div#content img {
+	margin: 10px 20px;
+	border: 1px solid #D7D7D7;
+	background: #F7F7F7;
+	padding: 5px;
+}
+div#content img.left.big {
+	margin-left: -50px;
+}
+div#content img.right.big {
+	margin-right: -50px;
+}
+
+div#content h1#title {
+	margin-left: -50px;
+	margin-right: -50px;
+	line-height: 35px;
+	margin-bottom: 5px;
+	font-family: Delicious;
+}
+
+div#content p {
+	text-align: justify;
+}
+
+div.meta {
+	font-family: Verdana;
+	font-size: 11px;
+	color: #666;
+}
+	div.meta a {
+		font-family: PT Sans;
+		font-size: 15px;
+		text-decoration: none;
+	}
+	div#content div.meta img {
+		margin: 0;
+		padding: 0;
+		width: 16px;
+		height: 16px;
+		border-radius: 3px;
+		vertical-align: text-bottom;
+		border: none;
+		background: transparent;
+	}
+	div.meta a:hover span {
+		text-decoration: underline;
+	}

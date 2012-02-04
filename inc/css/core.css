@@ -393,6 +393,7 @@ div#sidebars {
 	div#sidebars div.fix {
 		position: fixed;
 		margin-top: -25px;
+		z-index: 2;
 	}
 	div#sidebars div.left {
 		width: 130px;

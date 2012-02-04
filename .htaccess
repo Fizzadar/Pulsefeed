@@ -32,6 +32,12 @@ RewriteRule ^source/([0-9]+)$							index.php?load=source&id=$1 [QSA,L]					#sou
 RewriteRule ^user/([0-9]+)/[aA-zZ0-9]+$					index.php?load=user&id=$1 [QSA,L]					#user streams (hybrid)
 RewriteRule ^user/([0-9]+)/[aA-zZ0-9]+/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]			#user streams (unread, popular, newest, discover?)
 
+#User Welcome
+RewriteRule ^user/welcome$								index.php?load=user-new [QSA,L]						#welcome new user page
+
+#User settings
+RewriteRule ^user/settings$								index.php?load=settings [QSA,L]						#user settings
+
 
 #Source Browsing
 RewriteRule ^sources$									index.php?load=source-browse [QSA,L]				#browse popular
@@ -46,13 +52,6 @@ RewriteRule ^collections$								index.php?load=collection-browse [QSA,L]			#bro
 RewriteRule ^collections/me$							index.php?load=collection-browse&me [QSA,L]			#my collections
 RewriteRule ^collections/add$							index.php?load=collection-add [QSA,L]				#add collections
 RewriteRule ^collections/([0-9]+)						index.php?load=collection-view [QSA,L]				#see a specific collection
-
-
-#User Welcome
-RewriteRule ^user/welcome$								index.php?load=user-new [QSA,L]						#welcome new user page
-
-#User settings
-RewriteRule ^user/settings$								index.php?load=settings [QSA,L]						#user settings
 
 
 #Login Page

@@ -17,7 +17,7 @@
 	endif;
 
 	//post data
-	if( !isset( $_POST['source_id'] ) or !is_numeric( $_POST['source_id'] ) ):
+	if( !isset( $_POST['source_id'] ) or !is_numeric( $_POST['source_id'] ) or $_POST['source_id'] <= 0 ):
 		$mod_message->add( 'InvalidPost' );
 		die( header( 'Location: ' . $redir ) );
 	endif;

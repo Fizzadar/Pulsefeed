@@ -101,8 +101,8 @@
 
 					<li class="title">Account</li>
 					<li><a href="<?php echo $c_config['root']; ?>/user/settings">Settings</a></li>
-					<li><a href="<?php echo $c_config['root']; ?>/user/settings/sources">Sources</a></li>
-					<li><a href="<?php echo $c_config['root']; ?>/user/settings/collections">Collections</a></li>
+					<li><a href="<?php echo $c_config['root']; ?>/sources/me">Sources</a></li>
+					<li><a href="<?php echo $c_config['root']; ?>/collections/me">Collections</a></li>
 
 					<li class="title">Other Bits</li>
 					<li><a href="#">Help</a></li>
