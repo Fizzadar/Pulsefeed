@@ -3,5 +3,5 @@ core/*.php
 core/*.sql
 *.psd
 .DS_Store
-app/config.ext.php
+*config.ext.php
 *.sh
