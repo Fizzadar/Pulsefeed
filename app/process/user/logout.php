@@ -4,8 +4,10 @@
 	
 	//logout user
 	var_dump( $mod_user->logout() );
+	global $c_config;
+	print_r( $c_config );
 	die();
-	
+
 	//message
 	$mod_message->add( 'LoggedOut' );
 	
