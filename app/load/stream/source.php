@@ -1,11 +1,11 @@
 <?php
 	/*
-		file: app/load/user.php
-		desc: display & load user streams
+		file: app/load/stream/source.php
+		desc: load source stream
 	*/
 
 	//modules
-	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data;
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load;
 
 	//start template
 	$mod_template = new mod_template();
@@ -16,7 +16,7 @@
 		$offset = $_GET['offset'];
 
 	//load our source (and check)
-	if( !isset( $_GET['id'] ) or !is_numeric( $_GET['id'] ) ):
+	if( !isset( $_GET['id'] ) or !is_numeric( $_GET['id'] ) or $_GET['id'] <= 0 ):
 		$mod_message->add( 'NotFound' );
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
@@ -36,17 +36,12 @@
 
 	if( $mod_user->check_login() ):
 		//load the users sources
-		$sources = $mod_db->query( '
-			SELECT id, site_title AS source_title, site_url AS source_url
-			FROM mod_source, mod_user_sources
-			WHERE mod_source.id = mod_user_sources.source_id
-			AND mod_user_sources.user_id = ' . $mod_user->get_userid() . '
-		' );
-		foreach( $sources as $k => $s ):
-			$sources[$k]['source_domain'] = $mod_data->domain_url( $s['source_url'] );
-			$sources[$k]['source_title'] = substr( $sources[$k]['source_title'], 0, 13 ) . ( strlen( $sources[$k]['source_title'] ) > 13 ? '...' : '' );
-		endforeach;
+		$sources = $mod_load->load_sources( $mod_user->get_userid() );
 		$mod_template->add( 'sources', $sources );
+
+		//load the users followings
+		$followings = $mod_load->load_users( $mod_user->get_userid() );
+		$mod_template->add( 'followings', $followings );
 	endif;
 
 	//set stream to cookie
@@ -60,7 +55,7 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
-	//set user & stream id 
+	//set offset
 	$mod_stream->set_offset( $offset * 64 );
 
 	//set source id

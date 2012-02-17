@@ -1,7 +1,7 @@
 <?php
 	/*
 		file: app/process/user/load.php
-		desc: load users settings
+		desc: load users data (avatars)
 	*/
 
 	//modules
@@ -13,14 +13,35 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
-	//load our settings
-	$settings = $mod_db->query( '
-		SELECT setting_color
-		FROM core_user
-		WHERE id = ' . $mod_user->get_userid() . '
-		LIMIT 1
-	' );
-	if( isset( $settings ) and count( $settings ) == 1 ):
-		$mod_cookie->set( 'SettingColor', $settings[0]['setting_color'] );
+	//get our oauths
+	$oauths = $mod_user->get_oauths();
+
+	//loop the oauths
+	foreach( $oauths as $auth ):
+		//twitter > facebook
+		if( $auth['provider'] == 'twitter' ):
+			$oauth = $auth;
+			break;
+		elseif( $auth['provider'] == 'facebook' ):
+			$oauth = $auth;
+		endif;
+	endforeach;
+
+	//work out avatar
+	if( isset( $oauth ) ):
+		if( $oauth['provider'] == 'twitter' ):
+			$data = @file_get_contents( 'http://api.twitter.com/1/users/show.json?user_id=' . $oauth['o_id'] );
+			$data = json_decode( $data );
+			$avatar = $data->profile_image_url;
+		elseif( $oauth['provider'] == 'facebook' ):
+			$avatar = 'http://graph.facebook.com/' . $oauth['o_id'] . '/picture';
+		endif;
+	endif;
+
+	//set avatar
+	if( isset( $avatar ) ):
+		$mod_user->set_data( array(
+			'avatar_url' => $avatar
+		));
 	endif;
 ?>

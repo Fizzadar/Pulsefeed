@@ -10,21 +10,10 @@
 	//start template
 	$mod_template = new mod_template();
 
-	//logged in?
-	if( $mod_user->check_login() ):
-		//load the users sources
-		$sources = $mod_db->query( '
-			SELECT id, site_title AS source_title, site_url AS source_url
-			FROM mod_source, mod_user_sources
-			WHERE mod_source.id = mod_user_sources.source_id
-			AND mod_user_sources.user_id = ' . $mod_user->get_userid() . '
-		' );
-		foreach( $sources as $k => $s ):
-			$sources[$k]['source_domain'] = $mod_data->domain_url( $s['source_url'] );
-			$sources[$k]['source_title'] = substr( $sources[$k]['source_title'], 0, 13 ) . ( strlen( $sources[$k]['source_title'] ) > 13 ? '...' : '' );
-		endforeach;
-		$mod_template->add( 'sources', $sources );
-	endif;
+	//offset
+	$offset = 0;
+	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
+		$offset = $_GET['offset'];
 
 	//set stream to cookie
 	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
@@ -37,8 +26,8 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
-	//set user & stream id 
-	$mod_stream->set_offset( ( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) ) ? $_GET['offset'] : 0 );
+	//set offset
+	$mod_stream->set_offset( $offset * 64 );
 
 	//prepare, ok to go after this
 	if( !$mod_stream->prepare() ):
@@ -56,6 +45,7 @@
 	$mod_template->add( 'pageTitle', 'Public Stream' );
 	$mod_template->add( 'userid', $mod_user->session_userid() );
 	$mod_template->add( 'username', $mod_user->session_username() );
+	$mod_template->add( 'nextOffset', $offset + 1 );
 	$mod_template->add( 'streamid', 0 );
 
 	//load templates

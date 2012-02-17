@@ -11,83 +11,85 @@
 
 		//build
 		public function build() {
+			global $mod_data;
+			
 			if( !$this->data ) return false;
+			$features_type = array( 'hybrid', 'popular', 'public' );
 
-			//return array
-			$return = array();
-			$item_count = 0;
-			$wide_count = 0;
-			$half_count = 0;
+			//return arrays (3 cols)
+			$articles = array(
+				'col1' => array(),
+				'col2' => array(),
+				'col3' => array()
+			);
+			//build features?
+			$features = in_array( $this->stream_type, $features_type ) ? $this->build_features() : array();
 
-			//while we still have items to deal with/display (item count just in case)
-			while( count( $this->data['items'] ) > 0 and $item_count < 200 ):
-				$item_count++;
+			//now re-do keys
+			$this->data['items'] = array_values( $this->data['items'] );
 
-				//lets go
-				$got_item = false;
-				foreach( $this->data['items'] as $key => $item ):
-					//just in case!
-					if( $got_item ) break;
+			//make shorter desc
+			foreach( $this->data['items'] as $k => $v ):
+				$this->data['items'][$k]['shorter_description'] = substr( $this->data['items'][$k]['description'], 0, 120 ) . ( strlen( $this->data['items'][$k]['description'] ) > 120 ? '...' : '' );
+				$this->data['items'][$k]['time_ago'] = $mod_data->time_ago( $this->data['items'][$k]['time'] );
+			endforeach;
 
-					//try to stick two next to each other (as images if possible)
-					if( isset( $this->data['items'][$key + 1] ) and $item_count > 1 ):
-						$half = false;
+			switch( $this->stream_type ):
+				//2 col main, 1 col upcoming
+				case 'hybrid':
+				case 'popular':
+				case 'public':
+					//get 1/3 length
+					$length = count( $this->data['items'] );
+					$third = round( $length / 3 );
 
-						//two text-only items in a row?
-						if( empty( $item['image_quarter'] ) and empty( $this->data['items'][$key + 1]['image_quarter'] ) )
-							$half = true;
+					//get col3, items from length - third to length
+					for( $i = $length - $third; $i < $length; $i++ ):
+						$this->data['items'][$i]['short_description'] = $this->data['items'][$i]['shorter_description'];
+						$articles['col3'][] = $this->data['items'][$i];
+					endfor;
 
-						//half followed by text only?
-						if( !empty( $item['image_half'] ) and empty( $this->data['items'][$key +1]['image_quarter'] ) )
-							$half = true;
-
-						//text only followed by half?
-						if( empty( $item['image_quarter'] ) and !empty( $this->data['items'][$key + 1]['image_half'] ) )
-							$half = true;
-
-						//two half images in a row
-						if( !empty( $item['image_half'] ) and !empty( $this->data['items'][$key + 1]['image_half'] ) )
-							$half = true;
-
-						//two previous wides?
-						if( $wide_count >= 2 and $half_count < 1 )
-							$half = true;
-
-						//template set?
-						if( $half ):
-							$return[] = array(
-								'template' => 'item_half',
-								'items' => array(
-									$item,
-									$this->data['items'][$key + 1]
-								)
-							);
-							unset( $this->data['items'][$key] );
-							unset( $this->data['items'][$key + 1] );
-							$got_item = true;
-							$wide_count = 0;
-							$half_count++;
-							break;
+					//now generate other 2 cols
+					$col2 = false;
+					for( $i = 0; $i < $length - $third; $i++ ):
+						//choose the col
+						if( $col2 ):
+							$articles['col1'][] = $this->data['items'][$i];
+						else:
+							$articles['col2'][] = $this->data['items'][$i];
 						endif;
-					endif;
 
-					//still here, single image
-					$return[] = array(
-						'template' => 'item_wide',
-						'items' => array( $item )
-					);
-					unset( $this->data['items'][$key] );
-					$got_item = true;
-					$wide_count++;
-					$half_count = 0;
+						//switch
+						$col2 = !$col2;
+					endfor;
 					break;
-				endforeach;
-			endwhile;
 
+				//3 col even
+				case 'unread':
+				case 'newest':
+				case 'discover':
+				case 'source':
+					$col = 1;
+
+					//add each item, increment col (back to 1 if on 3)
+					foreach( $this->data['items'] as $k => $item ):
+						$articles['col' . $col][] = $item;
+						$col++;
+						if( $col > 3 ) $col = 1;
+					endforeach;
+			endswitch;
+
+			//finally return our array
 			return array(
-				'items' => $return,
+				'features' => $features,
+				'items' => $articles,
 				'recommends' => $this->data['recommends']
 			);
+		}
+
+		//build features
+		private function build_features() {
+			return array();
 		}
 	}
 ?>

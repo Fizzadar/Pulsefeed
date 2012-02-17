@@ -29,31 +29,35 @@ RewriteRule ^tag/([0-9]+)$								index.php?load=tag&id=$1 [QSA,L]					#tag stre
 RewriteRule ^source/([0-9]+)$							index.php?load=source&id=$1 [QSA,L]					#source stream
 
 #User Streams
-RewriteRule ^user/([0-9]+)/[aA-zZ0-9]+$					index.php?load=user&id=$1 [QSA,L]					#user streams (hybrid)
-RewriteRule ^user/([0-9]+)/[aA-zZ0-9]+/([a-z0-9]+)$ 	index.php?load=user&id=$1&stream=$2 [QSA,L]			#user streams (unread, popular, newest, discover?)
+RewriteRule ^user/([0-9]+)+$							index.php?load=user&id=$1 [QSA,L]					#user streams (hybrid)
+RewriteRule ^user/([0-9]+)/hybrid						/user/$1 [QSA,R=301,L]								#redirect /hybrid to /
+RewriteRule ^user/([0-9]+)/([a-z0-9]+)$ 				index.php?load=user&id=$1&stream=$2 [QSA,L]			#user streams (unread, popular, newest, discover?)
 
 #User settings
 RewriteRule ^settings$									index.php?load=settings [QSA,L]						#user settings
 
+#User enter invite code
+RewriteRule ^invite$									index.php?load=invite [QSA,L]						#enter invite code
+
+#User Login
+RewriteRule ^login$										index.php?load=login [QSA,L]						#login page
+
 
 #Source Browsing
-RewriteRule ^sources$									index.php?load=source-browse [QSA,L]				#browse popular
-RewriteRule ^sources/new$								index.php?load=source-browse&new [QSA,L]			#browse newest
-RewriteRule ^sources/me$								index.php?load=source-browse&me [QSA,L]				#browse subscribed
+RewriteRule ^sources$									index.php?load=source-browse [QSA,L]				#popular
+RewriteRule ^sources/new$								index.php?load=source-browse&new [QSA,L]			#new sources
+RewriteRule ^sources/me$								index.php?load=source-browse&me [QSA,L]				#subscribed sources
 RewriteRule ^sources/add$								index.php?load=source-add [QSA,L]					#add source
 RewriteRule ^sources/([a-z0-9]+)$						index.php?load=source-browse&tag=$1 [QSA,L]			#browse by tag
-
+#see source stream
 
 #Collection Browsing
-RewriteRule ^collections$								index.php?load=collection-browse [QSA,L]			#browse collections
+RewriteRule ^collections$								index.php?load=collection-browse [QSA,L]			#popular collections
+RewriteRule ^collections/new$							index.php?load=collection-browse&new [QSA,L]		#new collections
 RewriteRule ^collections/me$							index.php?load=collection-browse&me [QSA,L]			#my collections
 RewriteRule ^collections/add$							index.php?load=collection-add [QSA,L]				#add collections
 RewriteRule ^collections/([0-9]+)						index.php?load=collection-view [QSA,L]				#see a specific collection
 
 
-#Login Page
-RewriteRule ^login$										index.php?load=login [QSA,L]						#login page
-
-
-#Process?
+#Process
 RewriteRule ^process/([aA-zZ-]+)						index.php?process=$1 [QSA,L]						#processes?

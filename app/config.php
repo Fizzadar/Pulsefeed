@@ -4,7 +4,7 @@
 		desc: configuration for pulsefeed app
 	*/
 	
-	define( 'PULSEFEED_VERSION', '0.5.0' );
+	define( 'PULSEFEED_VERSION', '0.6.0' );
 
 	//templates from hostnames!
 	$templates = array(
@@ -22,6 +22,7 @@
 		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.pulsefeed.com' or isset( $_GET['ajax'] ) ),
 		'useragent' => 'Pulsefeed / v.' . PULSEFEED_VERSION,
 		'load' => array(
+			'204' => '204',
 			//js & css
 			'js' => 'inc/js',
 			'css' => 'inc/css',
@@ -33,20 +34,15 @@
 			'user' => 'stream/user',
 			'public' => 'stream/public',
 			'source' => 'stream/source',
-			'tag' => 'stream/tag', //todo
+			'tag' => 'stream/tag', //todo - can hide
 			//sources
 			'source-browse' => 'source/browse',
 			'source-add' => 'source/add',
 			//search
-			'search' => 'search', //todo
-			//login page
+			'search' => 'search', //todo - must do
+			//users
 			'login' => 'user/login',
-			'user-new' => 'user/new', //todo
-			//settings
-			'settings' => 'settings/core', //todo
-			'settings-sources' => 'settings/sources', //todo
-			'settings-collections' => 'settings/collections', //todo
-			'settings-streams' => 'settings/streams', //todo
+			'invite' => 'user/invite',
 		),
 		'process' => array(
 			//user
@@ -58,12 +54,13 @@
 			'login-twitter' => 'user/login',
 			'login-openid' => 'user/login',
 			'load' => 'user/load',
-			'follow' => 'user/follow', //todo
-			'unfollow' => 'user/unfollow', //todo
+			'follow' => 'user/follow',
+			'unfollow' => 'user/unfollow',
+			'invite' => 'user/invite',
 			//source
 			'source-add' => 'source/add',
-			'source-subscribe' => 'source/subscribe',
-			'source-unsubscribe' => 'source/unsubscribe',
+			'subscribe' => 'source/subscribe',
+			'unsubscribe' => 'source/unsubscribe',
 			'source-tag' => 'source/tag', //todo
 			'source-untag' => 'source/untag', //todo
 			//article
@@ -94,6 +91,7 @@
 			'mod_stream_site' => 'stream_site',
 			'mod_data' => 'data',
 			'mod_cookie' => 'cookie',
+			'mod_load' => 'load',
 			//external libs
 			'SimplePie' => 'external/simplepie',
 			'simple_html_dom' => 'external/simpledom',
@@ -110,8 +108,13 @@
 			'LoggedIn' => array( 'Sucessfully logged in', 'success' ),
 			'ReLoggedIn' => array( 'Sucessfully logged in (again)', 'success' ),
 			'LoggedOut' => array( 'You have logged out of Pulsefeed, come back soon!', 'success' ),
-			'MustLogin' => array( 'To do tha you need to login!', 'warning' ),
+			'MustLogin' => array( 'To do that you need to login!', 'warning' ),
 			'NoPermission' => array( 'You do not have the required permissions to do that!', 'warning' ),
+			'UserFollowed' => array( 'Sucesfully following that user', 'success' ),
+			'UserUnFollowed' => array( 'Successfully unfollowed that user', 'success' ),
+			'AlreadyInvited' => array( 'You are already invited to Pulsefeed!', 'success' ),
+			'InvalidInviteCode' => array( 'Invalid invite code', 'warning' ),
+			'InviteCodeAdded' => array( 'Welcome to the Pulsefeed Alpha!', 'success' ),
 			//posting & requests
 			'InvalidToken' => array( 'Invalid session token, please retry your last action', 'warning' ),
 			'InvalidPost' => array( 'Incorrect info was sent during the last action, please try again', 'warning' ),

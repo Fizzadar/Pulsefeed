@@ -6,6 +6,7 @@ div.main {
 	padding-left: 20px;
 	overflow: hidden;
 	word-wrap: break-word;
+	font-family: PT Sans;
 }
 div.main.wide {
 	margin-right: 0;
@@ -14,8 +15,6 @@ div.main.wide {
 div#content {
 	margin-top: 0px;
 	padding-top: 29px;
-	position: relative;
-	z-index: 2;
 }
 	div#content div.main {
 		padding-top: 15px;
@@ -37,7 +36,7 @@ div#content {
 
 	div.main a.widelink {
 		width: 50%;
-		font-family: Delicious, Arial;
+		font-family: PT Sans, Arial;
 		display: inline-block;
 		text-align: center;
 		background: #FAFAFA;
@@ -46,7 +45,7 @@ div#content {
 		float: left;
 		border-top-left-radius: 5px;
 		border-bottom-left-radius: 5px;
-		font-size: 24px;
+		font-size: 22px;
 	}
 	div.main a.widelink:hover {
 		background: #F1F1F1;
@@ -87,8 +86,8 @@ div#content {
 	}
 
 	div.main a.morelink {
-		font-size: 24px;
-		font-family: Delicious, Arial;
+		font-size: 20px;
+		font-family: PT Sans, Arial;
 		display: block;
 		text-align: center;
 		background: #FAFAFA;
@@ -121,338 +120,244 @@ div#stream {
 		float: left;
 		width: 100%;
 	}
-	
-div.smallstatus {
-}
-	div.smallstatus img {
+		div#stream span.edit span.right {
+			margin-right: 6%;
+			width: 20%;
+		}
+	div#stream div.feature {
 		float: left;
-		width: 25px;
-		height: 25px;
-		margin-right: 5px;
-		border-radius: 3px;
+		width: 70%;
 	}
-	div.smallstatus span.meta {
-		font-size: 11px;
-		color: #666;
-		font-family: Verdana;
-		opacity: 0.5;
-	}
-	div.smallstatus:hover span.meta {
-		opacity: 1;
-	}
-
-
-/*
-	article
-*/
-div.article {
-	font-size: 13px;
-}
-	div#stream div.article {
+	div#stream div.col {
+		float: left;
+		width: 34%;
+		margin-right: 3%;
 		font-size: 14px;
-		font-family: PT Sans;
 	}
-	div#stream div.article.articlepage {
-		font-size: 15px;
-		line-height: 25px;
-	}
-	div.article table {
-		width: 100%;
-		border-spacing: 0;
-	}
-		div.article table tr {
-			padding: 5px 0;
-		}
-		div.article table tr:hover {
-			background: #F7F7F7;
-		}
-			div.article table tr td {
-				border-bottom: 1px solid #D7D7D7;
-			}
-			div.article table tr:last-child td {
-				border-bottom: none;
-			}
-	div.article.articlepage img {
-		max-width: 60%;
-		margin: 5px;
-	}
-	div.article hr {
-		border: none;
-		border-top: 1px solid #F7F7F7;
-	}
-	div.article blockquote {
-		border-left: 10px solid #FAFAFA;
-		margin-left: 20px;
-		padding-left: 10px;
-		font-style: italic;
-		font-family: Georgia;
-	}
-	div.article ul li {
-		list-style: square;
-	}
-	div.article code, div.article pre {
-		background: #FAFAFA;
-		padding: 3px;
-		font-family: "Courier New", Courier;
-	}
-	div.article pre {
-		white-space: pre-line;
-		padding: 10px;
-	}
-	div.article img.thumb {
-		float: left;
-		padding: 3px;
-		margin-right: 10px;
-		background: #F7F7F7;
-		border: 1px solid #D7D7D7;
-	}
-	div.article img.thumb.alt {
-		float: right;
+	div#stream div.col.col3 {
 		margin-right: 0;
-		margin-left: 10px;
+		width: 26%;
+		float: right;
+		font-size: 13px;
+		line-height: 22px;
 	}
-	div.article h2, div.article h3, div.article h4 {
+	div#stream.col2 {
+	}
+		div#stream.col2 div.col {
+			width: 48%;
+		}
+		div#stream.col2 div.col.col3 {
+			display: none;
+		}
+		div#stream.col2 div.col.col2 {
+			margin-right: 0;
+			float: right;
+		}
+		div#stream.col2 span.edit span.right {
+			display: none;
+		}
+	div#stream.evencol {
+	}
+		div#stream.evencol div.col {
+			width: 30%;
+			margin-right: 4%;
+		}
+		div#stream.evencol div.col.col3 {
+			margin-right: 0;
+			margin-top: 22px;
+		}
+
+div.feature {
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #F7F7F7;
+	font-size: 14px;
+}
+div.feature.edit {
+	padding: 0;
+	margin: 0;
+	border-bottom: none;
+}
+	div.feature h1 {
 		margin: 0 0 5px 0;
-		font-family: Arial;
-		font-family: Delicious, Arial;
 		font-weight: normal;
+		color: #666;
 	}
-		div.article h1 a, div.article h2 a, div.article h3 a, div.article h4 a {
+		div.feature h1 a {
 			color: #1A1B1B;
-			
-		}
-		div.article h1 a:hover, div.article h2 a:hover, div.article h3 a:hover, div.article h4 a:hover {
-			color: #454E9B;
 			text-decoration: none;
+			font-weight: bold;
 		}
-	div.article h2 {
-		font-size: 20px;
+		div.feature h1 a:hover {
+			color: #454E9B;
+		}
+	div.feature div.left {
+		float: left;
+		width: 48%;
 	}
-	div.article.level_1 h2 {
-		font-size: 24px;
-	}
-	div.article.level_2 h2 {
-		font-size: 22px;
-	}
-	div.article h3 {
-		font-size: 16px;
-	}
-	div.article h4 {
-		font-size: 15px;
-	}
-	div.article span.content {
-		display: block;
-	}
-	div.article span.content.image {
-		margin-left: 175px;
-	}
-	div.article div.meta {
-		clear: both;
-		padding-top: 5px;
-		opacity: 0.6;
-	}
-	div.article:hover div.meta {
-		opacity: 1;
-	}
-		div.article div.meta div.details {
-			float: left;
+		div.feature div.left img.thumb {
 			width: 100%;
 		}
-			div.article div.meta div.details img {
-				float: left;
-				margin-right: 5px;
-				margin-top: 3px;
-				width: 16px;
-				height: 16px;
-				border-radius: 3px;
-			}
-			div.article div.meta div.details a {
+		div.feature h2 {
+			margin: 0 0 5px 0;
+		}
+			div.feature h2 a {
 				color: #1A1B1B;
 			}
-			div.article div.meta div.details span {
+			div.feature h2 a:hover {
+				text-decoration: none;
+				color: #454E9B;
+			}
+	div.feature div.meta {
+		font-family: Verdana;
+		font-size: 11px;
+	}
+		div.feature div.meta img {
+			float: left;
+			border-radius: 3px;
+			margin-top: 3px;
+			margin-right: 3px;
+		}
+		div.feature div.left p {
+			margin-top: 0;
+		}
+	div.feature ul {
+		float: right;
+		width: 50%;
+		margin: 0;
+		padding: 0;
+	}
+		div.feature ul img {
+			width: 16px;
+			height: 16px;
+		}
+		div.feature ul li {
+			float: left;
+			width: 100%;
+			border-bottom: 1px solid #F7F7F7;
+			list-style: none;
+			padding: 0;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+		}
+		div.feature ul li:last-child {
+			border-bottom: none;
+		}
+			div.feature ul li span.title {
+				font-weight: bold;
+				font-size: 16px;
+				display: block;
+			}
+			div.feature ul li span.meta {
 				font-family: Verdana;
 				font-size: 11px;
 				color: #666;
 			}
-				div.article div.meta div.details span a {
-					color: #454E9B;
+				div.feature ul li span.meta a {
+					color: #333;
 				}
-			div.article div.meta form {
-				margin: 0;
-				display: inline;
-				width: auto;
+				div.feature ul li span.meta a:hover {
+					color: #1a1b1b;
+				}
+				div.feature ul li span.meta img {
+					margin-top: 3px;
+					margin-right: 5px;
+					float: left;
+				}
+			div.feature ul li span.desc {
+				display: block;
+				font-size: 13px;
 			}
-				div.article div.meta form input {
-					background: transparent;
-					font-size: 11px;
-					border: none;
-					color: #454E9B;
-					font-family: Verdana;
-					display: inline;
-					width: auto;
-					margin: 0;
-					padding: 0;
-					min-width: 0;
-					text-shadow: none;
-				}
-				div.article div.meta form input:hover {
-					color: #1A1B1B;
-					text-decoration: underline;
-				}
 
-div.article.half {
+div.item {
 }
-	div.article.half:hover div.meta {
-		opacity: 0.5;
-	}
-	div.article.half div.posthalf {
-		float: left;
-		width: 48%;
-		position: relative;
-	}
-		div.article.half div.posthalf:hover div.meta {
-			opacity: 1;
-		}
-	div.article.half div.posthalf:last-child {
-		float: right;
-	}
-	div.item.article.half.image div.posthalf {
-		width: 50%;
-	}
-	div.item.article.half div.image span.content img {
+	div.item img {
 		width: 100%;
-		max-width: 100%;
+		border: 1px solid #F7F7F7;
 	}
-	div.item.article.half h2 {
-	}
-	div.item.article.half div.image h2 a {
-		position: absolute;
-		background: rgba( 0, 0, 0, 0.7 );
-		color: #F1F1F1;
-		padding: 10px;
-		margin-top: 20px;
-		overflow: hidden;
-		line-height: 26px;
-	}
-		div.item.article.half div.image h2 a:hover {
-			text-decoration: underline;
-		}
-	div.item.article.half div.details {
-		width: 100%;
-	}
-
-div.item.images {
-}
-	div.item.images a {
-		float: left;
-		width: 25%;
-		text-decoration: none;
-	}
-	div.item.images a:first-child {
-	}
-		div.item.images a img {
+		div#stream.col2 div.item img {
 			float: left;
-			width: 100%;
+			max-width: 200px;
+			margin-right: 5px;
 		}
-		div.item.images a span {
-			background: #FCFCFC;
-			border: 1px solid #D7D7D7;
-			border-right: none;
-			color: #666;
-			font-size: 11px;
-			line-height: 13px;
-			margin-top: 10px;
-			padding: 2px 3%;
-			width: 96%;
-			height: 26px;
-			overflow: hidden;
-			margin-top: -26px;
-			display: block;
-			float: left;
-		}
-		div.item.images a:last-child span {
-			border-right: 1px solid #D7D7D7;
-		}
-	div.item.images.third a {
-		width: 33%;
+	div.item h1, div.item h2, div.item h3 {
+		font-family: PT Sans;
+		margin: 3px 0 5px 0;
 	}
-
-div.article.feature {
-	display: none;
-}
-	div.article.feature h1 {
-		font-size: 30px;
-		line-height: 24px;
-		margin: 10px 0 00px 0;
+	div.item h1 {
+		line-height: 30px;
+		font-size: 24px;
 	}
-		div.article.feature h1 a {
+	div.item h2 {
+		font-weight: normal;
+	}
+	div.item h3 {
+		font-weight: normal;
+		line-height: 22px;
+		font-size: 18px;
+	}
+		div.item h1 a, div.item h2 a, div.item h3 a {
 			color: #1A1B1B;
-			margin-top: 20px;
-			overflow: hidden;
 		}
-			div.article.feature h1 a:hover {
-				text-decoration: underline;
-			}
-		div.article.feature h1 span {
-			font-size: 11px;
-			font-family: Verdana;
-			font-weight: normal;
-			color: #666;
-			margin-left: 0px;
+		div.item h1 a:hover, div.item h2 a:hover, div.item h3 a:hover {
+			text-decoration: none;
+			color: #454E9B;
 		}
-	div.article.feature div.contentslide {
-		float: left;
-		width: 60%;
-	}
-		div.article.feature div.contentslide div {
-			position: relative;
-			margin-top: 10px;
-		}
-			div.article.feature div.contentslide div.img img.bg {
-				width: 100%;
-			}
-			div.article.feature div.contentslide div.img div.content {
-				position: absolute;
-				margin-top: 20px;
-			}
-			div.article.feature div.contentslide div.img h2, div.article.feature div.contentslide div.img p {
-				background: rgba( 0, 0, 0, 0.8 );
-				color: #F1F1F1;
-				padding: 10px;
-				margin: 0;
-			}
-			div.article.feature div.contentslide div h2 {
-				font-size: 24px;
-				line-height: 30px;
-			}
-				div.article.feature div.contentslide div.img h2 a {
-					color: #F7F7F7;
-				}
-				div.article.feature div.contentslide div.img h2 a:hover {
-					text-decoration: underline;
-				}
-	div.article.feature ul.controls {
-		float: right;
-		width: 40%;
-		padding: 0;
+	div.item p {
 		margin: 0;
 	}
-		div.article.feature ul.controls li {
-			list-style: none;
-			padding: 10px;
-			border-bottom: 1px solid #F7F7F7;
-			border-left: 1px solid #F7F7F7;
+	div.item div.meta {
+		font-size: 11px;
+		font-family: Verdana;
+		background: transparent;
+		float: left;
+		width: 100%;
+		margin: 5px 0 0 0;
+	}
+		div.item div.meta form {
+			display: inline;
+			margin: 0;
+			float: none;
 		}
-		div.article.feature ul.controls li:hover, div.article.feature ul.controls li.active {
-			background: #F7F7F7;
+		div.item div.meta input {
+			color: #454E9B;
+			background: transparent;
+			border: none;
+			width: auto;
+			min-width: 0;
+			display: inline;
+			margin: 0;
+			padding: 0;
+			font-family: Verdana;
+			font-size: 11px;
+			font-weight: normal;
+			text-shadow: none;
 		}
-		div.article.feature ul.controls li:last-child {
-			border-bottom: none;
+		div.item div.meta input:hover {
+			text-decoration: underline;
+			cursor: pointer;
 		}
-			div.article.feature ul.controls li strong {
-				display: block;
-			}
+		div.item div.meta img {
+			float: left;
+			margin-top: 2px;
+			margin-right: 3px;
+			border-radius: 7px;
+			height: 16px;
+			width: 16px;
+		}
+		div.item div.meta span.time {
+			color: #999;
+			visibility: hidden;
+		}
+		div.item:hover div.meta span.time {
+			visibility: visible;
+		}
 
+
+
+/*
+	external frame (article page)
+*/
 div.iframeborder {
 	top: 35px;
 	bottom: 0;
@@ -518,7 +423,7 @@ div#home-info {
 	div#home-info h1 {
 		font-weight: normal;
 		text-align: center;
-		font-family: Delicious;
+		font-family: PT Sans, Arial;
 		line-height: 34px;
 		margin-top: 0;
 	}
@@ -558,7 +463,7 @@ div.home-boxes {
 		margin-top: 0;
 	}
 		div.home-boxes div h2 {
-			font-family: Delicious;
+			font-family: PT Sans, Arial;
 			font-weight: bold;
 		}
 		div.home-boxes div p {
@@ -599,7 +504,8 @@ div.source {
 	div.source h2 {
 		margin: 0;
 		font-weight: normal;
-		font-family: Delicious, Arial;
+		font-family: PT Sans, Arial;
+		font-size: 17px;
 		height: 28px;
 		overflow: hidden;
 	}
@@ -637,6 +543,7 @@ div.source {
 			text-decoration: none;
 			font-size: 13px;
 			text-shadow: none;
+			font-weight: normal;
 		}
 		div#sources form input:hover {
 			background: #efefef;
@@ -647,3 +554,83 @@ div.source {
 			padding-left: 0;
 			color: #666;
 		}
+
+
+
+/*
+	tour
+*/
+div#tour {
+	display: none;
+	position: fixed;
+	top: 36px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba( 255, 255, 255, 0.8 );
+	z-index: 10;
+	font-family: PT Sans;
+}
+	div#tour h1 {
+		background: #FFF;
+		float: left;
+		margin-left: 135px;
+		padding: 10px 0;
+		margin-bottom: 0;
+	}
+	div#tour p {
+		padding: 5px;
+		background: #FFF;
+		float: left;
+		clear: both;
+		margin-left: 130px;
+		margin-top: 0;
+		font-size: 18px;
+	}
+	div#tour div.block {
+		padding: 10px;
+		background: #FFF;
+		border: 1px solid #D7D7D7;
+	}
+	div#tour div.left {
+		margin-left: 125px;
+		margin-top: 15px;
+		width: 200px;
+		clear: left;
+	}
+	div#tour div.middle {
+		float: left;
+		margin-top: 15px;
+		margin-left: 50px;
+		width: 300px;
+	}
+	div#tour div.right {
+		width: 200px;
+		margin-top: 15px;
+		margin-right: 229px;
+	}
+	div#tour a.button, a.greenbutton {
+		color: #FFF;
+		float: left;
+		clear: both;
+		margin-left: 125px;
+		padding: 10px 20px;
+		font-size: 23px;
+		font-weight: bold;
+		margin-top: 20px;
+		background: rgba( 85, 147, 58, 1 );
+		border: 1px solid rgba( 44, 81, 21, 1 );
+		box-shadow: inset 0 1px 0 rgba( 255, 255, 255, 0.2 );
+		text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+		text-decoration: none;
+	}
+	div#tour a.button:hover, a.greenbutton:hover {
+		border: 1px solid #000;
+		background: rgba( 65, 127, 38, 1 );
+	}
+
+a.greenbutton {
+	margin: 0;
+	font-size: 20px;
+	padding: 5px 10px;
+}

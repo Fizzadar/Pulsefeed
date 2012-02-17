@@ -119,6 +119,7 @@
 
 				//work out stuffs
 				$article['source_domain'] = $mod_data->domain_url( $article['source_url'] );
+				$article['source_title'] = $mod_data->str_tooltip( $article['source_title'] );
 				$article['type'] = 'article';
 				$article['recommended'] = ( isset( $article['recommended'] ) and is_numeric( $article['recommended'] ) and $article['recommended'] == $article['id'] );
 				$article['unread'] = ( isset( $article['unread'] ) and is_numeric( $article['unread'] ) and $article['unread'] == $article['id'] );
@@ -130,6 +131,7 @@
 			//recommendations
 			foreach( $recommendations as $key => $recommend ):
 				$recommend['type'] = 'recommend';
+				$recommend['source_domain'] = $mod_data->domain_url( $recommend['site_url'] );
 				$return['recommends'][] = $recommend;
 			endforeach;
 

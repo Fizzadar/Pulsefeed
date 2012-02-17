@@ -46,8 +46,8 @@ div#login {
 		div#login div#buttons a.login {
 			float: left;
 			width: 230px;
-			font-size: 20px;
-			font-family: Delicious;
+			font-size: 17px;
+			font-family: PT Sans, Arial;
 			margin: 15px 0 15px 15px;
 		}
 			div#login div#buttons a.login img {

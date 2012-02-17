@@ -12,7 +12,7 @@ div#top {
 }
 	div#top h3 {
 		margin: 0;
-		font-family: "PT Sans", Arial;
+		font-family: PT Sans, Arial;
 		font-style: italic;
 		font-size: 25px;
 		font-weight: normal;
@@ -33,6 +33,7 @@ div#top {
 		}
 		div#top h3 span {
 			position: absolute;
+			display: block;
 			margin-top: 7px;
 			margin-left: 1px;
 		}
@@ -254,9 +255,10 @@ div#messages {
 	z-index: 4;
 }
 	div#messages div.message {
-		font-size: 20px;
+		font-size: 18px;
 		font-weight: bold;
-		font-family: Delicious, Arial;
+		text-shadow: 1px 1px 1px #FFF;
+		font-family: PT Sans, Arial;
 		height: 24px;
 		padding: 10px 0;
 		cursor: pointer;
@@ -307,10 +309,14 @@ div#header {
 	div#header div.left {
 		border-right: 1px solid #D7D7D7;
 		width: 130px;
+		margin-top: 0;
 	}
 		div#header div.left form {
-			margin: -2px 0 0 0;
+			margin: -4px 0 0 0;
 		}
+			div#header div.left form input {
+				font-weight: normal;
+			}
 	div#header div.right {
 		text-align: right;
 	}
@@ -332,44 +338,11 @@ div#header {
 		color: #1A1B1B;
 		text-decoration: none;
 	}
-	div#header ul {
-		display: none;
-		width: 130px;
-		position: absolute;
-		background: #FFF;
-		padding: 10px;
-		margin: 0;
-		float: left;
-		border: 1px solid #C7C7C7;
-		border-top: none;
-	}
-		div#header div.left:hover ul {
-			display: block;
-		}
-		div#header div.right:hover ul {
-			display: block;
-		}
-		div#header div.left ul {
-			margin-left: -10px;
-		}
-		div#header div.right ul {
-			margin-left: 0px;
-		}
-		div#header ul li {
-			list-style: none;
-		}
-		div#header ul li label {
-			color: #454E9B;
-			cursor: pointer;
-		}
-		div#header ul li label:hover {
-			color: #1A1B1B;
-		}
 	div#header h1 {
-		font-size: 24px;
+		font-size: 21px;
 		padding-top: 20px;
 		margin-top: 0;
-		font-family: Delicious, Arial;
+		font-family: PT Sans, Arial;
 		font-weight: normal;
 		margin-left: 130px;
 		border-left: 1px solid #D7D7D7;
@@ -388,6 +361,7 @@ div#header {
 div#sidebars {
 	position: absolute;
 	width: 100%;
+	height: 0; /* fix z index related hacks */
 	top: 78px;
 }
 	div#sidebars div.fix {
@@ -436,6 +410,10 @@ div#sidebars {
 					border-radius: 3px;
 					opacity: 0;
 				}
+			div#sidebars div.left ul.sources {
+				float: left;
+				width: 100%;
+			}
 			div#sidebars div.left li.source {
 				float: left;
 				margin: 0;
@@ -445,37 +423,11 @@ div#sidebars {
 				div#sidebars div.left li.source img {
 					margin: 0;
 					opacity: 0.3;
+					width: 16px;
+					height: 16px;
 				}
 					div#sidebars div.left li.source a {
 						text-decoration: none;
-					}
-					div#sidebars div.left li.source span.first {
-						position: absolute;
-						z-index: 9;
-						display: none;
-						top: auto;
-						left: auto;
-						margin-top: -45px;
-						margin-left: -66px;
-						padding-bottom: 16px;
-						width: 120px;
-						height: 25px;
-						overflow: hidden;
-						background: url( 'PULSEFEED_ROOT_DIR/img/backgrounds/source_icon.png' ) center bottom no-repeat;
-					}
-					div#sidebars div.left li.source span.first span {
-						float: left;
-						width: 110px;
-						height: 16px;
-						overflow: hidden;
-						padding: 3px;
-						border: 1px solid #D7D7D7;
-						border-bottom: none;
-						background: #FFF;
-						text-align: center;
-					}
-					div#sidebars div.left li.source a:hover span {
-						display: inline;
 					}
 				div#sidebars div.left li img.favicon {
 					opacity: 1;
@@ -517,7 +469,6 @@ div#sidebars {
 					margin-top: -22px;
 					background: #FFF;
 					padding: 0 5px;
-					widthh: 200px;
 					border: 1px solid #D7D7D7;
 					display: none;
 				}
@@ -538,6 +489,7 @@ div#sidebars {
 				font-size: 11px;
 				font-family: Verdana;
 				border-color: #F1F1F1;
+				box-shadow: none;
 			}
 	div#sidebars div.right {
 		width: 234px;
@@ -625,7 +577,7 @@ div#sidebars {
 					font-size: 14px;
 					line-height: 24px;
 				}
-				div#sidebars div.right div#recommendations div span {
+				div#sidebars div.right div#recommendations div span.meta {
 					font-size: 11px;
 					font-family: Verdana;
 					color: #666;

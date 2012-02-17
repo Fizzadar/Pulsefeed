@@ -28,17 +28,7 @@
 	<!--scripts-->
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>?load=js"></script>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript">
-		$( document ).ready( function() {
-			$( 'div.message' ).click( function( el ) {
-				$( this ).slideUp( 200 );
-			});
-			function messageslide() {
-				$( 'div.message' ).slideUp( 200 );
-			}
-			setTimeout( messageslide, 2000 );
-		});
-	</script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/core.js"></script>
 </head>
 <body>
 	<div id="fb-root"></div>
@@ -46,9 +36,10 @@
 	<div id="top">
 		<div class="wrap">
 			<?php if( $this->get( 'externalHeader' ) ): ?>
+				<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/framebuster.js"></script>
 				<h3 class="external">
 					<span><small>&larr; back</small> Pulsefeed</span>
-					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) . '#item_' . $_GET['f'] : $c_config['root']; ?>"><small>&larr; back</small> Pulsefeed</a>
+					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&larr; back</small> Pulsefeed</a>
 				</h3>
 
 				<form id="search">
@@ -56,34 +47,36 @@
 					<input type="submit" id="submit" value="Search &rarr;" />
 				</form>
 
-				<ul id="external">
-					<li>
-						<form action="<?php echo $c_config['root']; ?>/?process=article-<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'unrecommend'; ?>" method="post">
-							<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
-							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-							<button type="submit">
-								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'recommended'; ?>.png" alt="" />
-								<?php echo $this->content['article']['recommended'] == NULL ? 'Recommend' : 'UnRecommend'; ?>
-							</button>
-						</form>
-					</li>
-					<li>
-						<a href="#">
-							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
-							Collect
-						</a>
-					</li>
-					<li>
-						<a href="#">
-							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/tag.png" alt="" />
-							Tag
-						</a>
-					</li>
-				</ul>
+				<?php if( $mod_user->session_login() ): ?>
+					<ul id="external">
+						<li>
+							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'unrecommend'; ?>" method="post">
+								<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
+								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+								<button type="submit">
+									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'recommended'; ?>.png" alt="" />
+									<?php echo $this->content['article']['recommended'] == NULL ? 'Like' : 'Unlike'; ?>
+								</button>
+							</form>
+						</li>
+						<li>
+							<a href="#">
+								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
+								Collect
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/tag.png" alt="" />
+								Tag
+							</a>
+						</li>
+					</ul>
+				<?php endif; ?>
 			<?php else: ?>
 				<h3>
 					<span>Pulsefeed</span>
-					<a href="<?php echo $c_config['root'] . ( $mod_user->session_login() ? '/user/' . $mod_user->session_userid() . '/' . $mod_user->session_username() : '' ); ?>">Pulsefeed</a>
+					<a href="<?php echo $c_config['root'] . ( $mod_user->session_login() ? '/user/' . $mod_user->session_userid() : '' ); ?>">Pulsefeed</a>
 				</h3>
 
 				<form id="search">
@@ -96,20 +89,27 @@
 			<?php if( $mod_user->session_login() ): ?>
 				<ul>
 					<li class="title">News</li>
-					<li><a href="<?php echo $c_config['root']; ?>/user/<?php echo $mod_user->session_userid() . '/' . $mod_user->session_username(); ?>">Your News Stream</a></li>
+					<li><a href="<?php echo $c_config['root']; ?>/user/<?php echo $mod_user->session_userid(); ?>">Your News Stream</a></li>
 					<li><a href="<?php echo $c_config['root']; ?>/sources">Browse Sources</a></li>
 
 					<li class="title">Account</li>
-					<li><a href="<?php echo $c_config['root']; ?>/user/settings">Settings</a></li>
+					<li><a href="<?php echo $c_config['root']; ?>/settings">Settings</a></li>
 					<li><a href="<?php echo $c_config['root']; ?>/sources/me">Sources</a></li>
 					<li><a href="<?php echo $c_config['root']; ?>/collections/me">Collections</a></li>
 
 					<li class="title">Other Bits</li>
 					<li><a href="#">Help</a></li>
+					<li><a href="#">Stats</a></li>
 					<li><a href="<?php echo $c_config['root']; ?>/process/logout">Logout</a></li>
+
+					<?php if( $mod_user->session_permission( 'Admin' ) ): ?>
+						<li class="title">Secret Admin Zone</li>
+						<li><a href="#">Home</a></li>
+						<li><a href="#">Permissions</a></li>
+					<?php endif; ?>
 				</ul>
 				<li class="top">
-					<a href="<?php echo $c_config['root']; ?>/user/<?php echo $mod_user->session_userid() . '/' . $mod_user->session_username(); ?>"><strong>latest updates</strong></a>
+					<a href="<?php echo $c_config['root']; ?>/user/<?php echo $mod_user->session_userid(); ?>"><strong>latest updates</strong></a>
 					<span><?php echo $mod_user->session_username(); ?> &darr;</span>
 					<!--<img src="https://graph.facebook.com/1618950042/picture" alt="" />-->
 				</li>

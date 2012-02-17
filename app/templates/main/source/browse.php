@@ -48,15 +48,15 @@
 						Subscribers: <strong><?php echo $source['subscribers']; ?></strong> - 
 						Articles: <strong><?php echo $source['articles']; ?></strong>
 					</span>
-				<?php if( $mod_user->session_login() ): ?>
+				<?php if( $mod_user->session_login() and $mod_user->session_permission( 'Subscribe' ) ): ?>
 					<?php if( isset( $source['subscribed'] ) and is_numeric( $source['subscribed'] ) ): ?>
-					<form action="<?php echo $c_config['root']; ?>/?process=source-unsubscribe" method="post">
+					<form action="<?php echo $c_config['root']; ?>/process/unsubscribe" method="post">
 						<input type="hidden" name="source_id" value="<?php echo $source['id']; ?>" />
 						<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 						<input type="submit" value="Un-Subscribe" class="unsubscribe" />
 					</form>
 					<?php else: ?>
-					<form action="<?php echo $c_config['root']; ?>/?process=source-subscribe" method="post">
+					<form action="<?php echo $c_config['root']; ?>/process/subscribe" method="post">
 						<input type="hidden" name="source_id" value="<?php echo $source['id']; ?>" />
 						<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 						<input type="submit" value="Subscribe" />

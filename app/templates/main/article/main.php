@@ -1,6 +1,5 @@
 <?php
 	global $mod_user, $mod_cookie, $mod_token;
-	if( !isset( $_GET['f'] ) ) $_GET['f'] = 0;
 
 	if( $this->get( 'unread' ) ):
 ?>

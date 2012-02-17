@@ -1,13 +1,4 @@
 /*
-	fonts
-*/
-
-@font-face { font-family: Delicious; src: url( 'PULSEFEED_ROOT_DIR/font/Delicious-Roman.otf' ); }
-@font-face { font-family: Delicious; font-weight: bold; src: url( 'PULSEFEED_ROOT_DIR/font/Delicious-Bold.otf' ); }
-
-
-
-/*
 	basics
 */
 
@@ -83,14 +74,17 @@ form#subunsub {
 		background: #FFF;
 		margin-bottom: 20px;
 	}
-	form input[type=submit] {
-		background: #454E9B;
-		border: 1px solid #000;
+	form input[type=submit], .greenbutton {
+		background: rgba( 85, 147, 58, 1 );
+		border: 1px solid rgba( 44, 81, 21, 1 );
+		box-shadow: inset 0 1px 0 rgba( 255, 255, 255, 0.2 );
 		text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+		font-weight: normal;
+		font-family: PT Sans, Arial;
 		color: #FFF;
 		min-width: 150px;
 		width: auto;
-		font-size: 14px;
+		font-size: 18px;
 		margin-left: 0;
 		cursor: pointer;
 	}
@@ -101,8 +95,9 @@ form#subunsub {
 		background: #FFFECC;
 		border: 1px solid #A1A1A1;
 	}
-	form input[type=submit]:hover, form input[type=submit]:focus {
-		border: 1px solid #fff;
+	form input[type=submit]:hover, form input[type=submit]:focus, .greenbutton:hover {
+		border: 1px solid #000;
+		background: rgba( 65, 127, 38, 1 );
 	}
 
 a.edit {
@@ -119,6 +114,7 @@ a.edit {
 	background: #FAFAFA;
 	color: #1a1b1b;
 	text-decoration: none;
+	font-family: PT Sans, Arial;
 }
 	form input[type=submit].button {
 		float: none;
@@ -147,7 +143,49 @@ a.edit {
 
 div.wrap {
 	margin: 0 auto;
-	max-width: 1300px;
+	max-width: 1500px;
 	min-width: 920px;
-	width: 86%;
+	width: 94%;
+}
+
+.tip, .tip:hover {
+	text-decoration: none;
+}
+	.tip span {
+		display: none;
+		position: absolute;
+		padding: 2px 5px;
+		font-family: PT Sans, Arial;
+		font-size: 14px;
+		background: #FFFFFF;
+		border: 1px solid #D7D7D7;
+		margin-top: -35px;
+		height: 18px;
+		border-radius: 5px;
+		margin-left: -65px;
+		opacity: 1;
+		width: 130px;
+		text-align: center;
+		line-height: 18px;
+		z-index: 9;
+		white-space: nowrap;
+	}
+	.tip span span {
+		background: transparent url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip.png' ) center bottom no-repeat;
+		border: none;
+		margin-top: -2px;
+		width: 120px;
+		height: 10px;
+		left: 50%;
+		margin-left: -62px;
+	}
+	.tip:hover span {
+		display: block;
+	}
+
+.block {
+	float: left;
+	clear: both;
+	width: 100%;
+	margin-bottom: 20px;
 }

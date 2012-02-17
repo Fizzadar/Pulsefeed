@@ -4,18 +4,18 @@
 	//are we logged in? load hybrid feed
 	if( $mod_user->check_login() ):
 		$_GET['id'] = $mod_user->get_userid();
-		//die( $mod_app->load( 'load/user' ) );
+		$mod_app->load( 'load/stream/user' );
+	else:
+		//start template
+		$template = new mod_template();
+
+		//load header
+		$template->load( 'core/header' );
+
+		//home
+		$template->load( 'home' );
+		
+		//footer
+		$template->load( 'core/footer' );
 	endif;
-
-	//start template
-	$template = new mod_template();
-
-	//load header
-	$template->load( 'core/header' );
-
-	//home
-	$template->load( 'home' );
-	
-	//footer
-	$template->load( 'core/footer' );
 ?>

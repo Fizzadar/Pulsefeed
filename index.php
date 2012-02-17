@@ -11,15 +11,16 @@
 		desc: class loading, app routing
 	*/
 	
+	//disable error reporting unless localhost
+	if( $_SERVER['HTTP_HOST'] != 'localhost' )
+		ini_set( 'display_errors', 0 );
+
 	//get the core
 	require( 'core/core.php' );
 
 	//get the config
 	require( 'app/config.php' );
 	require( 'app/config.ext.php' );
-	
-	//enable debug
-	$c_debug->enable();
 
 	//start the app
 	$mod_app = new c_app( $mod_config['libs'] );
@@ -31,6 +32,12 @@
 	$mod_user = new c_user( $mod_db, 'feedbug_' );
 	$mod_user->set_facebook( '346508828699100', '85804588b0a5a0e005bdca184dae17b5' );
 	$mod_user->set_twitter( '9CxR2vqndROknYPJ9vlpw', 'bPnQZYzamUsUoqmdsuztxBmNwEqiqDSsg9IVj9WujyA' );
+
+	//enable debug if allowed (and allow error display, even if not localhost)
+	//if( $mod_user->check_permission( 'Debug' ) ):
+		$c_debug->enable();
+		ini_set( 'display_errors', E_ALL );
+	//endif;
 
 	//session
 	$mod_session = new c_session;
@@ -44,6 +51,9 @@
 
 	//data
 	$mod_data = new mod_data;
+	
+	//load
+	$mod_load = new mod_load( $mod_db, $mod_data );
 
 	//process(must be posted)
 	if( isset( $_GET['process'] ) and isset( $mod_config['process'][$_GET['process']] ) ):
@@ -56,7 +66,6 @@
 		$mod_app->load( 'load/' . $mod_config['load']['default'] );
 	endif;
 
-	//debug
-	if( $mod_user->check_permission( 'Debug' ) )
-		$c_debug->display();
+	//debug (only works if enabled above)
+	$c_debug->display();
 ?>

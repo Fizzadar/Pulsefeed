@@ -16,7 +16,7 @@
 		<div class="main">
 			<p>Enter a website or feed address below, and we'll do our very best to add it to Pulsefeed &amp; subscribe you to it's updates.</p>
 
-			<form action="<?php echo $c_config['root']; ?>/?process=source-add" method="post">
+			<form action="<?php echo $c_config['root']; ?>/process/source-add" method="post">
 				<label for="source_url">Web/feed address:</label>
 				<input type="text" name="source_url" id="source_url" value="http://" onclick="if( this.value == 'http://' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'http://'; }" />
 				<input type="submit" value="Add to Pulsefeed &#187;" />
@@ -35,11 +35,12 @@
 				<?php endif; ?>
 
 				<ul>
-					<li class="title">Places</li>
+					<li class="title">Sources</li>
 					<?php if( $mod_user->session_login() ): ?>
-					<li><a href="<?php echo $c_config['root']; ?>/user/<?php echo $mod_user->session_userid(); ?>">My Streams</a></li>
+						<li><a href="<?php echo $c_config['root']; ?>/sources/me">My Sources</a></li>
 					<?php endif; ?>
-					<li><a href="<?php echo $c_config['root']; ?>/public">Public Stream</a></li>
+					<li><a href="<?php echo $c_config['root']; ?>/sources">Popular Sources</a></li>
+					<li><a href="<?php echo $c_config['root']; ?>/sources/new">Newest Sources</a></li>
 				</ul>
 			</div><!--end left-->
 		</div><!--end wrap-->

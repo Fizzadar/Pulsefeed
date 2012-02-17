@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data;
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load;
 
 	//work out userid
 	$user_id = 0;
@@ -35,18 +35,21 @@
 		die( header( 'Location: ' . $c_config['root'] . '/public' ) );
 	endif;
 
-	//check the user exists
-	$exists = $mod_db->query( '
-		SELECT name
+	//get user, check if exists
+	$user = $mod_db->query( '
+		SELECT core_user.name' . ( $mod_user->check_login() ? ', mod_user_follows.user_id AS following' : '' ) . '
 		FROM core_user
-		WHERE id = ' . $user_id . '
+		' . ( $mod_user->check_login() ?
+			'LEFT JOIN mod_user_follows ON core_user.id = mod_user_follows.following_id AND mod_user_follows.user_id = ' . $mod_user->get_userid() : ''
+		) . '
+		WHERE core_user.id = ' . $user_id . '
 		LIMIT 1
 	' );
-	if( !$exists or count( $exists ) != 1 ):
+	if( !isset( $user ) or count( $user ) != 1 ):
 		$mod_message->add( 'NotFound' );
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
-	
+
 	//start template
 	$mod_template = new mod_template();
 
@@ -54,23 +57,18 @@
 	if( $user_id == $mod_user->get_userid() and $mod_user->session_login() )
 		$name = 'Your';
 	else
-		$name = $exists[0]['name'] . '\'s';
+		$name = $user[0]['name'] . '\'s';
 
 	//set stream to cookie
 	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
 
 	//load the users sources
-	$sources = $mod_db->query( '
-		SELECT id, site_title AS source_title, site_url AS source_url
-		FROM mod_source, mod_user_sources
-		WHERE mod_source.id = mod_user_sources.source_id
-		AND mod_user_sources.user_id = ' . $user_id . '
-	' );
-	foreach( $sources as $k => $s ):
-		$sources[$k]['source_domain'] = $mod_data->domain_url( $s['source_url'] );
-		$sources[$k]['source_title'] = substr( $sources[$k]['source_title'], 0, 13 ) . ( strlen( $sources[$k]['source_title'] ) > 13 ? '...' : '' );
-	endforeach;
+	$sources = $mod_load->load_sources( $user_id );
 	$mod_template->add( 'sources', $sources );
+
+	//load the users followings
+	$followings = $mod_load->load_users( $user_id );
+	$mod_template->add( 'followings', $followings );
 
 	//start our stream
 	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, $stream_type ) : new mod_stream_site( $mod_db, $stream_type );
@@ -100,7 +98,8 @@
 	$mod_template->add( 'title', $stream_type );
 	$mod_template->add( 'pageTitle', $name . ' ' . ( isset( $stream_name ) ? $stream_name : ucfirst( $stream_type ) ) . ' Stream' );
 	$mod_template->add( 'userid', $user_id );
-	$mod_template->add( 'username', $exists[0]['name'] );
+	$mod_template->add( 'username', $user[0]['name'] );
+	$mod_template->add( 'following', isset( $user[0]['following'] ) and $user[0]['following'] != NULL );
 	$mod_template->add( 'nextOffset', $offset + 1 );
 
 	//load templates

@@ -59,6 +59,13 @@
 		$childcount++;
 	endforeach;
 
+	//file_get_contents context
+	$context = stream_context_create( array(
+	    'http' => array(
+	        'timeout' => 15
+	    )
+	));
+
 	//spawn the children!
 	for( $i = 0; $i < $children; $i++ ):
 		//fork
@@ -88,7 +95,7 @@
 				$url = urlencode( $url );
 
 				//get facebook data
-				if( $fb = @file_get_contents( 'http://graph.facebook.com/' . $url ) ):
+				if( $fb = @file_get_contents( 'http://graph.facebook.com/' . $url, 0, $context ) ):
 					$fb = json_decode( $fb );
 					$fb_shares = isset( $fb->shares ) ? $fb->shares : 0;
 					$fb_comments = isset( $fb->comments ) ? $fb->comments : 0;
@@ -98,7 +105,7 @@
 				endif;
 
 				//get twitter data
-				if( $tw = @file_get_contents( 'http://api.tweetmeme.com/url_info.json?url=' . $url ) ):
+				if( $tw = @file_get_contents( 'http://api.tweetmeme.com/url_info.json?url=' . $url, 0, $context ) ):
 					$tw = json_decode( $tw );
 					$tw_links = isset( $tw->story->url_count ) ? $tw->story->url_count : 0;
 				else:
@@ -106,7 +113,7 @@
 				endif;
 
 				//get delicious data
-				if( $dl = @file_get_contents( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) ) ):
+				if( $dl = @file_get_contents( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ), 0, $context ) ):
 					$dl = json_decode( $dl );
 					$dl_saves = ( is_array( $dl ) and isset( $dl[0] ) ) ? $dl[0]->total_posts : 0;
 				else:
@@ -114,7 +121,7 @@
 				endif;
 
 				//get digg data
-				if( $dg = @file_get_contents( 'http://services.digg.com/2.0/story.getInfo?links=' . $url ) ):
+				if( $dg = @file_get_contents( 'http://services.digg.com/2.0/story.getInfo?links=' . $url, 0, $context ) ):
 					$dg = json_decode( $dg );
 					$dg_diggs = ( is_array( $dg->stories ) and isset( $dg->stories[0] ) ) ? $dg->stories[0]->diggs : 0;
 				else:
@@ -157,7 +164,7 @@
 	endfor;
 
 	//wait for our children
-	while( pcntl_waitpid( 0, $status ) != -1 ):
+	while( pcntl_waitpid( 0, $status ) != -1, WNOHANG OR WUNTRACED ):
 		$status = pcntl_wexitstatus( $status );
 	endwhile;
 

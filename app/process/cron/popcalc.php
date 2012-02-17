@@ -33,7 +33,8 @@
 		$time = round( $time / 3600 );
 
 		//poptime = popularity / hours
-		$pop_time = $article['popularity'] / $time;
+		if( $time == 0 ) $time = 1;
+		$pop_time = $article['popularity'] / ( $time ^ 2 );
 		
 		//set array
 		$articles[$key]['popularity_time'] = $pop_time;

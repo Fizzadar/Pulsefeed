@@ -20,12 +20,16 @@
 			//config
 			$config = array(
 				'quarter' => array(
-					'w' => 200,
-					'h' => 100,
+					'w' => 187,
+					'h' => 51,
+				),
+				'third' => array(
+					'w' => 281,
+					'h' => 77,
 				),
 				'half' => array(
-					'w' => 430,
-					'h' => 150,
+					'w' => 374,
+					'h' => 102,
 				),
 			);
 
@@ -224,6 +228,7 @@
 
 			//get article, strip tags, split into words
 			$article = strip_tags( $this->article );
+			$article = htmlentities( $article );
 			$words = explode( ' ', $article );
 
 			//build our summary

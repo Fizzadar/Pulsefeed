@@ -1,7 +1,10 @@
 <?php
 	//modules
-	global $mod_token;
+	global $mod_token, $c_debug;
 
+	//disable debug output
+	$c_debug->disable();
+	
 	//javascript
 	header( 'Content-type: text/javascript' );
 ?>

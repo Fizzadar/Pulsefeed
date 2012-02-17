@@ -16,14 +16,14 @@
 		$login = $mod_user->openid_login();
 	endif;
 
-	//logged in?
-	if( $login == 1 )
-		$mod_app->load( 'process/user/load' );
+	//load user
+	$mod_app->load( 'process/user/load' );
 
 	//redirect on new/fail
 	if( $login == 2 ):
+		$mod_app->load( 'process/user/new' );
 		$mod_message->add( 'NewUser' );
-		header( 'Location: ' . $c_config['root'] . '/user/welcome' );
+		header( 'Location: ' . $c_config['root'] . '/user/' . $mod_user->get_userid() . '?welcome' );
 	elseif( $login == 1 ):
 		$mod_message->add( 'LoggedIn' );
 		header( 'Location: ' . $redir );
