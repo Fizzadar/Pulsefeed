@@ -17,7 +17,8 @@
 	endif;
 
 	//load user (avatar)
-	$mod_app->load( 'process/user/load' );
+	if( in_array( $login, array( 1, 2, 3, 4 ) ) )
+		$mod_app->load( 'process/user/load' );
 
 	//redirect on new/fail
 	if( $login == 2 ):
