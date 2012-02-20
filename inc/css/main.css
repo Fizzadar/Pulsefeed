@@ -352,6 +352,9 @@ div.item {
 		div.item:hover div.meta span.time {
 			visibility: visible;
 		}
+		div.item div.meta span.likes {
+			color: #666;
+		}
 
 
 

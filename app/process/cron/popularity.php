@@ -164,7 +164,7 @@
 	endfor;
 
 	//wait for our children
-	while( pcntl_waitpid( 0, $status ) != -1, WNOHANG OR WUNTRACED ):
+	while( pcntl_waitpid( 0, $status, WNOHANG OR WUNTRACED ) != -1 ):
 		$status = pcntl_wexitstatus( $status );
 	endwhile;
 

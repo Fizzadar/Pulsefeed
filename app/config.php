@@ -75,11 +75,6 @@
 			'collection-delete' => 'collection/delete', //todo
 			//settings
 			'settings-save' => 'settings/save', //todo
-			//cron
-			'cron-update' => 'cron/update',
-			'cron-popularity' => 'cron/popularity',
-			'cron-cleanup' => 'cron/cleanup',
-			'cron-popcalc' => 'cron/popcalc',
 		),
 		'libs' => array(
 			//internal libs

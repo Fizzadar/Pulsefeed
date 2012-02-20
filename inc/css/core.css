@@ -20,6 +20,9 @@ div#top {
 		display: inline;
 		float: left;
 	}
+	div#top h3.external {
+		padding-left: 79px;
+	}
 		div#top h3 a {
 			float: left;
 			padding: 5px 10px 6px 10px;
@@ -584,6 +587,12 @@ div#sidebars {
 					line-height: 11px;
 					margin-top: 4px;
 					display: block;
+				}
+				div#sidebars div.right div#recommendations div span.meta span.time {
+					visibility: hidden;
+				}
+				div#sidebars div.right div#recommendations div:hover span.meta span.time {
+					visibility: visible;
 				}
 	div#sidebars h3 {
 		font-weight: normal;

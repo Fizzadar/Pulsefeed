@@ -16,7 +16,7 @@
 		$login = $mod_user->openid_login();
 	endif;
 
-	//load user
+	//load user (avatar)
 	$mod_app->load( 'process/user/load' );
 
 	//redirect on new/fail

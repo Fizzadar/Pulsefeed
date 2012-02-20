@@ -28,6 +28,12 @@
 		die( header( 'Location: ' . $redir ) );
 	endif;
 
+	//already in?
+	if( $mod_user->check_permission( 'Subscribe' ) ):
+		$mod_message->add( 'AlreadyInvited' );
+		die( header( 'Location: ' . $redir ) );
+	endif;
+
 	//check our invite code
 	$code = $mod_db->query( '
 		DELETE FROM mod_invites

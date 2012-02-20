@@ -17,6 +17,7 @@
 	//week + 24 hours
 	$expire_old = $expire_time - ( 3600 * 24 * 8 );
 
+	//get old articles
 	$articles = $mod_db->query( '
 		SELECT id
 		FROM mod_article
@@ -39,4 +40,27 @@
 		' );
 		echo 'Unreads deleted for article #' . $article['id'] . "\n";
 	endforeach;
+
+	//count how many invite codes we got
+	$invitecount = $mod_db->query( '
+		SELECT COUNT( invite_code ) AS count
+		FROM mod_invites
+		WHERE user_id = 0
+	' );
+	$invitecount = $invitecount[0]['count'];
+
+	if( $invitecount < 100 ):
+		//add new codes
+		$sql = '
+			INSERT INTO mod_invites
+			( invite_code )
+			VALUES
+		';
+		for( $i = $invitecount; $i < 100; $i++ ):
+			$sql .= '( "' . substr( sha1( mt_rand() . time() ), 0, 6 ) . '" ),';
+		endfor;
+		$sql = rtrim( $sql, ',' );
+		$mod_db->query( $sql );
+	endif;
+	echo 'Invite codes set to 100' . "\n";
 ?>

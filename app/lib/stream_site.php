@@ -79,6 +79,11 @@
 					endforeach;
 			endswitch;
 
+			//work out recommend time agos
+			foreach( $this->data['recommends'] as $k => $recommend ):
+				$this->data['recommends'][$k]['time_ago'] = $mod_data->time_ago( $this->data['recommends'][$k]['time'] );
+			endforeach;
+
 			//finally return our array
 			return array(
 				'features' => $features,

@@ -316,7 +316,10 @@
 					<div>
 						<a href="<?php echo $c_config['root']; ?>/source/<?php echo $recommend['source_id']; ?>" class="tip"><span><?php echo $recommend['site_title']; ?><span></span></span><img src="http://www.google.com/s2/favicons?domain=<?php echo $recommend['source_domain']; ?>" alt="" /></a>
 						<a href="<?php echo $c_config['root']; ?>/article/<?php echo $recommend['id']; ?>"><strong><?php echo $recommend['title']; ?></strong></a>
-						<span class="meta">was recommended by <a href="<?php echo $c_config['root']; ?>/user/<?php echo $recommend['user_id']; ?>/<?php echo $recommend['user_name']; ?>"><?php echo $recommend['user_name']; ?></a></span>
+						<span class="meta">
+							was liked by <a href="<?php echo $c_config['root']; ?>/user/<?php echo $recommend['user_id']; ?>"><?php echo $recommend['user_name']; ?></a>
+							<span class="time"> - <?php echo $recommend['time_ago']; ?></span>
+						</span>
 					</div>
 				<?php endforeach; ?>
 				</div>
@@ -416,12 +419,16 @@
 							elseif( !$item['expired'] ):
 							endif;
 						?>
-						<a href="#">Collect</a> - 
-						<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['recommended'] ? 'unrecommend' : 'recommend'; ?>" method="post">
-							<input type="hidden" name="article_id" value="<?php echo $item['id']; ?>" />
-							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-							<input type="submit" value="<?php echo $item['recommended'] ? 'Unlike' : 'Like'; ?>" />
-						</form> (<?php echo $item['recommendations']; ?>)
+						<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
+							<a href="#">Collect</a> - 
+						<?php endif; ?>
+						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
+							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['recommended'] ? 'unrecommend' : 'recommend'; ?>" method="post">
+								<input type="hidden" name="article_id" value="<?php echo $item['id']; ?>" />
+								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+								<input type="submit" value="<?php echo $item['recommended'] ? 'Unlike' : 'Like'; ?>" />
+							</form> <span class="likes">(<?php echo $item['recommendations']; ?>)</span>
+						<?php endif; ?>
 					<?php endif; ?>
 					<span class="time"> - <?php echo $item['time_ago']; ?></span>
 					</div>

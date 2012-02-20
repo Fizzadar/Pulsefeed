@@ -49,6 +49,7 @@
 
 				<?php if( $mod_user->session_login() ): ?>
 					<ul id="external">
+						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
 						<li>
 							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'unrecommend'; ?>" method="post">
 								<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
@@ -59,18 +60,23 @@
 								</button>
 							</form>
 						</li>
+						<?php endif; ?>
+						<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
 						<li>
 							<a href="#">
 								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
 								Collect
 							</a>
 						</li>
+						<?php endif; ?>
+						<?php if( $mod_user->session_permission( 'AddTag' ) ): ?>
 						<li>
 							<a href="#">
 								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/tag.png" alt="" />
 								Tag
 							</a>
 						</li>
+						<?php endif; ?>
 					</ul>
 				<?php endif; ?>
 			<?php else: ?>

@@ -21,6 +21,15 @@
 				<input type="submit" value="Enter Code &#187;" />
 				<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 			</form>
+
+			<h2>Public Codes</h2>
+			<?php if( $this->get( 'InviteCodes' ) ): ?>
+				<?php foreach( $this->get( 'InviteCodes' ) as $code ):
+					echo $code['invite_code'] . '<br />';
+				endforeach; ?>
+			<?php else: ?>
+				There are no codes :(
+			<?php endif; ?>
 		</div><!--end main-->
 	</div><!--end wrap-->
 

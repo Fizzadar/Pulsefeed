@@ -33,9 +33,13 @@
 			elseif( $diff < 3600 * 24 * 7 ):
 				$number = round( $diff / ( 3600 * 24 ) );
 				$text = 'd';
-			else:
+			//less than a year?
+			elseif( $diff < 3600 * 24 * 365 ):
 				$number = round( $diff / ( 3600 * 24 * 7 ) );
 				$text = 'w';
+			else:
+				$number = round( $diff / ( 3600 * 24 * 365 ) );
+				$text = 'y';
 			endif;
 
 			return $number . $text . ' ago';
