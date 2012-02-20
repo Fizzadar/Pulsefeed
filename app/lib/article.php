@@ -228,7 +228,7 @@
 
 			//get article, strip tags, split into words
 			$article = strip_tags( $this->article );
-			$article = htmlentities( $article );
+			//$article = htmlentities( $article );
 			$words = explode( ' ', $article );
 
 			//build our summary

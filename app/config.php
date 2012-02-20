@@ -125,9 +125,9 @@
 			'UnknownError' => array( 'An unknown error (eek!) occurred, please try again', 'warning' ),
 			'NotFound' => array( 'The page you requested could not be found!', 'warning' ),
 			//article
-			'ArticleRead' => array( 'Article marked as read', 'success' ),
-			'ArticleRecommended' => array( 'Article recommended', 'success' ),
-			'ArticleUnRecommended' => array( 'Article un-recommended', 'success' ),
+			'ArticleRead' => array( 'Article hidden', 'success' ),
+			'ArticleRecommended' => array( 'Article liked', 'success' ),
+			'ArticleUnRecommended' => array( 'Article unliked', 'success' ),
 		),
 		//how much each type of share/save is worth
 		'popularity' => array(
