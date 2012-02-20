@@ -261,7 +261,7 @@
 					</li>
 				</ul>
 
-				<?php if( $mod_user->session_login() ): ?>
+				<?php if( false and $mod_user->session_login() ): ?>
 					<ul>
 						<li class="title">Collections <a href="#" class="edit">edit</a></li>
 						<li>
