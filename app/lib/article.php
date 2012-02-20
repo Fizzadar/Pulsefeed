@@ -8,6 +8,7 @@
 		private $images = array();
 		private $endlink = false;
 		private $article = false;
+		private $raw_article = false;
 
 		//return the time in unix epoch format
 		public function get_time() {
@@ -186,14 +187,17 @@
 		public function get_article() {
 			global $c_config;
 
-			//already got the article?
-			if( !$this->article ):
-				$this->article = $this->get_raw_article();
-			endif;
+			//got the article?
+			if( $this->article )
+				return $this->article;
+
+			//no raw article?
+			if( !$this->raw_article )
+				$this->raw_article = $this->get_raw_article();
 
 			//now we have our article, lets process the images/html
 			$html = new simple_html_dom();
-			$html->load( $this->article );
+			$html->load( $this->raw_article );
 			foreach( $html->find( 'img' ) as $img ):
 				//remove any set w/h
 				$img->width = 'auto';
@@ -222,12 +226,15 @@
 
 		//get/make our summary
 		public function get_summary() {
+			$content = $this->get_content();
 			//already got the content?
-			if( !$this->article )
-				$this->article = $this->get_article();
+			if( !empty( $content ) )
+				$article = $content;
+			else
+				$article = $this->get_article();
 
 			//get article, strip tags, split into words
-			$article = strip_tags( $this->article );
+			$article = strip_tags( $article );
 			//$article = htmlentities( $article );
 			$words = explode( ' ', $article );
 
