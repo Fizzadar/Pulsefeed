@@ -594,6 +594,7 @@ div#tour {
 		padding: 10px;
 		background: #FFF;
 		border: 1px solid #D7D7D7;
+		clear: none;
 	}
 	div#tour div.left {
 		margin-left: 125px;
@@ -611,6 +612,7 @@ div#tour {
 		width: 200px;
 		margin-top: 15px;
 		margin-right: 229px;
+		float: right;
 	}
 	div#tour a.button, a.greenbutton {
 		color: #FFF;
