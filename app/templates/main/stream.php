@@ -398,10 +398,6 @@
 						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>">
 							<img class="thumb" src="<?php echo $c_config['root'] . '/' . $item['image_third']; ?>" alt="<?php echo $item['title']; ?>" />
 						</a>
-					<?php elseif( !empty( $item['image_quarter'] ) ): $long = false; ?>
-						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>">
-							<img class="thumb" src="<?php echo $c_config['root'] . '/' . $item['image_quarter']; ?>" alt="<?php echo $item['title']; ?>" />
-						</a>
 					<?php endif; ?>
 					<p><?php echo $long ? $item['short_description'] : $item['shorter_description']; ?> <a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>">read article &rarr;</a></p>
 					<div class="meta">
