@@ -54,9 +54,9 @@
 					for( $i = 0; $i < $length - $third; $i++ ):
 						//choose the col
 						if( $col2 ):
-							$articles['col1'][] = $this->data['items'][$i];
-						else:
 							$articles['col2'][] = $this->data['items'][$i];
+						else:
+							$articles['col1'][] = $this->data['items'][$i];
 						endif;
 
 						//switch
