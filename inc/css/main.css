@@ -159,11 +159,11 @@ div#stream {
 	div#stream.evencol {
 	}
 		div#stream.evencol div.col {
-			width: 30%;
+			width: 31%;
 			margin-right: 4%;
 		}
 		div#stream.evencol div.col.col3 {
-			margin-right: 0;
+			margin-right: -1%;
 			margin-top: 22px;
 		}
 
