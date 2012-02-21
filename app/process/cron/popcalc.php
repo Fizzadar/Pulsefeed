@@ -31,10 +31,11 @@
 		//calculate time in hours since posting
 		$time = time() - $article['time'];
 		$time = round( $time / 3600 );
+		$time = $time ^ 2;
 
 		//poptime = popularity / hours
-		if( $time <= 0 ) $time = 1;
-		$pop_time = $article['popularity'] / ( $time ^ 2 );
+		if( $time <= 1 ) $time = 1;
+		$pop_time = $article['popularity'] / $time;
 		
 		//set array
 		$articles[$key]['popularity_time'] = $pop_time;
