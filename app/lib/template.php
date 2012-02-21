@@ -13,9 +13,6 @@
 
 		public function load( $template ) {
 			global $mod_config;
-			//ajax page? no cores
-			if( $mod_config['ajax'] && substr( $template, 0, 5 ) == 'core/' )
-				return;
 			//api page? nothing
 			if( $mod_config['api'] )
 				return;
