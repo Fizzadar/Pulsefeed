@@ -263,6 +263,7 @@
 					AND core_user.id = mod_user_recommends.user_id
 					AND mod_user_follows.user_id = ' . $this->user_id . '
 					AND mod_user_unread.article_id = mod_user_recommends.article_id
+					AND mod_user_unread.user_id = ' . $this->user_id . '
 			';
 
 			//end
