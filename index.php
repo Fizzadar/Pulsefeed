@@ -32,7 +32,7 @@
 	if( isset( $_GET['iscron'] ) and $_GET['iscron'] ) return;
 	
 	//user & setup
-	$mod_user = new c_user( $mod_db, 'feedbug_' );
+	$mod_user = new c_user( $mod_db, 'pulsefeed_' );
 	$mod_user->set_facebook( '346508828699100', '85804588b0a5a0e005bdca184dae17b5' );
 	$mod_user->set_twitter( '9CxR2vqndROknYPJ9vlpw', 'bPnQZYzamUsUoqmdsuztxBmNwEqiqDSsg9IVj9WujyA' );
 
@@ -47,7 +47,7 @@
 	$mod_token = $mod_session->generate();
 
 	//cookie management
-	$mod_cookie = new mod_cookie( 'feedbug_' );
+	$mod_cookie = new mod_cookie( 'pulsefeed_' );
 
 	//message (after session to get that started)
 	$mod_message = new mod_message( $mod_config['messages'] );
