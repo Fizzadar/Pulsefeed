@@ -82,7 +82,7 @@
 			<?php else: ?>
 				<h3>
 					<span>Pulsefeed</span>
-					<a href="<?php echo $c_config['root'] . ( $mod_user->session_login() ? '/user/' . $mod_user->session_userid() : '' ); ?>">Pulsefeed</a>
+					<a href="<?php echo $c_config['root']; ?>">Pulsefeed</a>
 				</h3>
 
 				<form id="search">
