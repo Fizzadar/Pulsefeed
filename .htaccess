@@ -1,3 +1,6 @@
+#Disable indexes
+Options -indexes
+
 #Engage config!
 RewriteEngine On
 
@@ -61,13 +64,3 @@ RewriteRule ^collections/([0-9]+)						index.php?load=collection-view [QSA,L]			
 
 #Process
 RewriteRule ^process/([aA-zZ-]+)						index.php?process=$1 [QSA,L]						#processes?
-
-
-#Catch-alls
-RewriteRule (.*)\.png									$1.png [QSA,L]										#pngs
-RewriteRule (.*)\.jpg									$1.jpg [QSA,L]										#jpgs
-RewriteRule (.*)\.jpeg									$1.jpeg [QSA,L]										#jpegs
-RewriteRule (.*)\.gif									$1.gif [QSA,L]										#gifs
-RewriteRule (.*)\.css									$1.css [QSA,L]										#css files
-RewriteRule (.*)\.js									$1.js [QSA,L]										#js files
-RewriteRule .*											index.php [QSA,L]									#everything else => index
