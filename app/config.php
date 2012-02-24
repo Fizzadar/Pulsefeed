@@ -9,8 +9,6 @@
 	//config array
 	$mod_config = array(
 		'template' => 'main',
-		'api' => ( $_SERVER['HTTP_HOST'] == 'api.pulsefeed.dev' or isset( $_GET['api'] ) ),
-		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.pulsefeed.dev' or isset( $_GET['ajax'] ) ),
 		'useragent' => 'Pulsefeed / v.' . PULSEFEED_VERSION,
 		'load' => array(
 			'204' => '204',

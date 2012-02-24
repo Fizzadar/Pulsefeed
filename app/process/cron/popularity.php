@@ -146,7 +146,8 @@
 				curl_setopt( $ch, CURLOPT_POST, 1 );
 				curl_setopt( $ch, CURLOPT_POSTFIELDS, '[{"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id":"' . urldecode( $url ) . '","source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"}]' );
 				curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false );
+				curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+				curl_setopt( $ch, CURLOPT_TIMEOUT, 15 );
 				curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-type: application/json' ) );
 				$curl_results = @curl_exec( $ch );
 				curl_close( $ch );
