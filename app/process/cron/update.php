@@ -17,11 +17,6 @@
 ';
 	echo 'Starting @: ' . time() . "\n";
 
-	//no time limits
-	set_time_limit( 600 );
-	//ignore abort
-	ignore_user_abort( true );
-
 	//load modules
 	global $mod_db, $mod_config;
 

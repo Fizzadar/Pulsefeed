@@ -20,4 +20,7 @@
 		( user_id, source_id )
 		VALUES ( ' . $mod_user->get_userid() . ', 1 )
 	' );
+
+	//add cookie for username change message
+	$mod_cookie->set( 'ChangeUsernameMessage', '1' );
 ?>

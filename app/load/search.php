@@ -5,10 +5,13 @@
 	*/
 
 	//modules
-	global $mod_db;
+	global $mod_db, $mod_message;
 
 	//no query?
-	if( !isset( $_GET['q'] ) or empty( $_GET['q'] ) ) die();
+	if( !isset( $_GET['q'] ) or empty( $_GET['q'] ) ):
+		$mod_message->add( 'InvalidGet' );
+		die( header( 'Location: ' . $c_config['root'] ) );
+	endif;
 
 	//search sources
 	$sources = $mod_db->query( '

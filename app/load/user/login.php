@@ -1,12 +1,16 @@
 <?php
 	global $mod_db, $mod_user, $mod_app, $mod_cookie;
 
-	//where are we going after logging in?
-	$mod_cookie->set( 'redirectUrl', $c_config['root'] );
-
 	//start template
-	$template = new mod_template();
+	$mod_template = new mod_template();
+
+	//where are we going after logging in?
+	$url = parse_url( $_SERVER['HTTP_REFERER'] );
+	$pfurl = parse_url( $c_config['root'] );
+	$redir = $url['host'] == $pfurl['host'] ? $_SERVER['HTTP_REFERER'] : $c_config['root'];
+	$mod_cookie->set( 'redirectUrl', $redir );
+	$mod_template->add( 'redir', $redir );
 
 	//login template (contains header/footer)
-	$template->load( 'login' );
+	$mod_template->load( 'login' );
 ?>

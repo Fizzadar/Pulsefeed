@@ -61,19 +61,32 @@
 
 	<div class="wrap" id="content">
 		<div class="main<?php echo $evencols ? ' evencol' : ''; ?>" id="stream">
-			<?php if( $this->get( 'userid' ) == $mod_user->session_userid() and $this->get( 'title' ) != 'public' ): ?>
+
+			<?php if( $mod_cookie->get( 'ChangeUsernameMessage' ) == '1' ): ?>
+				<div class="block">
+					<p>We noticed you haven't yet changed your username! <a class="button" href="<?php echo $c_config['root']; ?>/settings">Change username &#187;</a></p>
+				</div>
+			<?php endif; ?>
+
+			<?php if( $this->get( 'userid' ) == $mod_user->session_userid() and $this->get( 'title' ) != 'public' and $this->get( 'title' ) != 'source' ): ?>
 				<?php if( $mod_user->session_permission( 'Subscribe' ) and count( $this->content['stream']['col1'] ) == 0 ): ?>
 				<div class="block">
-					<h2>To fill your stream, you need to add some sources!</h2>
-					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/sources">Add Sources &rarr;</a>
+					<h2>To fill your stream, you need to add some (more) sources!</h2>
+					<p>There's currently no articles in your stream, subscribe to more sources to increase the number of articles in your stream. We'll pick out the best ones for you.</p>
+					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/sources">Add Sources &#187;</a>
 				</div>
 				<?php elseif( !$mod_user->session_permission( 'Subscribe' ) ): ?>
 				<div class="block">
 					<h2>You need to be in the Alpha to start filling your stream!</h2>
-					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/invite">Enter Invite Code &rarr;</a><br />
+					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/invite">Enter Invite Code &#187;</a><br />
 					<p>In the meantime, check out the <a href="<?php echo $c_config['root']; ?>/public">public stream</a>.</p>
 				</div>
 				<?php endif; ?>
+			<?php elseif( count( $this->content['stream']['col1'] ) == 0 ): ?>
+				<div class="block">
+					<h2>This stream is empty</h2>
+					<p>We're doing our best to fill it right now!</p>
+				</div>
 			<?php endif; ?>
 
 			<div id="add_source" class="hidden">
@@ -184,25 +197,7 @@
 				//loop our items (layers within the stream)
 				foreach( $this->content['stream'] as $key => $item ):
 				endforeach;
-
-				//empty stream
-				if( count( $this->content['stream'] ) < 1 and $mod_user->session_login() and !$this->get( 'sources' ) ):
 			?>
-				<div class="item article level_1">
-					<span class="content">
-					<h2>You have no sources!</h2>
-					<p>Add some sources and articles will start to appear hear from each of them. The more sources you subscribe to, the better content you'll see!</p>
-					<p><a href="<?php echo $c_config['root']; ?>/sources" class="greenbutton">Add sources &#187;</a></p>
-					</span>
-				</div>
-			<?php elseif( count( $this->content['stream'] ) < 1 ): ?>
-				<div class="item article level_1">
-					<span class="content">
-					<h2>There are no more articles :(</h2>
-					<p>We couldn't find any more articles for this stream.</p>
-					</span>
-				</div>
-			<?php endif; ?>
 
 			<a class="morelink" href="?offset=<?php echo $this->get( 'nextOffset' ); ?>">load more articles &darr;</a>
 		</div><!--end main-->
@@ -325,14 +320,21 @@
 				</div>
 
 				<img src="<?php echo $c_config['root']; ?>/inc/img/ads/234x60.gif" alt="" />
-				
+
 				<div class="biglinks">
-					<a href="#" class="biglink">
+					<?php if( $this->get( 'title' ) == 'source' ): ?>
+						<a href="<?php echo $this->content['source']['site_url']; ?>" target="_blank" class="biglink">
+							<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/original.png" alt="" /> View source &rarr;</span>
+							view the original source website
+						</a>
+					<?php endif; ?>
+
+					<a href="<?php echo $c_config['root']; ?>/settings" class="biglink">
 						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/settings.png" alt="" /> Your Pulsefeed Settings</span>
 						customize your pulsefeed setup
 					</a>
 					<a href="#" class="biglink">
-						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/phone.png" alt="" /> Pusefeed on your Mobile</span>
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/phone.png" alt="" /> Pulsefeed on your Mobile</span>
 						stay updated while on the move
 					</a>
 					<a href="#" class="biglink">

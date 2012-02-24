@@ -62,5 +62,9 @@ RewriteRule ^collections/add$							index.php?load=collection-add [QSA,L]				#ad
 RewriteRule ^collections/([0-9]+)						index.php?load=collection-view [QSA,L]				#see a specific collection
 
 
+#Search
+RewriteRule ^search$									index.php?load=search [QSA,L]						#search
+
+
 #Process
 RewriteRule ^process/([aA-zZ-]+)						index.php?process=$1 [QSA,L]						#processes?

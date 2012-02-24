@@ -12,7 +12,7 @@
 	*/
 	
 	//disable error reporting unless localhost
-	if( $_SERVER['HTTP_HOST'] != 'localhost' )
+	if( $_SERVER['HTTP_HOST'] != 'pulsefeed.dev' )
 		ini_set( 'display_errors', 0 );
 
 	//get the core
@@ -37,7 +37,7 @@
 	$mod_user->set_twitter( '9CxR2vqndROknYPJ9vlpw', 'bPnQZYzamUsUoqmdsuztxBmNwEqiqDSsg9IVj9WujyA' );
 
 	//enable debug if allowed (and allow error display, even if not localhost)
-	if( $mod_user->check_permission( 'Debug' ) ):
+	if( !$mod_config['api'] and !$mod_config['ajax'] and $mod_user->check_permission( 'Debug' ) ):
 		$c_debug->enable();
 		ini_set( 'display_errors', E_ALL );
 	endif;

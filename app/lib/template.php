@@ -13,15 +13,22 @@
 
 		public function load( $template ) {
 			global $mod_config;
+
 			//api page? nothing
 			if( $mod_config['api'] )
 				return;
+
+			//ajax page + core template?
+			if( $mod_config['ajax'] and substr( $template, 0, 4 ) == 'core' )
+				return;
+
 			//load template
 			parent::load( $template );
 		}
 
 		public function __destruct() {
 			global $mod_config;
+			
 			//if api page, dump the content as json
 			if( $mod_config['api'] )
 				echo json_encode( $this->content );

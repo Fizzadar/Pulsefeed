@@ -13,8 +13,13 @@
 		}
 
 		public function add( $message ) {
-			if( isset( $this->messagelist[$message] ) )
-				$this->messages[] = $this->messagelist[$message];
+			global $mod_config;
+			if( isset( $this->messagelist[$message] ) ):
+				if( $mod_config['api'] )
+					die( json_encode( array( 'result' => $this->messagelist[$message][1], 'message' => $this->messagelist[$message][0] ) ) );
+				else
+					$this->messages[] = $this->messagelist[$message];
+			endif;
 		}
 
 		public function get() {

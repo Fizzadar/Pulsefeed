@@ -193,6 +193,7 @@
 				case 'hybrid':
 					$sql .= '
 						AND mod_article.popularity_score != 0
+						AND mod_article.expired_stream = 0
 					';
 				case 'unread':
 					$sql .= '
@@ -204,7 +205,7 @@
 				case 'popular':
 				case 'public':
 					$sql .= '
-						AND mod_article.time > ' . ( time() - 48 * 3600 ) . '
+						AND mod_article.expired_stream = 0
 						AND mod_article.popularity_score != 0
 					';
 					if( $this->stream_type == 'public' ) break;

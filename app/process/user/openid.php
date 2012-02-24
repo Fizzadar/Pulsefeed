@@ -7,7 +7,7 @@
 	global $mod_user, $mod_message;
 
 	//make url
-	$return_url = $c_config['root'] . '/?process=login-openid';
+	$return_url = $c_config['root'] . '/process/login-openid';
 	
 	//and go
 	if( $url = $mod_user->oid_out( $_GET['openid'], $return_url ) ):

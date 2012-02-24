@@ -62,13 +62,16 @@
 	//set stream to cookie
 	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
 
-	//load the users sources
-	$sources = $mod_load->load_sources( $user_id );
-	$mod_template->add( 'sources', $sources );
+	//api?
+	if( !$mod_config['api'] ):
+		//load the users sources
+		$sources = $mod_load->load_sources( $user_id );
+		$mod_template->add( 'sources', $sources );
 
-	//load the users followings
-	$followings = $mod_load->load_users( $user_id );
-	$mod_template->add( 'followings', $followings );
+		//load the users followings
+		$followings = $mod_load->load_users( $user_id );
+		$mod_template->add( 'followings', $followings );
+	endif;
 
 	//start our stream
 	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, $stream_type ) : new mod_stream_site( $mod_db, $stream_type );

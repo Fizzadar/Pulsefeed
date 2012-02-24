@@ -4,11 +4,6 @@
 		desc: updates the poptime for all recent articles (every 30 mins), then scales + makes pop score
 	*/
 
-	//no time limits
-	set_time_limit( 300 );
-	//ignore abort
-	ignore_user_abort( true );
-
 	//load modules
 	global $mod_db, $mod_config;
 

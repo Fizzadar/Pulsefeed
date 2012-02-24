@@ -3,7 +3,7 @@
 	global $mod_user, $mod_message;
 
 	//make url
-	$return_url = $c_config['root'] . '/?process=login-twitter';
+	$return_url = $c_config['root'] . '/process/login-twitter';
 	
 	//and go
 	if( $url = $mod_user->tw_out( $return_url ) ):

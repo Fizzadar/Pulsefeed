@@ -6,20 +6,11 @@
 	
 	define( 'PULSEFEED_VERSION', '0.6.0' );
 
-	//templates from hostnames!
-	$templates = array(
-		'mobile.pulsefeed.com' => 'mobile'
-	);
-
 	//config array
 	$mod_config = array(
-		'dbhost' => '127.0.0.1',
-		'dbname' => 'feedbug',
-		'dbuser' => 'root',
-		'dbpass' => 'root',
-		'template' => isset( $templates[$_SERVER['HTTP_HOST']] ) ? $templates[$_SERVER['HTTP_HOST']] : 'main',
-		'api' => ( $_SERVER['HTTP_HOST'] == 'api.pulsefeed.com' or isset( $_GET['api'] ) ),
-		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.pulsefeed.com' or isset( $_GET['ajax'] ) ),
+		'template' => 'main',
+		'api' => ( $_SERVER['HTTP_HOST'] == 'api.pulsefeed.dev' or isset( $_GET['api'] ) ),
+		'ajax' => ( $_SERVER['HTTP_HOST'] == 'ajax.pulsefeed.dev' or isset( $_GET['ajax'] ) ),
 		'useragent' => 'Pulsefeed / v.' . PULSEFEED_VERSION,
 		'load' => array(
 			'204' => '204',
@@ -43,6 +34,7 @@
 			//users
 			'login' => 'user/login',
 			'invite' => 'user/invite',
+			'settings' => 'user/settings',
 		),
 		'process' => array(
 			//user
@@ -57,6 +49,7 @@
 			'follow' => 'user/follow',
 			'unfollow' => 'user/unfollow',
 			'invite' => 'user/invite',
+			'settings' => 'user/settings', //todo
 			//source
 			'source-add' => 'source/add',
 			'subscribe' => 'source/subscribe',
@@ -73,8 +66,6 @@
 			//collection
 			'collection-add' => 'collection/add', //todo
 			'collection-delete' => 'collection/delete', //todo
-			//settings
-			'settings-save' => 'settings/save', //todo
 		),
 		'libs' => array(
 			//internal libs
@@ -110,10 +101,12 @@
 			'AlreadyInvited' => array( 'You are already invited to Pulsefeed!', 'success' ),
 			'InvalidInviteCode' => array( 'Invalid invite code', 'warning' ),
 			'InviteCodeAdded' => array( 'Welcome to the Pulsefeed Alpha!', 'success' ),
+			'SettingsUpdated' => array( 'Settings Updated', 'success' ),
 			//posting & requests
 			'InvalidToken' => array( 'Invalid session token, please retry your last action', 'warning' ),
 			'InvalidPost' => array( 'Incorrect info was sent during the last action, please try again', 'warning' ),
 			'InvalidGet' => array( 'Invalid data was sent, please try again', 'warning' ),
+			'InvalidEmail' => array( 'Please use a valid email (or none)', 'warning' ),
 			//not found/etc
 			'NoFeedFound' => array( 'We couldn\'t find a feed on that website, please try another address or direct feed link', 'warning' ),
 			//source
@@ -135,8 +128,11 @@
 			'facebook_shares' => 2,
 			'facebook_comments' => 1,
 			'delicious_saves' => 5,
-			'twitter_links' => 2,
-			'digg_diggs' => 3,
+			'twitter_links' => 3,
+			'digg_diggs' => 4,
+			'reddit_score' => 0.2,
+			'google_pluses' => 2,
+			'linked_shares' => 5,
 		),
 		//no-go tag words (words must be larger than 2 already)
 		'no_tag' => array(

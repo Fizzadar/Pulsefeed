@@ -4,25 +4,20 @@
 		desc: cleans up old unread markers ($mod_config['article_expire'] hours old) (every day)
 	*/
 
-	//no time limits
-	set_time_limit( 300 );
-	//ignore abort
-	ignore_user_abort( true );
-
 	//load modules
 	global $mod_db, $mod_config;
 
 	//a week ago
-	$expire_time = time() - ( 3600 * 24 * 7 );
-	//week + 24 hours
-	$expire_old = $expire_time - ( 3600 * 24 * 8 );
+	$expire_unread = time() - ( 3600 * 24 * 7 );
+	//72 hours ago
+	$expire_stream = time() - ( 3600 * 72 );
 
-	//get old articles
+	//get old articles which arent yet expired
 	$articles = $mod_db->query( '
 		SELECT id
 		FROM mod_article
-		WHERE time < ' . $expire_time . '
-		AND time > ' . $expire_old . '
+		WHERE time < ' . $expire_unread . '
+		AND expired_unread = 0
 	' );
 
 	//remove unreads
@@ -32,14 +27,24 @@
 			DELETE FROM mod_user_unread
 			WHERE article_id = ' . $article['id'] . '
 		' );
-		//set poptime = 0 on old articles
-		$mod_db->query( '
-			UPDATE mod_article
-			SET popularity_time = 0
-			WHERE article_id = ' . $article['id'] . '
-		' );
 		echo 'Unreads deleted for article #' . $article['id'] . "\n";
 	endforeach;
+
+	//expire old articles
+	$mod_db->query( '
+		UPDATE mod_article
+		SET expired_unread = 1
+		WHERE expired_unread = 0
+		AND time < ' . $expire_unread . '
+	' );
+
+	//expire 48 hour articles
+	$mod_db->query( '
+		UPDATE mod_article
+		SET expired_stream = 1
+		WHERE expired_stream = 0
+		AND time < ' . $expire_stream . '
+	' );
 
 	//count how many invite codes we got
 	$invitecount = $mod_db->query( '
