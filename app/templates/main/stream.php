@@ -62,6 +62,10 @@
 	<div class="wrap" id="content">
 		<div class="main<?php echo $evencols ? ' evencol' : ''; ?>" id="stream">
 
+			<div class="block">
+				<p><strong>Unfortunately Pulsefeed is currently not updating</strong>, we're working on optimzing the update system as the current test server isn't too powerful.</p>
+			</div>
+
 			<?php if( $mod_cookie->get( 'ChangeUsernameMessage' ) == '1' ): ?>
 				<div class="block">
 					<p>We noticed you haven't yet changed your username! <a class="button" href="<?php echo $c_config['root']; ?>/settings">Change username &#187;</a></p>
