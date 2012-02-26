@@ -191,6 +191,9 @@
 			' );
 			echo '[Child ' . $i . '] update complete on: ' . $source['feed_url'] . ', added ' . $inserted_count . ' articles, ' . $skipped_count . ' skipped' . "\n";
 		endforeach;
+
+		//exit
+		exit( 0 );
 	}
 
 	//build our threads

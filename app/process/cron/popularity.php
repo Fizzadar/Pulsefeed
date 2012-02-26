@@ -209,6 +209,9 @@
 			else
 				echo '[Child ' . $i . '] Article update failed: id#' . $article['id'] . ': ' . urldecode( $url ) . ' //: ' . mysql_error() . "\n";
 		endforeach;
+
+		//end
+		exit( 0 );
 	}
 
 	//build our threads
