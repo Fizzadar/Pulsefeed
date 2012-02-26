@@ -687,7 +687,7 @@ class Readability
 		$articleContent        = $this->dom->createElement('div');
 		$articleContent->setAttribute('id', 'readability-content');
 		$siblingScoreThreshold = max(10, ((int)$topCandidate->getAttribute('readability')) * 0.2);
-		$siblingNodes          = $topCandidate->parentNode->childNodes;
+		$siblingNodes          = @$topCandidate->parentNode->childNodes;
 		if (!isset($siblingNodes)) {
 			$siblingNodes = new stdClass;
 			$siblingNodes->length = 0;

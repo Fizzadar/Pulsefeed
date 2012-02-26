@@ -82,6 +82,7 @@
 			'idna_convert' => 'external/idna',
 			'resize' => 'external/resize',
 			'Readability' => 'external/Readability',
+			'Thread' => 'external/Thread',
 		),
 		'messages' => array(
 			//user

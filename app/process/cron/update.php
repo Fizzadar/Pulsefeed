@@ -53,162 +53,172 @@
 		$childcount++;
 	endforeach;
 
-	//spawn the children!
-	for( $i = 0; $i < $children; $i++ ):
-		//fork
-		$pid = pcntl_fork();
+	//update function
+	function update( $i, $sources ) {
+		global $mod_config;
 
-		//child?
-		if( !$pid ):
-			//child time limit
-			set_time_limit( 300 );
+		//child db conn
+		$child_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
+		$child_db->connect();
 
-			//child db conn
-			$child_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
-			$child_db->connect();
-			
-			//get the least-updated sources
-			$sources = $childdata[$i];
+		//go
+		echo '[Child ' . $i . '] ' . count( $sources ) . ' to update' . "\n";
 
-			//go
-			echo '[Child ' . $i . '] ' . count( $sources ) . ' to update' . "\n";
+		//now loop the sources
+		foreach( $sources as $source ):
+			//load the feed
+			$feed = new mod_source();
+			$items = $feed->load( $source['feed_url'] );
+			$articles = array();
+			$skipped_count = 0;
 
-			//now loop the sources
-			foreach( $sources as $source ):
-				//load the feed
-				$feed = new mod_source();
-				$items = $feed->load( $source['feed_url'] );
-				$articles = array();
-				$skipped_count = 0;
+			//loop our items
+			foreach( $items as $key => $item ):
+				$end_url = $item->get_end_url();
+				$url = $item->get_permalink();
 
-				//loop our items
-				foreach( $items as $key => $item ):
-					$end_url = $item->get_end_url();
-					$url = $item->get_permalink();
-
-					//skip duplicates
-					$got = $child_db->query( '
-						SELECT id
-						FROM mod_article
-						WHERE end_url = "' . $end_url . '"
-						OR url = "' . $url . '"
-						OR ( title = "' . $item->get_title() . '" AND source_id = ' . $source['id'] . ' )
-						LIMIT 1
-					');
-					if( count( $got ) != 0 ):
-						$skipped_count++;
-						continue;
-					endif;
-
-					//must do article first (fills image list)
-					$article = $item->get_article();
-					$images = $item->get_thumbs();
-
-					//get our data
-					$input = array(
-						'title' => $item->get_title(),
-						'url' => $item->get_permalink(),
-						'end_url' => $item->get_end_url(),
-						'summary' => $item->get_summary(),
-						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-						'time' => $item->get_time(),
-					);
-					$articles[] = $input;
-
-					//free the ram
-					unset( $article );
-					unset( $images );
-				endforeach;
-
-				//free some ram
-				unset( $items );
-				unset( $feed );
-
-				//clean all the items
-				$articles = $child_db->clean( $articles );
-
-				//make sure we actually have some articles left
-				if( count( $articles ) < 1 ):
-					$child_db->query( '
-						UPDATE mod_source
-						SET update_time = ' . time() . '
-						WHERE id = ' . $source['id'] . '
-						LIMIT 1
-					' );
-					echo '[Child ' . $i . '] update skipped on: ' . $source['feed_url'] . ', already got all articles' . "\n";
+				//skip duplicates
+				$got = $child_db->query( '
+					SELECT id
+					FROM mod_article
+					WHERE end_url = "' . $end_url . '"
+					OR url = "' . $url . '"
+					OR ( title = "' . $item->get_title() . '" AND source_id = ' . $source['id'] . ' )
+					LIMIT 1
+				');
+				if( count( $got ) != 0 ):
+					$skipped_count++;
 					continue;
 				endif;
 
-				//insert articles
-				$inserted_count = 0;
-				foreach( $articles as $article ):
-					//insert article
-					$sql = '
-						INSERT INTO mod_article
-						( source_id, title, url, end_url, description, time, image_quarter, image_third, image_half )
-						VALUES
-						( ' . $source['id'] . ', "' . $article['title'] . '", "' . $article['url'] . '", "' . $article['end_url'] . '", "' . $article['summary'] . '", ' . $article['time'] . ', "' . $article['image_quarter'] . '", "' . $article['image_third'] . '", "' . $article['image_half'] . '" )
-					';
-					$insert = $child_db->query( $sql );
-					if( !$insert ):
-						echo '[Child ' . $i . '] error inserting: ' . mysql_error() . $sql . "\n";
-						continue;
-					endif;
+				//must do article first (fills image list)
+				$article = $item->get_article();
+				$images = $item->get_thumbs();
 
-					//count it
-					$inserted_count++;
-					
-					//get id
-					$id = $child_db->insert_id();
+				//get our data
+				$input = array(
+					'title' => $item->get_title(),
+					'url' => $item->get_permalink(),
+					'end_url' => $item->get_end_url(),
+					'summary' => $item->get_summary(),
+					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'time' => $item->get_time(),
+				);
+				$articles[] = $input;
 
-					//auto-tagging
-					$title_words = explode( ' ', $article['title'] );
-					//select tags based on words, and tag
+				//free the ram
+				unset( $article );
+				unset( $images );
+			endforeach;
 
-					
+			//free some ram
+			unset( $items );
+			unset( $feed );
 
-					//select users subscribed to source
-					$users = $child_db->query( '
-						SELECT user_id
-						FROM mod_user_sources
-						WHERE source_id = ' . $source['id'] . '
-						LIMIT 1
-					' );
-					if( count( $users ) > 0 ):
-						//update unread
-						$sql = '
-							INSERT INTO mod_user_unread
-							( user_id, article_id )
-							VALUES';
-						foreach( $users as $user )
-							$sql .= '( ' . $user['user_id'] . ', ' . $id . ' ),';
-						//remove ,
-						$sql = rtrim( $sql, ',' );
-						$child_db->query( $sql );
-					endif;
-				endforeach;
+			//clean all the items
+			$articles = $child_db->clean( $articles );
 
-				//finally update the source's update_time
+			//make sure we actually have some articles left
+			if( count( $articles ) < 1 ):
 				$child_db->query( '
 					UPDATE mod_source
-					SET update_time = ' . time() . ',
-					articles = articles + ' . $inserted_count . '
+					SET update_time = ' . time() . '
 					WHERE id = ' . $source['id'] . '
 					LIMIT 1
 				' );
-				echo '[Child ' . $i . '] update complete on: ' . $source['feed_url'] . ', added ' . $inserted_count . ' articles, ' . $skipped_count . ' skipped' . "\n";
-			endforeach;
-			
-			//end child
-			exit();
-		endif;
-	endfor;
+				echo '[Child ' . $i . '] update skipped on: ' . $source['feed_url'] . ', already got all articles' . "\n";
+				continue;
+			endif;
 
-	//wait for our children
-	while( pcntl_waitpid( 0, $status, WNOHANG OR WUNTRACED ) != -1 ):
-		$status = pcntl_wexitstatus( $status );
+			//insert articles
+			$inserted_count = 0;
+			foreach( $articles as $article ):
+				//insert article
+				$sql = '
+					INSERT INTO mod_article
+					( source_id, title, url, end_url, description, time, image_quarter, image_third, image_half )
+					VALUES
+					( ' . $source['id'] . ', "' . $article['title'] . '", "' . $article['url'] . '", "' . $article['end_url'] . '", "' . $article['summary'] . '", ' . $article['time'] . ', "' . $article['image_quarter'] . '", "' . $article['image_third'] . '", "' . $article['image_half'] . '" )
+				';
+				$insert = $child_db->query( $sql );
+				if( !$insert ):
+					echo '[Child ' . $i . '] error inserting: ' . mysql_error() . $sql . "\n";
+					continue;
+				endif;
+
+				//count it
+				$inserted_count++;
+				
+				//get id
+				$id = $child_db->insert_id();
+
+				//auto-tagging
+				$title_words = explode( ' ', $article['title'] );
+				//select tags based on words, and tag
+
+				
+
+				//select users subscribed to source
+				$users = $child_db->query( '
+					SELECT user_id
+					FROM mod_user_sources
+					WHERE source_id = ' . $source['id'] . '
+					LIMIT 1
+				' );
+				if( count( $users ) > 0 ):
+					//update unread
+					$sql = '
+						INSERT INTO mod_user_unread
+						( user_id, article_id )
+						VALUES';
+					foreach( $users as $user )
+						$sql .= '( ' . $user['user_id'] . ', ' . $id . ' ),';
+					//remove ,
+					$sql = rtrim( $sql, ',' );
+					$child_db->query( $sql );
+				endif;
+			endforeach;
+
+			//finally update the source's update_time
+			$child_db->query( '
+				UPDATE mod_source
+				SET update_time = ' . time() . ',
+				articles = articles + ' . $inserted_count . '
+				WHERE id = ' . $source['id'] . '
+				LIMIT 1
+			' );
+			echo '[Child ' . $i . '] update complete on: ' . $source['feed_url'] . ', added ' . $inserted_count . ' articles, ' . $skipped_count . ' skipped' . "\n";
+		endforeach;
+	}
+
+	//build our threads
+	$threads = array();
+	foreach( $childdata as $key => $sources ):
+		$threads[$key] = new Thread( 'update' );
+		$threads[$key]->start( $key, $sources );
+	endforeach;
+
+	//wait on them
+	$timer = 0;
+	while( !empty( $threads ) ):
+		//loop threads, check stopped
+		foreach( $threads as $key => $thread ):
+			//timer check
+			if( $timer > 600 ):
+				echo 'Warning: timer above 600, killing thread#' . $key . "\n";
+				$thread->stop();
+			endif;
+			//alive?
+			if( !$thread->isAlive() ):
+				unset( $threads[$key] );
+			endif;
+		endforeach;
+		//sleep
+		sleep( 1 );
+		//up timer
+		$timer++;
 	endwhile;
 
 	$e_time = time() - $s_time;
