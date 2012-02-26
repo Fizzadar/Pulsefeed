@@ -1,5 +1,6 @@
 <?php
-	global $mod_token, $mod_user, $mod_cookie;
+	global $mod_user, $mod_cookie;
+	$settings = $this->get( 'settings' ) ? $this->get( 'settings' ) : array();
 ?>
 
 	<div id="header">
@@ -15,20 +16,20 @@
 		<div class="main">
 			<form action="<?php echo $c_config['root']; ?>/process/settings" method="post" class="left half">
 				<label for="username">Username:</label>
-				<input type="text" name="username" id="username" value="<?php echo $this->content['settings']['name']; ?>" maxlength="30" />
+				<input type="text" name="username" id="username" value="<?php echo $settings['name']; ?>" maxlength="30" />
 
 				<label for="email">Email (optional):</label>
-				<input type="text" name="email" id="email" value="<?php echo $this->content['settings']['email']; ?>" />
+				<input type="text" name="email" id="email" value="<?php echo $settings['email']; ?>" />
 
 				<p><em>Note:</em> <strong>email updates don't currently run</strong></p>
 				<label class="checkbox" for="daily_email">Daily Email Digest:</label>
-				<input type="checkbox" name="daily_email" id="daily_email" <?php echo $this->content['settings']['daily_email'] ? 'checked' : ''; ?>/>
+				<input type="checkbox" name="daily_email" id="daily_email" <?php echo $settings['daily_email'] ? 'checked' : ''; ?>/>
 
 				<label class="checkbox" for="weekly_email">Weekly Email Digest:</label>
-				<input type="checkbox" name="weekly_email" id="weekly_email" <?php echo $this->content['settings']['weekly_email'] ? 'checked' : ''; ?>/>
+				<input type="checkbox" name="weekly_email" id="weekly_email" <?php echo $settings['weekly_email'] ? 'checked' : ''; ?>/>
 
 				<input type="submit" value="Update Settings &#187;" />
-				<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+				<input type="hidden" name="mod_token" value="<?php echo $this->get( 'mod_token' ); ?>" />
 			</form>
 
 			<div class="right half">

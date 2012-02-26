@@ -39,30 +39,32 @@
 				case 'hybrid':
 				case 'popular':
 				case 'public':
-					//get 1/3 length
-					$length = count( $this->data['items'] );
-					$third = round( $length / 3 );
+					if( count( $this->data['items'] ) > 2 ):
+						//get 1/3 length
+						$length = count( $this->data['items'] );
+						$third = round( $length / 3 );
 
-					//get col3, items from length - third to length
-					for( $i = $length - $third; $i < $length; $i++ ):
-						$this->data['items'][$i]['short_description'] = $this->data['items'][$i]['shorter_description'];
-						$articles['col3'][] = $this->data['items'][$i];
-					endfor;
+						//get col3, items from length - third to length
+						for( $i = $length - $third; $i < $length; $i++ ):
+							$this->data['items'][$i]['short_description'] = $this->data['items'][$i]['shorter_description'];
+							$articles['col3'][] = $this->data['items'][$i];
+						endfor;
 
-					//now generate other 2 cols
-					$col2 = false;
-					for( $i = 0; $i < $length - $third; $i++ ):
-						//choose the col
-						if( $col2 ):
-							$articles['col2'][] = $this->data['items'][$i];
-						else:
-							$articles['col1'][] = $this->data['items'][$i];
-						endif;
+						//now generate other 2 cols
+						$col2 = false;
+						for( $i = 0; $i < $length - $third; $i++ ):
+							//choose the col
+							if( $col2 ):
+								$articles['col2'][] = $this->data['items'][$i];
+							else:
+								$articles['col1'][] = $this->data['items'][$i];
+							endif;
 
-						//switch
-						$col2 = !$col2;
-					endfor;
-					break;
+							//switch
+							$col2 = !$col2;
+						endfor;
+						break;
+					endif;
 
 				//3 col even
 				case 'unread':

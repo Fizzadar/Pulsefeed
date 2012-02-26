@@ -6,9 +6,11 @@
 	
 	class mod_template extends c_template {
 		public function __construct() {
-			global $mod_config;
+			global $mod_config, $mod_token;
 			//construct with our configed template
 			parent::__construct( 'app/templates/'. $mod_config['template'] . '/' );
+			//add token
+			$this->add( 'mod_token', $mod_token );
 		}
 
 		public function load( $template ) {
