@@ -71,7 +71,7 @@
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
 		curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false );
-		curl_setopt( $curl, CURLOPT_TIMEOUT, 5 );
+		curl_setopt( $curl, CURLOPT_TIMEOUT, 10 );
 		curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
 
 		//what do we get
