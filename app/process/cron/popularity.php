@@ -81,6 +81,7 @@
 			return $data;
 		else:
 			var_dump( $data );
+			echo curl_error();
 			return false;
 		endif;
 	}
