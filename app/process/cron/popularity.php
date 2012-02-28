@@ -10,12 +10,11 @@
 
 	//time!
 	$s_time = time();
-	echo '
-###############
+	echo '###############
 ############### ===> Pulsefeed Popularity Updater
 ###############
 ';
-	echo 'Starting @: ' . time() . "\n";
+	echo 'Starting @: ' . time() . ' / ' . date( 'i : s' ) . "\n";
 
 	//load modules
 	global $mod_db, $mod_config, $argv;
@@ -23,7 +22,7 @@
 
 	//one child for debug
 	if( isset( $argv[2] ) and $argv[2] == 'debug' )
-		$children = 1;
+		$children = 0;
 
 	//min 30 minute between updates
 	$utime = time() - 1800;
@@ -35,7 +34,7 @@
 		WHERE expired_stream = 0
 		AND update_time < ' . $utime . '
 		ORDER BY update_time ASC
-		LIMIT ' . ( $children * $childarticles ) . '
+		LIMIT ' . ( ( $children + 1 ) * $childarticles ) . '
 	' );
 	//no longer needed (without causes major fail )
 	$mod_db->__destruct();
@@ -43,7 +42,7 @@
 
 	//build childdata array
 	$childdata = array();
-	for( $i = 0; $i < $children; $i++ ):
+	for( $i = 0; $i <= $children; $i++ ):
 		$childdata[$i] = array();
 	endfor;
 
@@ -123,19 +122,23 @@
 			//get twitter data
 			$tw = get_data( 'http://search.twitter.com/search.json?rpp=100&result_type=recent&since_id=' . $article['twitter_last_id'] . '&q=' . $url );
 			if( $tw ):
-				$tw = json_decode( $tw );
-				if( isset( $tw->max_id ) and isset( $tw->results ) and is_array( $tw->results ) ):
-					$tw_last_id = $tw->max_id;
-					$tw_tweets = count( $tw->results );
+				$tw2 = json_decode( $tw );
+				if( isset( $tw2->max_id_str ) and isset( $tw2->results ) and is_array( $tw2->results ) ):
+					$tw_last_id = $tw2->max_id_str;
+					$tw_tweets = count( $tw2->results );
 				else:
 					$tw_last_id = 0;
 					$tw_tweets = 0;
-					echo 'twitter failed on #' . $article['id'] . ' : ' . var_dump( $tw ) . "\n";
+					echo 'twitter failed on #' . $article['id'] . ' : ' . "\n";
+					var_dump( $tw );
+					echo "\n";
 				endif;
 			else:
 				$tw_last_id = 0;
 				$tw_tweets = 0;
-				echo 'twitter failed on #' . $article['id'] . ' : ' . var_dump( $tw ) . "\n";
+				echo 'twitter failed on #' . $article['id'] . ' : ' . "\n";
+				var_dump( $tw );
+				echo "\n";
 			endif;
 
 			//get delicious data
@@ -236,7 +239,7 @@
 			' );
 
 			//updated?
-			if( $update and ( !isset( $argv[2] ) or $argv[2] != 'debug' ) )
+			if( $update )
 				echo '[Child ' . $i . '] Article updated: id#' . $article['id'] . ': ' . urldecode( $url ) . "\n";
 			elseif( !$update )
 				echo '[Child ' . $i . '] Article update failed: id#' . $article['id'] . ': ' . urldecode( $url ) . ' //: ' . mysql_error() . "\n";
@@ -268,7 +271,7 @@
 				unset( $threads[$key] );
 			endif;
 		endforeach;
-		//sleep
+		//sleep, let cpu work
 		sleep( 1 );
 		//up timer
 		$timer++;
@@ -276,5 +279,5 @@
 
 	//debug
 	$e_time = time() - $s_time;
-	echo 'total time: ' . $e_time . 's' . "\n";
+	echo 'total time: ' . $e_time . 's' . ' / end: ' . date( 'i : s' ) . "\n";
 ?>
