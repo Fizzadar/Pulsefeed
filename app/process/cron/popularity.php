@@ -77,10 +77,12 @@
 		//what do we get
 		$data = curl_exec( $curl );
 
-		if( $data )
+		if( $data ):
 			return $data;
-		else
+		else:
+			var_dump( $data );
 			return false;
+		endif;
 	}
 
 	//popularity function
