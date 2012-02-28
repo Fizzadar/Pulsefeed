@@ -18,7 +18,12 @@
 	echo 'Starting @: ' . time() . "\n";
 
 	//load modules
-	global $mod_db, $mod_config;
+	global $mod_db, $mod_config, $argv;
+	$debug = false;
+
+	//one child for debug
+	if( isset( $argv[2] ) and $argv[2] == 'debug' )
+		$children = 1;
 
 	//min 30 minute between updates
 	$utime = time() - 1800;
@@ -71,7 +76,9 @@
 		curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
 
 		//what do we get
-		if( $data = curl_exec( $curl ) )
+		$data = curl_exec( $curl );
+
+		if( $data )
 			return $data;
 		else
 			return false;
@@ -79,7 +86,7 @@
 
 	//popularity function
 	function popularity( $i, $articles ) {
-		global $mod_config;
+		global $mod_config, $argv;
 
 		//child db conn
 		$child_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
@@ -110,16 +117,25 @@
 			else:
 				$fb_shares = 0;
 				$fb_comments = 0;
+				echo 'fb failed on #' . $article['id'] . "\n";
 			endif;
 
 			//get twitter data
-			if( $tw = get_data( 'http://search.twitter.com/search.json?rpp=100&result_type=recent&since_id=' . $article['twitter_last_id'] . '&q=' . $url ) ):
+			$tw = get_data( 'http://search.twitter.com/search.json?rpp=100&result_type=recent&since_id=' . $article['twitter_last_id'] . '&q=' . $url );
+			if( $tw ):
 				$tw = json_decode( $tw );
-				$tw_last_id = isset( $tw->max_id ) ? $tw->max_id : 0;
-				$tw_tweets = ( isset( $tw->results ) and is_array( $tw->results ) ) ? count( $tw->results ) : 0;
+				if( isset( $tw->max_id ) and isset( $tw->results ) and is_array( $tw->results ) ):
+					$tw_last_id = $tw->max_id;
+					$tw_tweets = count( $tw->results );
+				else:
+					$tw_last_id = 0;
+					$tw_tweets = 0;
+					echo 'twitter failed on #' . $article['id'] . ' : ' . var_dump( $tw ) . "\n";
+				endif;
 			else:
 				$tw_last_id = 0;
 				$tw_tweets = 0;
+				echo 'twitter failed on #' . $article['id'] . ' : ' . var_dump( $tw ) . "\n";
 			endif;
 
 			//get delicious data
@@ -128,6 +144,7 @@
 				$dl_saves = ( is_array( $dl ) and isset( $dl[0] ) ) ? $dl[0]->total_posts : 0;
 			else:
 				$dl_saves = 0;
+				echo 'delicious failed on #' . $article['id'] . "\n";
 			endif;
 
 			//get digg data
@@ -136,6 +153,7 @@
 				$dg_diggs = ( is_array( $dg->stories ) and isset( $dg->stories[0] ) ) ? $dg->stories[0]->diggs : 0;
 			else:
 				$dg_diggs = 0;
+				echo 'digg failed on #' . $article['id'] . "\n";
 			endif;
 
 			//linked in
@@ -145,24 +163,38 @@
 				$ln_shares = isset( $ln->count ) ? $ln->count : 0;
 			else:
 				$ln_shares = 0;
+				echo 'linkedin failed on #' . $article['id'] . "\n";
 			endif;
 
 			//google plus
-			if( $gl = get_data( 'https://clients6.google.com/rpc?key=AIzaSyCKSbrvQasunBoV16zDH9R33D88CeLr9gQ', true, '[{"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id":"' . urldecode( $url ) . '","source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"}]' ) ):
+			$gl = get_data( 'https://clients6.google.com/rpc?key=AIzaSyCKSbrvQasunBoV16zDH9R33D88CeLr9gQ', true, '[{"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id":"' . urldecode( $url ) . '","source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"}]' );
+			if( $gl ):
 				$gl = json_decode( $gl );
-				$gl_pluses = isset( $gl[0]->result->metadata->globalCounts->count ) ? $gl[0]->result->metadata->globalCounts->count : 0;
+				if( isset( $gl[0]->result->metadata->globalCounts->count ) ):
+					$gl_pluses = $gl[0]->result->metadata->globalCounts->count;
+				else:
+					$gl_pluses = 0;
+					echo 'google failed on #' . $article['id'] . ' : ' . var_dump( $gl ) . "\n";
+				endif;
 			else:
 				$gl_pluses = 0;
+				echo 'google failed on #' . $article['id'] . ' : ' . var_dump( $gl ) . "\n";
 			endif;
 
 			//hacker news <= api too shit
 
 			//reddit
-			if( $rd = get_data( 'http://www.reddit.com/api/info.json?url=' . $url ) ):
+			$rd = get_data( 'http://www.reddit.com/api/info.json?url=' . $url );
+			if( $rd ):
 				$rd = json_decode( $rd );
-				$rd_score = isset( $rd->data->children[0] ) ? $rd->data->children[0]->data->score : 0;
+				if( isset( $rd->data->children[0] ) ):
+					$rd_score = $rd->data->children[0]->data->score;
+				else:
+					$rd_score = 0;
+				endif;
 			else:
 				$rd_score = 0;
+				echo 'reddit failed on #' . $article['id'] . ' : ' . var_dump( $rd ) . "\n";
 			endif;
 
 			//calculate popularity
@@ -204,9 +236,9 @@
 			' );
 
 			//updated?
-			if( $update )
+			if( $update and ( !isset( $argv[2] ) or $argv[2] != 'debug' ) )
 				echo '[Child ' . $i . '] Article updated: id#' . $article['id'] . ': ' . urldecode( $url ) . "\n";
-			else
+			elseif( !$update )
 				echo '[Child ' . $i . '] Article update failed: id#' . $article['id'] . ': ' . urldecode( $url ) . ' //: ' . mysql_error() . "\n";
 		endforeach;
 
