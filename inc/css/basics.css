@@ -107,6 +107,10 @@ form#subunsub {
 		display: inline;
 		width: auto;
 	}
+	form .disabled {
+		opacity: 0.5;
+		text-decoration: none;
+	}
 
 a.edit {
 	color: #666;
@@ -123,6 +127,7 @@ a.edit {
 	color: #1a1b1b;
 	text-decoration: none;
 	font-family: PT Sans, Arial;
+	box-shadow: inset 0px 0px 5px rgba( 255, 255, 255, 1 );
 }
 	form input[type=submit].button {
 		float: none;
@@ -173,7 +178,7 @@ div.wrap {
 		border: 1px solid #D7D7D7;
 		margin-top: -35px;
 		height: 18px;
-		border-radius: 5px;
+		border-radius: 0px;
 		margin-left: -65px;
 		opacity: 1;
 		width: 130px;
@@ -181,15 +186,17 @@ div.wrap {
 		line-height: 18px;
 		z-index: 9;
 		white-space: nowrap;
+		box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
 	}
 	.tip span span {
-		background: transparent url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip.png' ) center bottom no-repeat;
+		background: transparent url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip_bottom.png' ) center bottom no-repeat;
 		border: none;
 		margin-top: -2px;
 		width: 120px;
 		height: 10px;
 		left: 50%;
 		margin-left: -62px;
+		box-shadow: none;
 	}
 	.tip:hover span {
 		display: block;

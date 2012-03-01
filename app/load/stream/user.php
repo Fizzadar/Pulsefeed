@@ -59,11 +59,11 @@
 	else
 		$name = $user[0]['name'] . '\'s';
 
-	//set stream to cookie
-	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
-
 	//api?
 	if( !$mod_config['api'] ):
+		//set stream to cookie
+		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
+	
 		//load the users sources
 		$sources = $mod_load->load_sources( $user_id );
 		$mod_template->add( 'sources', $sources );

@@ -28,35 +28,41 @@
 	<!--scripts-->
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>?load=js"></script>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/core.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/pulsefeed.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/message.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.stream.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.frame.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.page.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/template.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/design.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/queue.js"></script>
 </head>
 <body>
-	<div id="fb-root"></div>
-
 	<div id="top">
 		<div class="wrap">
 			<?php if( $this->get( 'externalHeader' ) ): ?>
-				<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/framebuster.js"></script>
+				<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/frame.js"></script>
 				<h3 class="external">
 					<span><small>&larr; back</small> Pulsefeed</span>
 					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&larr; back</small> Pulsefeed</a>
 				</h3>
 
-				<form id="search">
-					<input type="text" id="s" name="s" value="Search Pulsefeed..." onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" />
-					<input type="submit" id="submit" value="Search &rarr;" />
+				<form id="search" class="external">
+					<input type="text" id="s" name="s" value="Search is not currently finished!" onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" disabled="disabled" />
+					<input type="submit" id="submit" value="Search &rarr;" class="disabled" disabled="disabled" />
 				</form>
 
 				<?php if( $mod_user->session_login() ): ?>
 					<ul id="external">
 						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
 						<li>
-							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'unrecommend'; ?>" method="post">
+							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'unrecommend'; ?>" method="post" class="like_form_external">
 								<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
 								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 								<button type="submit">
 									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'recommended'; ?>.png" alt="" />
-									<?php echo $this->content['article']['recommended'] == NULL ? 'Like' : 'Unlike'; ?>
+									<span><?php echo $this->content['article']['recommended'] == NULL ? 'Like' : 'Unlike'; ?></span>
 								</button>
 							</form>
 						</li>
@@ -77,6 +83,12 @@
 							</a>
 						</li>
 						<?php endif; ?>
+						<li>
+							<a target="_blank" href="<?php echo $this->content['article']['end_url']; ?>">
+								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/original.png" alt="" />
+								Original
+							</a>
+						</li>
 					</ul>
 				<?php endif; ?>
 			<?php else: ?>
@@ -86,8 +98,8 @@
 				</h3>
 
 				<form id="search">
-					<input type="text" id="s" name="s" value="Search Pulsefeed..." onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" />
-					<input type="submit" id="submit" value="Search &rarr;" />
+					<input type="text" id="s" name="s" value="Search is not currently finished!" onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" disabled="disabled" />
+					<input type="submit" id="submit" value="Search &rarr;" class="disabled" disabled="disabled" />
 				</form>
 			<?php endif; ?>
 
@@ -99,7 +111,7 @@
 					<li><a href="<?php echo $c_config['root']; ?>/sources">Browse Sources</a></li>
 
 					<li class="title">Account</li>
-					<li><a href="<?php echo $c_config['root']; ?>/settings">Settings</a></li>
+					<li><a class="ajax" href="<?php echo $c_config['root']; ?>/settings">Settings</a></li>
 					<li><a href="<?php echo $c_config['root']; ?>/sources/me">Sources</a></li>
 					<li><a href="<?php echo $c_config['root']; ?>/collections/me">Collections</a></li>
 
@@ -138,3 +150,5 @@
 		</div>
 	<?php endforeach; ?>
 	</div><!--end messages-->
+
+	<div id="ajaxbox">

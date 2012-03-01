@@ -4,12 +4,14 @@
 		desc: configuration for pulsefeed app
 	*/
 	
-	define( 'PULSEFEED_VERSION', '0.6.0' );
+	define( 'PULSEFEED_VERSION', '0.8.0' );
 
 	//config array
 	$mod_config = array(
 		'template' => 'main',
 		'useragent' => 'Pulsefeed / v.' . PULSEFEED_VERSION,
+		'iapi' => isset( $_GET['iapi'] ),
+		'ajax' => isset( $_GET['ajax'] ),
 		'load' => array(
 			'204' => '204',
 			//js & css

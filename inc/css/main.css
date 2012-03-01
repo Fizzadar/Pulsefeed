@@ -4,7 +4,6 @@
 div.main {
 	margin: 50px 254px 50px 130px;
 	padding-left: 20px;
-	overflow: hidden;
 	word-wrap: break-word;
 	font-family: PT Sans;
 }
@@ -19,13 +18,11 @@ div#content {
 	div#content div.main {
 		padding-top: 15px;
 	}
-
 	div.main div#add_source {
 		float: left;
 		width: 100%;
 		margin-bottom: 20px;
 	}
-
 	div.main span.edit {
 		font-size: 11px;
 		font-family: Verdana;
@@ -33,58 +30,6 @@ div#content {
 		line-height: 20px;
 		display: block;
 	}
-
-	div.main a.widelink {
-		width: 50%;
-		font-family: PT Sans, Arial;
-		display: inline-block;
-		text-align: center;
-		background: #FAFAFA;
-		padding: 8% 0;
-		margin: 0;
-		float: left;
-		border-top-left-radius: 5px;
-		border-bottom-left-radius: 5px;
-		font-size: 22px;
-	}
-	div.main a.widelink:hover {
-		background: #F1F1F1;
-		text-decoration: none;
-	}
-	div.main a.widelink.right {
-		border-radius: 0;
-		border-top-right-radius: 5px;
-		border-bottom-right-radius: 5px;
-	}
-		div.main a.widelink span {
-			display: block;
-			font-size: 16px;
-		}
-		div#add_source a.widelink {
-			border-top-left-radius: 0;
-			border-top-right-radius: 0;
-		}
-		div#add_source a.widelink.right {
-			border-left: 1px solid #F1F1F1;
-			margin-right: -1px;
-		}
-		div#add_source a.widelink.top {
-			border-bottom: 1px solid #F1F1F1;
-			border-radius: 0;
-		}
-	div.main a.quarterlink {
-		float: left;
-		width: 25%;
-		opacity: 0.6;
-		overflow: hidden;
-	}
-		div.main a.quarterlink img {
-			width: 98%;
-		}
-	div.main a.quarterlink:hover {
-		opacity: 1;
-	}
-
 	div.main a.morelink {
 		font-size: 20px;
 		font-family: PT Sans, Arial;
@@ -97,14 +42,41 @@ div#content {
 		border-bottom-left-radius: 5px;
 		border-bottom-right-radius: 5px;
 	}
-		div#add_source a.morelink {
-			border-radius: 5px 5px 0 0;
-			border-bottom: 1px solid #F1F1F1;
-		}
 	div.main a.morelink:hover {
 		background: #F1F1F1;
 		text-decoration: none;
 	}
+	div.main a.linkthird {
+		font-size: 20px;
+		float: left;
+		width: 29%;
+		display: block;
+		height: 50px;
+		padding: 2%;
+		background: #FAFAFA;
+		border: 1px solid #E7E7E7;
+	}
+	div.main a.linkthird.middle {
+		border-left: none;
+		border-right: none;
+	}
+	div.main a.linkthird:hover {
+		background: #F1F1F1;
+		text-decoration: none;
+	}
+		div.main a.linkthird img {
+			float: left;
+			margin-right: 10px;
+		}
+		div.main a.linkthird span {
+			display: block;
+			font-size: 14px;
+			color: #1A1B1B;
+		}
+	div.main div#add_source {
+		height: 110px;
+	}
+
 
 
 
@@ -141,29 +113,18 @@ div#stream {
 		font-size: 13px;
 		line-height: 22px;
 	}
-	div#stream.col2 {
-	}
-		div#stream.col2 div.col {
-			width: 48%;
-		}
-		div#stream.col2 div.col.col3 {
-			display: none;
-		}
-		div#stream.col2 div.col.col2 {
-			margin-right: 0;
-			float: right;
-		}
-		div#stream.col2 span.edit span.right {
-			display: none;
-		}
 	div#stream.evencol {
 	}
 		div#stream.evencol div.col {
-			width: 31%;
-			margin-right: 4%;
+			width: 30%;
+			margin-right: 0;
+		}
+		div#stream.evencol div.col.col2 {
+			float: right;
+			margin-right: 5%;
 		}
 		div#stream.evencol div.col.col3 {
-			margin-right: -1%;
+			margin-right: 0;
 			margin-top: 22px;
 			font-size: 14px;
 		}
@@ -338,6 +299,9 @@ div.item {
 			text-decoration: underline;
 			cursor: pointer;
 		}
+		div.item div.meta input.disabled:hover {
+			text-decoration: none;
+		}
 		div.item div.meta img {
 			float: left;
 			margin-top: 2px;
@@ -356,6 +320,34 @@ div.item {
 		div.item div.meta span.likes {
 			color: #666;
 		}
+		div.item div.meta span.collect {
+			display: inline-block;
+		}
+		div.item div.meta ul.collections {
+			position: absolute;
+			background: #FFFFFF;
+			border: 1px solid #D7D7D7;
+			margin: 7px 0 0 -2px;
+			padding: 5px 10px;
+			box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
+		}
+			div.item div.meta ul.collections span.tip {
+				width: 22px;
+				height: 10px;
+				background: url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip_top.png' ) center top no-repeat;
+				position: absolute;
+				margin-top: -15px;
+			}
+			div.item div.meta ul.collections li {
+				list-style: none;
+			}
+				div.item div.meta ul.collections input {
+					border: 1px solid #D9D9D9;
+					padding: 2px;
+					color: #666;
+					text-decoration: none;
+					cursor: text;
+				}
 
 
 
@@ -384,7 +376,7 @@ div.iframeborder {
 			margin-top: -5px;
 		}
 		div.iframeborder div#loader div.wrap {
-			text-indent: 230px;
+			text-indent: 205px;
 		}
 iframe.externalarticle {
 	border: none;

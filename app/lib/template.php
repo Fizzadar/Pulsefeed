@@ -10,7 +10,9 @@
 			//construct with our configed template
 			parent::__construct( 'app/templates/'. $mod_config['template'] . '/' );
 			//add token
-			$this->add( 'mod_token', $mod_token );
+			if( !$mod_config['api'] or $mod_config['iapi'] ):
+				$this->add( 'mod_token', $mod_token );
+			endif;
 		}
 
 		public function load( $template ) {
@@ -32,8 +34,11 @@
 			global $mod_config;
 			
 			//if api page, dump the content as json
-			if( $mod_config['api'] )
+			if( $mod_config['api'] ):
+				$this->add( 'result', 'success' );
+				$this->add( 'message', 'data loaded' );
 				echo json_encode( $this->content );
+			endif;
 		}
 	}
 ?>

@@ -28,12 +28,6 @@
 			//now re-do keys
 			$this->data['items'] = array_values( $this->data['items'] );
 
-			//make shorter desc
-			foreach( $this->data['items'] as $k => $v ):
-				$this->data['items'][$k]['shorter_description'] = substr( $this->data['items'][$k]['description'], 0, 120 ) . ( strlen( $this->data['items'][$k]['description'] ) > 120 ? '...' : '' );
-				$this->data['items'][$k]['time_ago'] = $mod_data->time_ago( $this->data['items'][$k]['time'] );
-			endforeach;
-
 			switch( $this->stream_type ):
 				//2 col main, 1 col upcoming
 				case 'hybrid':

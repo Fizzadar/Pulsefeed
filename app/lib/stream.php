@@ -120,11 +120,13 @@
 				//work out stuffs
 				$article['source_domain'] = $mod_data->domain_url( $article['source_url'] );
 				$article['source_title'] = $mod_data->str_tooltip( $article['source_title'] );
+				$article['time_ago'] = $mod_data->time_ago( $article['time'] );
 				$article['type'] = 'article';
 				$article['recommended'] = ( isset( $article['recommended'] ) and is_numeric( $article['recommended'] ) and $article['recommended'] == $article['id'] );
 				$article['unread'] = ( isset( $article['unread'] ) and is_numeric( $article['unread'] ) and $article['unread'] == $article['id'] );
 				$article['short_description'] = substr( $article['description'], 0, 200 ) . ( strlen( $article['description'] ) > 200 ? '...' : '' );
-				$article['expired'] = $article['time'] < time() - ( 7 * 24 * 3600 );
+				$article['shorter_description'] = substr( $article['description'], 0, 120 ) . ( strlen( $article['description'] ) > 120 ? '...' : '' );
+				$article['expired'] = $article['expired_unread'];
 				$return['items'][] = $article;
 			endforeach;
 
@@ -170,7 +172,7 @@
 			//build query, start selecting basic stuff
 			$sql = '
 				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_score, mod_article.image_quarter, mod_article.image_third, mod_article.image_half,
+					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_score, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.expired_unread,
 					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended, uread.article_id AS unread, usub.source_id AS subscribed,' : '' ) . '
 					mod_source.site_title AS source_title, mod_source.site_url AS source_url
 				FROM

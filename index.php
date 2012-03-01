@@ -22,6 +22,10 @@
 	require( 'app/config.php' );
 	require( 'app/config.ext.php' );
 
+	//set our header if api
+	if( $mod_config['api'] )
+		header( 'Content-Type: application/json' );
+
 	//start the app
 	$mod_app = new c_app( $mod_config['libs'] );
 

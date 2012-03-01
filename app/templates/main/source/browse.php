@@ -50,16 +50,16 @@
 					</span>
 				<?php if( $mod_user->session_login() and $mod_user->session_permission( 'Subscribe' ) ): ?>
 					<?php if( isset( $source['subscribed'] ) and is_numeric( $source['subscribed'] ) ): ?>
-					<form action="<?php echo $c_config['root']; ?>/process/unsubscribe" method="post">
+					<form action="<?php echo $c_config['root']; ?>/process/unsubscribe" method="post" class="source_subscribe">
 						<input type="hidden" name="source_id" value="<?php echo $source['id']; ?>" />
 						<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-						<input type="submit" value="Un-Subscribe" class="unsubscribe" />
+						<input type="submit" value="UnSubscribe" class="unsubscribe" />
 					</form>
 					<?php else: ?>
-					<form action="<?php echo $c_config['root']; ?>/process/subscribe" method="post">
+					<form action="<?php echo $c_config['root']; ?>/process/subscribe" method="post" class="source_subscribe">
 						<input type="hidden" name="source_id" value="<?php echo $source['id']; ?>" />
 						<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-						<input type="submit" value="Subscribe" />
+						<input type="submit" value="+ Subscribe" />
 					</form>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -74,7 +74,7 @@
 			<?php endif; ?>
 			</div><!--end sources-->
 
-			<a class="morelink" href="?offset=<?php echo $this->get( 'nextOffset' ); ?>">load more sources &darr;</a>
+			<a class="morelink source_load_more" href="?offset=<?php echo $this->get( 'nextOffset' ); ?>">load more sources &darr;</a>
 		</div><!--end main-->
 	</div><!--end wrap-->
 

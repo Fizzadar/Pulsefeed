@@ -1,3 +1,5 @@
+	</div><!--end ajaxbox-->
+	
 	<div id="footer">
 		<div class="wrap">
 			<div class="inner">

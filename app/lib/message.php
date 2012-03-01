@@ -13,10 +13,10 @@
 		}
 
 		public function add( $message ) {
-			global $mod_config, $mod_token;
+			global $mod_config, $mod_session;
 			if( isset( $this->messagelist[$message] ) ):
 				if( $mod_config['api'] )
-					die( json_encode( array( 'mod_token' => $mod_token, 'result' => $this->messagelist[$message][1], 'message' => $this->messagelist[$message][0] ) ) );
+					die( json_encode( array( 'mod_token' => $mod_session->generate(), 'result' => $this->messagelist[$message][1], 'message' => $this->messagelist[$message][0] ) ) );
 				else
 					$this->messages[] = $this->messagelist[$message];
 			endif;

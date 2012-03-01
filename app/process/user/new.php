@@ -21,6 +21,10 @@
 		VALUES ( ' . $mod_user->get_userid() . ', 1 )
 	' );
 
+	//temp - promote to alpha user
+	$mod_user->set_data( array( 'group' => 3 ) );
+	$mod_user->relogin();
+
 	//add cookie for username change message
 	$mod_cookie->set( 'ChangeUsernameMessage', '1' );
 ?>

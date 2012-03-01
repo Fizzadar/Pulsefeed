@@ -17,10 +17,17 @@
 
 	//get user data
 	$user = $mod_user->get_data();
+	//hide auth key
+	unset( $user['auth_key'] );
 	$mod_template->add( 'settings', $user );
 
 	//get oauths
 	$oauths = $mod_user->get_oauths();
+	//remove unwanted data
+	foreach( $oauths as $key => $oauth ):
+		unset( $oauths[$key]['token'] );
+		unset( $oauths[$key]['secret'] );
+	endforeach;
 	$mod_template->add( 'oauths', $oauths );
 
 	//get oids

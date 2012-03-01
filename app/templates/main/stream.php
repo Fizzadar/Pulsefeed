@@ -11,12 +11,23 @@
 	if( in_array( $this->get( 'title' ), array( 'unread', 'source', 'newest', 'discover' ) ) )	$evencols = true;
 ?>
 
+<script type="text/javascript">
+	pulsefeed.stream = true;
+	pulsefeed.streamType = '<?php echo $this->get( 'title' ); ?>';
+	pulsefeed.streamOffset = <?php echo $this->get( 'nextOffset' ); ?>;
+<?php if( $this->get( 'title' ) == 'source' ): ?>
+	pulsefeed.streamSource = <?php echo $this->get( 'source_id' ); ?>;
+<?php else: ?>
+	pulsefeed.streamUser = <?php echo $this->get( 'userid' ) ? $this->get( 'userid' ) : -1; ?>;
+<?php endif; ?>
+</script> 
+
 <?php if( !$this->get( 'mainOnly' ) ): ?>
 	<div id="header">
 		<div class="wrap">
 			<div class="left">
 				<?php if( in_array( $this->get( 'title' ), array( 'hybrid', 'unread', 'popular', 'newest' ) ) and $mod_user->session_login() and $mod_user->session_userid() == $this->get( 'userid' ) ): ?>
-					<a href="<?php echo $c_config['root']; ?>/sources" class="button" onclick="$( '#add_source' ).slideToggle(); return false;">+ add sources</a>
+					<a href="<?php echo $c_config['root']; ?>/sources" class="button" onclick="$( '#add_source' ).slideToggle( 150 ); return false;">+ add sources</a>
 				<?php endif; ?>
 
 				<?php if( $this->get( 'title' ) == 'public' and !$mod_user->session_login() ): ?>
@@ -25,13 +36,13 @@
 
 				<?php if( $this->content['title'] == 'source' and $mod_user->session_login() and $mod_user->session_permission( 'Subscribe' ) ): ?>
 					<?php if( $this->get( 'subscribed' ) ): ?>
-						<form action="<?php echo $c_config['root']; ?>/process/unsubscribe" method="post" id="subunsub">
+						<form action="<?php echo $c_config['root']; ?>/process/unsubscribe" method="post" id="subunsub" class="source_subscribe">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="source_id" value="<?php echo $this->get( 'source_id' ); ?>" />
 							<input type="submit" value="Unsubscibe" class="button" />
 						</form>
 					<?php else: ?>
-						<form action="<?php echo $c_config['root']; ?>/process/subscribe" method="post" id="subunsub">
+						<form action="<?php echo $c_config['root']; ?>/process/subscribe" method="post" id="subunsub" class="source_subscribe">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="source_id" value="<?php echo $this->get( 'source_id' ); ?>" />
 							<input type="submit" value="+ Subscribe" class="button" />
@@ -39,13 +50,13 @@
 					<?php endif; ?>
 				<?php elseif( $this->get( 'userid' ) != $mod_user->session_userid() and $mod_user->session_permission( 'Follow' ) ): ?>
 					<?php if( $this->get( 'following' ) ): ?>
-						<form action="<?php echo $c_config['root']; ?>/process/unfollow" method="post" id="subunsub">
+						<form action="<?php echo $c_config['root']; ?>/process/unfollow" method="post" id="subunsub" class="user_follow">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="user_id" value="<?php echo $this->get( 'userid' ); ?>" />
 							<input type="submit" value="UnFollow <?php echo $this->get( 'username' ); ?>" class="button" />
 						</form>
 					<?php else: ?>
-						<form action="<?php echo $c_config['root']; ?>/process/follow" method="post" id="subunsub">
+						<form action="<?php echo $c_config['root']; ?>/process/follow" method="post" id="subunsub" class="user_follow">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="user_id" value="<?php echo $this->get( 'userid' ); ?>" />
 							<input type="submit" value="+ Follow <?php echo $this->get( 'username' ); ?>" class="button" />
@@ -89,10 +100,20 @@
 			<?php endif; ?>
 
 			<div id="add_source" class="hidden">
-				<span class="edit">add sources / <a href="#" onclick="$( '#add_source' ).slideToggle(); return false;">close</a></span>
-				<a href="<?php echo $c_config['root']; ?>/sources/me" class="morelink">Manage Sources</a>
-				<a href="<?php echo $c_config['root']; ?>/sources" class="widelink">Browse Sources<span>Browse the directory of sources</span></a>
-				<a href="<?php echo $c_config['root']; ?>/sources/add" class="widelink right">Add Directly<span>Enter a website / feed url</span></a>
+				<span class="edit">add sources / <a href="#" onclick="$( '#add_source' ).slideToggle( 100 ); return false;">close</a></span>
+				<a href="<?php echo $c_config['root']; ?>/sources" class="linkthird">
+					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/browse.png" alt="" />
+					Browse Sources
+					<span>Browse the directory of sources</span>
+				</a>
+				<a href="<?php echo $c_config['root']; ?>/sources/add" class="linkthird middle">
+					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/add.png" alt="" />Add Directly
+					<span>Enter a website / feed url</span>
+				</a>
+				<a href="<?php echo $c_config['root']; ?>/sources/me" class="linkthird">
+					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/manage.png" alt="" />Manage Sources
+					<span>Manage your current sources</span>
+				</a>
 			</div><!--end add_source-->
 			
 			<div class="col col3">
@@ -101,7 +122,7 @@
 				<?php endif; ?>
 				<?php
 					foreach( $this->content['stream']['col3'] as $k => $item ):
-						item_template( $item );
+						item_template( $item, $this->get( 'userid' ) );
 					endforeach;
 				?>
 			</div><!--end col3-->
@@ -165,13 +186,13 @@
 				<?php
 					foreach( $this->content['stream']['col1'] as $k => $item ):
 						if( $evencols )
-							item_template( $item );
+							item_template( $item, $this->get( 'userid' ) );
 						elseif( $k < 2 )
-							item_template( $item, 'h1' );
+							item_template( $item, $this->get( 'userid' ), 'h1' );
 						elseif( $k < 5 )
-							item_template( $item, 'h2' );
+							item_template( $item, $this->get( 'userid' ), 'h2' );
 						else
-							item_template( $item );
+							item_template( $item, $this->get( 'userid' ) );
 					endforeach;
 				?>
 			</div><!--end col1-->
@@ -181,13 +202,13 @@
 				<?php
 					foreach( $this->content['stream']['col2'] as $k => $item ):
 						if( $evencols )
-							item_template( $item );
+							item_template( $item, $this->get( 'userid' ) );
 						elseif( $k < 1 )
-							item_template( $item, 'h1' );
+							item_template( $item, $this->get( 'userid' ), 'h1' );
 						elseif( $k < 4 )
-							item_template( $item, 'h2' );
+							item_template( $item, $this->get( 'userid' ), 'h2' );
 						else
-							item_template( $item );
+							item_template( $item, $this->get( 'userid' ) );
 					endforeach;
 				?>
 			</div><!--end col2-->
@@ -198,7 +219,7 @@
 				endforeach;
 			?>
 
-			<a class="morelink" href="?offset=<?php echo $this->get( 'nextOffset' ); ?>">load more articles &darr;</a>
+			<a class="morelink stream_load_more" href="?offset=<?php echo $this->get( 'nextOffset' ); ?>">load more articles &darr;</a>
 		</div><!--end main-->
 	</div><!--end content-->
 
@@ -352,7 +373,7 @@
 			</div><!--end right-->
 
 			<div class="fix">
-				<a href="#">
+				<a href="#" class="top_link">
 					&uarr; top
 				</a>
 			</div>
@@ -385,29 +406,30 @@
 
 
 <?php
-	function item_template( $item, $header = 'h3' ) {
+	function item_template( $item, $uid, $header = 'h3' ) {
 		global $mod_user, $mod_token, $c_config;
+
 		$long = true;
 ?>
-				<div class="item">
-					<<?php echo $header; ?>><a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>"><?php echo $item['title']; ?></a></<?php echo $header; ?>>
+				<div class="item" id="article_<?php echo $item['id']; ?>">
+					<<?php echo $header; ?>><a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link"><?php echo $item['title']; ?></a></<?php echo $header; ?>>
 					<?php if( !empty( $item['image_half'] ) ): $long = false; ?>
-						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>">
+						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">
 							<img class="thumb" src="<?php echo $c_config['root'] . '/' . $item['image_half']; ?>" alt="<?php echo $item['title']; ?>" />
 						</a>
 					<?php elseif( !empty( $item['image_third'] ) ): $long = false; ?>
-						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>">
+						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">
 							<img class="thumb" src="<?php echo $c_config['root'] . '/' . $item['image_third']; ?>" alt="<?php echo $item['title']; ?>" />
 						</a>
 					<?php endif; ?>
-					<p><?php echo $long ? $item['short_description'] : $item['shorter_description']; ?> <a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>">read article &rarr;</a></p>
+					<p><?php echo $long ? $item['short_description'] : $item['shorter_description']; ?> <a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">read article &rarr;</a></p>
 					<div class="meta">
 						<a href="<?php echo $c_config['root'] . '/source/' . $item['source_id']; ?>" class="tip"><span><?php echo $item['source_title']; ?><span></span></span><img src="http://www.google.com/s2/favicons?domain=<?php echo $item['source_domain']; ?>" /></a>
 					<?php if( $mod_user->session_login() ): ?>
 						<?php
-							if( !$item['expired'] and $item['subscribed'] ):
+							if( !$item['expired'] and $item['subscribed'] and $uid == $mod_user->session_userid() ):
 								echo $item['unread'] ?
-									'<form action="' . $c_config['root'] . '/process/article-read" method="post">
+									'<form action="' . $c_config['root'] . '/process/article-read" method="post" class="hide_form">
 										<input type="hidden" name="article_id" value="' . $item['id'] . '" />
 										<input type="hidden" name="mod_token" value="' . $mod_token . '" />
 										<input type="submit" value="Hide" />
@@ -417,14 +439,14 @@
 							endif;
 						?>
 						<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
-							<a href="#">Collect</a> - 
+							<span class="collect"><a href="#">Collect</a><!--<ul class="collections"><span class="tip"></span><li><a href="#">Collection 1</a></li><li><a href="#">Collection 2</a></li><li><form><input type="text" value="new collection..." /></form></li></ul>--></span> - 
 						<?php endif; ?>
 						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
-							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['recommended'] ? 'unrecommend' : 'recommend'; ?>" method="post">
+							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['recommended'] ? 'unrecommend' : 'recommend'; ?>" method="post" class="like_form">
 								<input type="hidden" name="article_id" value="<?php echo $item['id']; ?>" />
 								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-								<input type="submit" value="<?php echo $item['recommended'] ? 'Unlike' : 'Like'; ?>" />
-							</form> <span class="likes">(<?php echo $item['recommendations']; ?>)</span>
+								<input type="submit" value="<?php echo $item['recommended'] ? 'Unlike' : 'Like'; ?>" /> <span class="likes">(<span><?php echo $item['recommendations']; ?></span>)</span>
+							</form>
 						<?php endif; ?>
 					<?php endif; ?>
 					<span class="time"> - <?php echo $item['time_ago']; ?></span>

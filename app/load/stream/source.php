@@ -34,6 +34,12 @@
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
+	//api?
+	if( !$mod_config['api'] ):
+		//set stream to cookie
+		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
+	endif;
+	
 	//api & logged in?
 	if( !$mod_config['api'] and $mod_user->check_login() ):
 		//load the users sources
@@ -44,9 +50,6 @@
 		$followings = $mod_load->load_users( $mod_user->get_userid() );
 		$mod_template->add( 'followings', $followings );
 	endif;
-
-	//set stream to cookie
-	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
 
 	//start our stream
 	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'source' ) : new mod_stream_site( $mod_db, 'source' );

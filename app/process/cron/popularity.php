@@ -69,15 +69,14 @@
 		//options
 		curl_setopt( $curl, CURLOPT_URL, $url );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
 		curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false );
-		curl_setopt( $curl, CURLOPT_TIMEOUT, 10 );
+		curl_setopt( $curl, CURLOPT_TIMEOUT, 5 );
 		curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
 
 		//what do we get
 		$data = curl_exec( $curl );
 
-		if( $data ):
+		if( $data and !empty( $data ) ):
 			return $data;
 		else:
 			var_dump( $data );
@@ -86,8 +85,15 @@
 		endif;
 	}
 
+	//twitter rate limit
+	$tw_stop = true;
+	$test = get_data( 'http://api.tweetmeme.com/url_info.js' );
+	if( $test = json_decode( $test ) )
+		if( $test->status == 'failure' )
+			$tw_stop = true;
+
 	//popularity function
-	function popularity( $i, $articles ) {
+	function popularity( $i, $articles, $tw_stop ) {
 		global $mod_config, $argv;
 
 		//child db conn
@@ -122,7 +128,35 @@
 				echo 'fb failed on #' . $article['id'] . "\n";
 			endif;
 
-			//get twitter data
+			//get twitter data, stop if over api, and only deal with articles in 24 hours (tweets after that lost)
+			if( !$tw_stop or ( time() - $article['time'] > 3600 * 24 ) ):
+				$tw = get_data( 'http://api.tweetmeme.com/url_info.json?url=' . $url );
+				var_dump( $tw );
+				if( $tw ):
+					$tw2 = json_decode( $tw );
+					if( isset( $tw2->story->url_count ) ):
+						$tw_links = $tw2->story->url_count;
+					elseif( $tw == '[]' or ( isset( $tw2->status ) and $tw2->status == 'failure' ) ):
+						echo '#######TWITTER OVERLOAD#######';
+						$tw_stop = true;
+						$tw_links = 0;
+					else:
+						$tw_links = 0;
+						var_dump( $tw );
+						echo 'tw failed on #' . $article['id'] . ' : ' . $article['end_url'] . "\n";
+					endif;
+				else:
+					$tw_links = 0;
+					var_dump( $tw );
+					echo 'tw failed on #' . $article['id'] . ' : ' . $article['end_url'] . "\n";
+				endif;
+			else:
+				echo 'tw skipped on #' . $article['id'] . ' : ' . ( $tw_stop ? 'api limit' : 'older than 24h' ) . "\n";
+				$tw_links = 0;
+			endif;
+
+
+			/*
 			$tw = get_data( 'http://search.twitter.com/search.json?rpp=100&result_type=recent&since_id=' . $article['twitter_last_id'] . '&q=' . $url );
 			if( $tw ):
 				$tw2 = json_decode( $tw );
@@ -143,6 +177,8 @@
 				var_dump( $tw );
 				echo "\n";
 			endif;
+			*/
+
 
 			//get delicious data
 			if( $dl = get_data( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) ) ):
@@ -205,10 +241,11 @@
 
 			//calculate popularity
 			//facebook
+			$tw_last_id = 0;
 			$pop = $fb_shares * $mod_config['popularity']['facebook_shares'];
 			$pop += $fb_comments * $mod_config['popularity']['facebook_comments'];
 			//twitter
-			$pop += $tw_tweets * $mod_config['popularity']['twitter_links'];
+			$pop += $tw_links * $mod_config['popularity']['twitter_links'];
 			//delicious
 			$pop += $dl_saves * $mod_config['popularity']['delicious_saves'];
 			//diggs
@@ -228,7 +265,7 @@
 				SET
 					facebook_shares = ' . $fb_shares . ',
 					facebook_comments = ' . $fb_comments . ',
-					twitter_links = ' . $tw_tweets . ',
+					twitter_links = ' . $tw_links . ',
 					twitter_last_id = ' . $tw_last_id . ',
 					delicious_saves = ' . $dl_saves . ',
 					digg_diggs = ' . $dg_diggs . ',
@@ -256,7 +293,7 @@
 	$threads = array();
 	foreach( $childdata as $key => $articles ):
 		$threads[$key] = new Thread( 'popularity' );
-		$threads[$key]->start( $key, $articles );
+		$threads[$key]->start( $key, $articles, $tw_stop );
 	endforeach;
 
 	//wait on them

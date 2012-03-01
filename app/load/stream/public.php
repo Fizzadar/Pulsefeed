@@ -15,8 +15,11 @@
 	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
 		$offset = $_GET['offset'];
 
-	//set stream to cookie
-	$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
+	//api?
+	if( !$mod_config['api'] ):
+		//set stream to cookie
+		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
+	endif;
 
 	//start our stream
 	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'public' ) : new mod_stream_site( $mod_db, 'public' );
