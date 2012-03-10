@@ -223,7 +223,7 @@
 						continue;
 
 					//return the thumbnail
-					$return[$conf_key] = $thumb_name;
+					$return[$conf_key] = 'data/thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
 				endif;
 			endforeach;
 
@@ -267,11 +267,11 @@
 						$download = file_put_contents( $img_name, $img_data );
 					//change src if downloaded & add to images
 					if( $download ):
-						return 'data/images/' . sha1( $image_url ) . '.' . $ext;
+						return $img_name;
 					endif;
 				else:
 					//file exists already, lets go
-					return 'data/images/' . sha1( $image_url ) . '.' . $ext;
+					return $img_name;
 				endif;
 			endif;
 
