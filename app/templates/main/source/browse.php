@@ -45,8 +45,7 @@
 						<a target="_blank" href="<?php echo $source['site_url']; ?>"><?php echo $source['site_url_trim']; ?></a>
 					</span>
 					<span class="meta">
-						Subscribers: <strong><?php echo $source['subscribers']; ?></strong> - 
-						Articles: <strong><?php echo $source['articles']; ?></strong>
+						Subscribers: <strong><?php echo $source['subscribers']; ?></strong>
 					</span>
 				<?php if( $mod_user->session_login() and $mod_user->session_permission( 'Subscribe' ) ): ?>
 					<?php if( isset( $source['subscribed'] ) and is_numeric( $source['subscribed'] ) ): ?>

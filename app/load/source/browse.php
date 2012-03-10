@@ -30,7 +30,7 @@
 
 	//get popular sources
 	$sources = $mod_db->query( '
-		SELECT mod_source.id, mod_source.site_title, mod_source.site_url, mod_source.subscribers, mod_source.articles' . ( $mod_user->check_login() ? ', mod_user_sources.user_id AS subscribed' : '' ) . '
+		SELECT mod_source.id, mod_source.site_title, mod_source.site_url, mod_source.subscribers' . ( $mod_user->check_login() ? ', mod_user_sources.user_id AS subscribed' : '' ) . '
 		FROM mod_source
 		' . ( $mod_user->check_login() ?
 			'LEFT JOIN mod_user_sources ON mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : ''
