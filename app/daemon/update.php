@@ -41,6 +41,14 @@
 
 		//loop each item, check to see if we have the article, if we do, assign ID, if not, insert and assign
 		foreach( $items as $key => $item ):
+			if( isset( $item['id'] ) ):
+				$items[$key]['id'] = $item['id'];
+				$items[$key]['popscore'] = $item['popularity_score'];
+				$items[$key]['time'] = $item['time'];
+				echo 'article already has id: ' . $item['end_url'] . PHP_EOL;
+				continue;
+			endif;
+
 			$check = $mod_db->query( '
 				SELECT id, popularity_score, time
 				FROM mod_article
@@ -271,7 +279,7 @@
 	}
 
 	//load daemon (db func, thread func, threads, thread time, db time)
-	$daemon = new mod_daemon( 'dbupdate', 'update', 10, 120, 300 );
+	$daemon = new mod_daemon( 'dbupdate', 'update', 10, 300, 300 );
 
 	//and go!
 	$daemon->start();

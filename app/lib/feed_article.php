@@ -93,9 +93,11 @@
 			if( !$this->ready or !$this->content )
 				$this->get_raw_article();
 
+			//load whole page, check images
+			$pagehtml = file_get_contents( $this->get_end_url() );
 			//now we have our article, lets process the images/html
 			$html = new simple_html_dom();
-			$html->load( $this->content );
+			$html->load( $pagehtml );
 			$imgs = $html->find( 'img' );
 			echo 'found ' . count( $imgs ) . ' images' . PHP_EOL;
 			foreach( $imgs as $img ):
@@ -108,10 +110,12 @@
 					$urlbits = parse_url( $this->get_end_url() );
 					$img->src = rtrim( $urlbits['host'], '/' ) . $img->src;
 				endif;
+				if( substr( $img->src, 0, 4 ) != 'http' ):
+					$img->src = 'http://' . $img->src;
+				endif;
 
 				//(try to) save the image locally
 				if( $img_name = $this->save_image( $img->src ) and file_exists( $img_name ) ):
-					echo 'image saved: ' . $img_name . PHP_EOL;
 					$this->images[] = $img_name;
 				else:
 					echo 'image save failed: ' . $img->src . PHP_EOL;
@@ -201,7 +205,7 @@
 
 					//image too small? fuck it
 					if( $s[0] < ( $conf['w'] * 0.7 ) or $s[1] < ( $conf['h'] * 0.7 ) ):
-						echo 'image too small: ' . $image . PHP_EOL;
+						//echo 'image too small: ' . $image . PHP_EOL;
 						continue;
 					endif;
 

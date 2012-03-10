@@ -81,6 +81,8 @@
 
 		//load a feeds data
 		private function loadSource() {
+			global $mod_db;
+
 			//set the url
 			$this->pie->set_feed_url( $this->url );
 			$this->pie->set_item_class( 'mod_feed' );
@@ -93,19 +95,38 @@
 			$articles = array();
 			foreach( $items as $item ):
 				$i = $item->get_item();
-				$i->get_article(); //populates thumb images
-				$images = $i->get_thumbs();
 
-				$articles[] = array(
-					'title' => $item->get_title(),
-					'url' => $item->get_permalink(),
-					'end_url' => $i->get_end_url(),
-					'summary' => $i->get_summary(),
-					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-					'time' => $item->get_time(),
-				);
+				//check for article
+				$check = $mod_db->query( '
+					SELECT id, popularity_score, time, title, url, end_url, image_quarter, image_half, image_third, description
+					FROM mod_article
+					WHERE end_url = "' . $i->get_end_url() . '"
+					LIMIT 1
+				' );
+				if( $check and count( $check ) == 1 ):
+					$articles[] = array(
+						'id' => $check[0]['id'],
+						'popularity_score' => $check[0]['popularity_score'],
+						'title' => $check[0]['title'],
+						'url' => $check[0]['url'],
+						'end_url' => $check[0]['end_url'],
+						'time' => $item->get_time(),
+					);
+				else:
+					$i->get_article(); //populates thumb images
+					$images = $i->get_thumbs();
+
+					$articles[] = array(
+						'title' => $item->get_title(),
+						'url' => $item->get_permalink(),
+						'end_url' => $i->get_end_url(),
+						'summary' => $i->get_summary(),
+						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+						'time' => $item->get_time(),
+					);
+				endif;
 			endforeach;
 
 			//return them
