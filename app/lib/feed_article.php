@@ -267,11 +267,11 @@
 						$download = file_put_contents( $img_name, $img_data );
 					//change src if downloaded & add to images
 					if( $download ):
-						return $img_name;
+						return 'data/images/' . sha1( $image_url ) . '.' . $ext;
 					endif;
 				else:
 					//file exists already, lets go
-					return $img_name;
+					return 'data/images/' . sha1( $image_url ) . '.' . $ext;
 				endif;
 			endif;
 
