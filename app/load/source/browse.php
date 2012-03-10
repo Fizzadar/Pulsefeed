@@ -49,7 +49,7 @@
 	$mod_template->add( 'sources', $sources );
 
 	$mod_template->add( 'nextOffset', $offset + 1 );
-	$mod_template->add( 'sourceOrder', $order );
+	$mod_template->add( 'sourceOrder', isset( $_GET['me'] ) ? 'mod_source.articles' : $order );
 	
 	//templates
 	$mod_template->load( 'core/header' );
