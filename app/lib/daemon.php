@@ -23,14 +23,14 @@
 		}
 
 		public function start() {
-			global $c_config;
+			global $c_config, $argv;
 			$lockfile = $c_config['core_dir'] . '/../tmp/' . $this->threadfunc . '.lock';
 
 			//check for lock file
-			if( file_exists( $lockfile ) and filemtime( $lockfile ) > time() - 60 ):
+			if( file_exists( $lockfile ) and filemtime( $lockfile ) > time() - 60 and ( !isset( $argv[2] ) or $argv[2] != 'force' ) ):
 				echo $this->threadfunc . ' lock file in place, daemon exiting' . PHP_EOL;
 				return;
-			elseif( file_exists( $lockfile  ) ):
+			elseif( file_exists( $lockfile  ) and isset( $argv[2] ) and $argv[2] == 'force' ):
 				posix_kill( file_get_contents( $lockfile ), SIGKILL );
 				unlink( $lockfile );
 				echo 'dead previous daemon killed ' . PHP_EOL;

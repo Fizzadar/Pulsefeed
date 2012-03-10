@@ -75,7 +75,7 @@
 			$keys = $this->keyList( $table, $keys, $layout );
 
 			//get memcache objects
-			$data = $this->memcache->get( $keys['memcache'] );
+			$data = @$this->memcache->get( $keys['memcache'] );
 			foreach( $data as $d )
 				$return[] = $d;
 
@@ -117,7 +117,7 @@
 			$keys = $this->keyList( $table, $keyslist, $layout );
 
 			//fetch memcache objects
-			$data = $this->memcache->get( $keys['memcache'] );
+			$data = @$this->memcache->get( $keys['memcache'] );
 
 			//update all got memcaches
 			foreach( $keys['memcache'] as $id => $key )
@@ -127,7 +127,7 @@
 
 			//now save each one
 			foreach( $data as $k => $v )
-				$this->memcache->set( $k, $v );
+				@$this->memcache->set( $k, $v );
 
 			//now build sql query
 			$sql = '
@@ -162,7 +162,7 @@
 
 			//delete objects
 			foreach( $keys['memcache'] as $key )
-				$this->memcache->delete( $key );
+				@$this->memcache->delete( $key );
 
 			//delete from sql & return
 			$sql = '

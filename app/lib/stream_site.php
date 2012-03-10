@@ -12,7 +12,7 @@
 		//build
 		public function build() {
 			global $mod_data;
-			
+
 			if( !is_array( $this->data ) ) return false;
 			$features_type = array( 'hybrid', 'popular', 'public' );
 
@@ -65,6 +65,7 @@
 				case 'newest':
 				case 'discover':
 				case 'source':
+				case 'account':
 					$col = 1;
 
 					//add each item, increment col (back to 1 if on 3)

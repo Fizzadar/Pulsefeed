@@ -93,7 +93,9 @@
 
 			//loop items, build articles
 			$articles = array();
-			foreach( $items as $item ):
+			foreach( $items as $key => $item ):
+				echo 'item #' . $key . ' / ' . count( $items ) . PHP_EOL;
+			
 				$i = $item->get_item();
 
 				//check for article
@@ -135,7 +137,7 @@
 
 		//load twitter data
 		private function loadTwitter() {
-			global $mod_config;
+			global $mod_config, $argv;
 
 			//load oauth data (passed as json via url)
 			$data = json_decode( $this->url );
@@ -145,10 +147,14 @@
 
 			//load home stream
 			$home = $tw->get( 'statuses/home_timeline', array(
-				'count' => 200,
+				'count' => ( isset( $argv[3] ) and is_numeric( $argv[3] ) ) ? 50 : 200,
 				'include_entities' => true,
 				'exclude_replies' => true
 			) );
+
+			//not an array?
+			if( !is_array( $home ) )
+				return array();
 
 			$tweets = array();
 			//locate tweets with urls
@@ -171,8 +177,12 @@
 				$i->get_article(); //populate thumbs + rip content
 				$images = $i->get_thumbs();
 
+				//dont use tweets for titles
+				if( empty( $i->riptitle ) )
+					continue;
+
 				$articles[] = array(
-					'title' => empty( $i->riptitle ) ? $tweet['tweet'] : $i->riptitle,
+					'title' => $i->riptitle,
 					'url' => $tweet['url'],
 					'end_url' => $i->get_end_url(),
 					'summary' => $i->get_summary(),
@@ -204,7 +214,7 @@
 			//get home stream
 			$home = $fb->api( '/me/home', 'GET', array(
 				'access_token' => $data->token,
-				'limit' => 200
+				'limit' => ( isset( $argv[3] ) and is_numeric( $argv[3] ) ) ? 50 : 200
 			) );
 
 			//loop items

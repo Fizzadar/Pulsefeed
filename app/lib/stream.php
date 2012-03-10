@@ -15,6 +15,7 @@
 			'discover', //non-subscribed + popular recommendations listed as articles + popular unsubscribed articles, sorted by pop + time
 			'source', //stream from an individual source, sorted by time
 			'tag', //tag streams
+			'account', //account streams
 		);
 		private $db;
 		protected $stream_type; //stream type
@@ -25,6 +26,7 @@
 		public $valid = false;
 		private $offset = 0;
 		private $since_id = 0;
+		private $account_type;
 
 		//setup
 		public function __construct( $db, $stream_type = 'hybrid' ) {
@@ -68,6 +70,12 @@
 		public function set_sourceid( $id ) {
 			if( !is_numeric( $id ) ) return false;
 			$this->source_id = $id;
+		}
+
+		//set account type
+		public function set_accountType( $type ) {
+			if( !in_array( $type, array( 'twitter', 'facebook' ) ) ) return false;
+			$this->account_type = $type;
 		}
 
 		//match end urls
@@ -130,6 +138,7 @@
 				case 'popular':
 				case 'newest':
 				case 'discover':
+				case 'account':
 					//prepare articledata
 					foreach( $articledata as $k => $v ):
 						$articledata[$k]['article_popscore'] = 0;
@@ -299,6 +308,7 @@
 				case 'popular':
 				case 'newest':
 				case 'discover':
+				case 'account':
 					$sql .= '
 						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, article_popscore
 						FROM mod_user_articles';
@@ -324,6 +334,11 @@
 								WHERE true';
 							$order = 'article_time';
 							break;
+						case 'account':
+							$sql .='
+								WHERE source_type = "' . $this->account_type . '"';
+							$order = 'article_time';
+							break;
 					endswitch;
 
 					//add user id bit
@@ -331,7 +346,7 @@
 						AND user_id = ' . $this->user_id;
 
 					//are we the not ourselves? only use source refs
-					if( $mod_user->get_userid() != $this->user_id )
+					if( $this->stream_type != 'account' and $mod_user->get_userid() != $this->user_id )
 						$sql .= '
 							AND source_type = "source"';
 
@@ -391,6 +406,9 @@
 				case 'source':
 					if( !isset( $this->source_id ) ) return false;
 					break;
+				case 'account':
+					if( !isset( $this->account_type ) ) return false;
+					break;
 			endswitch;
 
 			//load our articles & recommendations
@@ -408,6 +426,8 @@
 				//time sorted
 				case 'unread':
 				case 'newest':
+				case 'account':
+				case 'source':
 					usort( $this->data, array( 'mod_stream', 'sortTime' ) );
 					break;
 			endswitch;

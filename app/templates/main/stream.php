@@ -290,10 +290,10 @@
 					<ul>
 						<li class="title">Accounts <a href="<?php echo $c_config['root']; ?>/settings" class="edit">edit</a></li>
 						<?php foreach( $this->content['accounts'] as $account ): ?>
-							<?php if( $this->get( 'source_id' ) == $account['id'] ): ?>
+							<?php if( $this->get( 'account_type' ) == $account['type'] ): ?>
 								<li><?php echo ucfirst( $account['type'] ); ?> &rarr;</li>
 							<?php else: ?>
-								<li><a href="<?php echo $c_config['root']; ?>/source/<?php echo $account['id']; ?>"><?php echo ucfirst( $account['type'] ); ?></a></li>
+								<li><a href="<?php echo $c_config['root']; ?>/account/<?php echo $account['type']; ?>"><?php echo ucfirst( $account['type'] ); ?></a></li>
 							<?php endif; ?>
 						<?php endforeach; ?>
 					</ul>

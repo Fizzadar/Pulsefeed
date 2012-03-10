@@ -25,6 +25,7 @@
 			'user' => 'stream/user',
 			'public' => 'stream/public',
 			'source' => 'stream/source',
+			'account' => 'stream/account',
 			'tag' => 'stream/tag', //todo - can hide
 			//sources
 			'source-browse' => 'source/browse',

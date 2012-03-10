@@ -101,7 +101,7 @@
 
 				//look for feeds on the url
 				$test = new mod_source( $url );
-				$feed = $test->find( $url );
+				$feed = @$test->find( $url );
 
 				//found one?
 				if( $feed ):
@@ -242,7 +242,7 @@
 
 	//function used by deamon to get 'jobs'
 	function dbupdate() {
-		global $mod_config;
+		global $mod_config, $argv, $c_config;
 
 		//new db
 		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
@@ -251,28 +251,55 @@
 		//min 60 min between source checks
 		$update_time = time() - 3600;
 
-		//select articles to update (last article_expire hours, 60 max, lowest update time first)
-		$sources = $mod_db->query( '
-			SELECT id, feed_url, type, update_time, owner_id, site_title, site_url
-			FROM mod_source
-			WHERE update_time < ' . $update_time . '
-			AND id > 0
-			ORDER BY update_time ASC
-			LIMIT 200
-		' );
+		if( isset( $argv[3] ) and is_numeric( $argv[3] ) ):
+			//select articles to update (last article_expire hours, 60 max, lowest update time first)
+			$sources = $mod_db->query( '
+				SELECT id, feed_url, type, update_time, owner_id, site_title, site_url
+				FROM mod_source
+				WHERE id = ' . $argv[3] . '
+				LIMIT 1
+			' );
 
-		$mod_db->query( '
-			UPDATE mod_source
-			SET update_time = ' . time() . '
-			WHERE update_time < ' . $update_time . '
-			AND id > 0
-			ORDER BY update_time ASC
-			LIMIT 200
-		' );
+			$mod_db->query( '
+				UPDATE mod_source
+				SET update_time = ' . time() . '
+				WHERE id = ' . $argv[3] . '
+				LIMIT 1
+			' );
+		else:
+			//select articles to update (last article_expire hours, 60 max, lowest update time first)
+			$sources = $mod_db->query( '
+				SELECT id, feed_url, type, update_time, owner_id, site_title, site_url
+				FROM mod_source
+				WHERE update_time < ' . $update_time . '
+				AND id > 0
+				ORDER BY update_time ASC
+				LIMIT 200
+			' );
+
+			$mod_db->query( '
+				UPDATE mod_source
+				SET update_time = ' . time() . '
+				WHERE update_time < ' . $update_time . '
+				AND id > 0
+				ORDER BY update_time ASC
+				LIMIT 200
+			' );
+		endif;
 	
 		//remove db
 		$mod_db->__destruct();
 		unset( $mod_db );
+
+		//remove images older than 48 hour
+		$oldtime = time() - ( 3600 * 48 );
+		$images = glob( $c_config['core_dir'] . '/../data/images/*' );
+		foreach( $images as $img ):
+			if( filemtime( $img ) < $oldtime ):
+				unlink( $img );
+				echo 'old image removed : ' . $img . PHP_EOL;
+			endif;
+		endforeach;
 
 		//return to daemon
 		return $sources;

@@ -106,9 +106,13 @@
 				$img->height = 'auto';
 
 				//fix img src
+				$urlbits = parse_url( $this->get_end_url() );
+				$urlbits2 = parse_url( $img->src );
 				if( substr( $img->src, 0, 1 ) == '/' ):
-					$urlbits = parse_url( $this->get_end_url() );
-					$img->src = rtrim( $urlbits['host'], '/' ) . $img->src;
+					$img->src = ltrim( $img->src, '/' );
+				endif;
+				if( !isset( $urlbits2['host'] ) or empty( $urlbits2['host'] ) ):
+					$img->src = $urlbits['scheme'] . '://' . $urlbits['host'] . '/' . $img->src;
 				endif;
 				if( substr( $img->src, 0, 4 ) != 'http' ):
 					$img->src = 'http://' . $img->src;
@@ -244,11 +248,6 @@
 					$return[$conf_key] = 'data/thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
 				endif;
 			endforeach;
-
-			//now delete the images (since we only use thumbs)
-			foreach( $this->images as $image )
-				if( file_exists( $image ) )
-					unlink( $image );
 
 			//return the shit
 			return $return;
