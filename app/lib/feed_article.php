@@ -96,7 +96,9 @@
 			//now we have our article, lets process the images/html
 			$html = new simple_html_dom();
 			$html->load( $this->content );
-			foreach( $html->find( 'img' ) as $img ):
+			$imgs = $html->find( 'img' );
+			echo 'found ' . count( $imgs ) . ' images' . PHP_EOL;
+			foreach( $imgs as $img ):
 				//remove any set w/h
 				$img->width = 'auto';
 				$img->height = 'auto';
@@ -109,7 +111,10 @@
 
 				//(try to) save the image locally
 				if( $img_name = $this->save_image( $img->src ) and file_exists( $img_name ) ):
+					echo 'image saved: ' . $img_name . PHP_EOL;
 					$this->images[] = $img_name;
+				else:
+					echo 'image save failed: ' . $img->src . PHP_EOL;
 				endif;
 			endforeach;
 
@@ -178,20 +183,25 @@
 				$thumb_img = -1;
 				foreach( $this->images as $key => $image ):
 					//check!
-					if( !file_exists( $image ) )
+					if( !file_exists( $image ) ):
+						echo 'image not found: ' . $image . PHP_EOL;
 						continue;
+					endif;
 
 					//calculate size
 					$s = getimagesize( $image );
 					//fail?
-					if( !$s )
+					if( !$s ):
+						echo 'size failed on: ' . $image . PHP_EOL;
 						continue;
+					endif;
 
 					//work out size
 					$size = $s[0] * $s[1];
 
 					//image too small? fuck it
 					if( $s[0] < ( $conf['w'] * 0.8 ) or $s[1] < ( $conf['h'] * 0.8 ) ):
+						echo 'image too small: ' . $image . PHP_EOL;
 						continue;
 					endif;
 
@@ -219,8 +229,12 @@
 					endif;
 
 					//last check!
-					if( !file_exists( $thumb_name ) )
+					if( !file_exists( $thumb_name ) ):
+						echo 'thumbnail creation failed: ' . $thumb_name . PHP_EOL;
 						continue;
+					endif;
+
+					echo 'thumbnail created: ' . $thumb_name . PHP_EOL;
 
 					//return the thumbnail
 					$return[$conf_key] = 'data/thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
@@ -228,9 +242,9 @@
 			endforeach;
 
 			//now delete the images (since we only use thumbs)
-			foreach( $this->images as $image )
-				if( file_exists( $image ) )
-					unlink( $image );
+			//foreach( $this->images as $image )
+			//	if( file_exists( $image ) )
+			//		unlink( $image );
 
 			//return the shit
 			return $return;
