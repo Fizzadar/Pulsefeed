@@ -10,15 +10,21 @@
 		private $url = false;
 		private $ready = false;
 		private $endlink = false;
+		private $imgdir;
 		public $riptitle = '';
 
 		//construct
 		public function __construct( $url, $html = false ) {
+			global $c_config;
+
 			//already got our html?
 			if( $html and !empty( $html ) ):
 				$this->content = $html;
 				$this->ready = true;
 			endif;
+
+			//set img root
+			$this->imgdir = $lockfile = $c_config['core_dir'] . '/data/';
 
 			//set url
 			$this->url = $url;
@@ -201,7 +207,7 @@
 
 				//got an image?
 				if( $thumb_img > -1 ):
-					$thumb_name = 'data/thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
+					$thumb_name = $this->imgdir . 'thumbs/' . $conf_key . '/' . basename( $this->images[$thumb_img] );
 
 					//no thumb? generate it!
 					if( !file_exists( $thumb_name ) and file_exists( $this->images[$thumb_img] ) ):
@@ -249,7 +255,7 @@
 			$image_url = str_replace( ' ', '%20', $image_url );
 
 			//local name
-			$img_name = 'data/images/' . sha1( $image_url ) . '.' . $ext;
+			$img_name = $this->imgdir . 'images/' . sha1( $image_url ) . '.' . $ext;
 
 			//allowed ext?
 			if( in_array( $ext, array( 'jpeg', 'jpg', 'png', 'gif' ) ) ):
