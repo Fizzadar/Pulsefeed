@@ -23,18 +23,21 @@
 		}
 
 		public function start() {
+			global $c_config;
+			$lockfile = $c_config['core_dir'] . '/../tmp/' . $this->threadfunc . '.lock';
+
 			//check for lock file
-			if( file_exists( 'tmp/' . $this->threadfunc . '.lock' ) and filemtime( 'tmp/' . $this->threadfunc . '.lock' ) > time() - 60 ):
+			if( file_exists( $lockfile ) and filemtime( $lockfile ) > time() - 60 ):
 				echo $this->threadfunc . ' lock file in place, daemon exiting' . PHP_EOL;
 				return;
-			elseif( file_exists( 'tmp/' . $this->threadfunc . '.lock' ) ):
-				posix_kill( file_get_contents( 'tmp/' . $this->threadfunc . '.lock' ), SIGKILL );
-				unlink( 'tmp/' . $this->threadfunc . '.lock' );
+			elseif( file_exists( $lockfile  ) ):
+				posix_kill( file_get_contents( $lockfile ), SIGKILL );
+				unlink( $lockfile );
 				echo 'dead previous daemon killed ' . PHP_EOL;
 			endif;
 
 			//create lock file
-			file_put_contents( 'tmp/' . $this->threadfunc . '.lock', posix_getpid() );
+			file_put_contents( $lockfile, posix_getpid() );
 			echo 'lock file created' . PHP_EOL;
 
 			//threads array & counter
@@ -104,7 +107,7 @@
 				$dbtime++;
 
 				//touch our lock file
-				touch( 'tmp/' . $this->threadfunc . '.lock' );
+				touch( $lockfile );
 			endwhile;
 		}
 	}
