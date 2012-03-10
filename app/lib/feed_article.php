@@ -93,11 +93,9 @@
 			if( !$this->ready or !$this->content )
 				$this->get_raw_article();
 
-			//load whole page, check images
-			$pagehtml = file_get_contents( $this->get_end_url() );
 			//now we have our article, lets process the images/html
 			$html = new simple_html_dom();
-			$html->load( $pagehtml );
+			$html->load( $this->content );
 			$imgs = $html->find( 'img' );
 			echo 'found ' . count( $imgs ) . ' images' . PHP_EOL;
 			foreach( $imgs as $img ):
