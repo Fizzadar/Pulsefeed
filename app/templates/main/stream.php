@@ -286,14 +286,30 @@
 					</ul>
 				<?php endif; ?>
 
-				<?php if( $this->get( 'title' ) != 'public' and is_numeric( $this->get( 'userid' ) ) ): ?>
+				<?php if( isset( $this->content['accounts'] ) and count( $this->content['accounts'] ) > 0 ): ?>
+					<ul>
+						<li class="title">Accounts <a href="<?php echo $c_config['root']; ?>/settings" class="edit">edit</a></li>
+						<?php foreach( $this->content['accounts'] as $account ): ?>
+							<?php if( $this->get( 'source_id' ) == $account['id'] ): ?>
+								<li><?php echo ucfirst( $account['type'] ); ?> &rarr;</li>
+							<?php else: ?>
+								<li><a href="<?php echo $c_config['root']; ?>/source/<?php echo $account['id']; ?>"><?php echo ucfirst( $account['type'] ); ?></a></li>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
+
+				<?php if( $this->get( 'userid' ) ): ?>
 					<ul class="sources">
-						<li class="title">Sources<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? ' <a href="#" class="edit">edit</a>' : ''; ?></li>
+						<li class="title">Sources<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? ' <a href="' . $c_config['root'] . '/sources/me" class="edit">edit</a>' : ''; ?></li>
 						<?php if( $this->get( 'sources' ) ): ?>
 						<?php foreach( $this->get( 'sources' ) as $source ): ?>
 							<li class="source<?php echo $source['id'] == $this->get( 'source_id' ) ? ' active': ''; ?>">
 								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $source['id']; ?>" class="tip">
-									<span><?php echo $source['source_title']; ?><span></span></span>
+									<span>
+										<strong><?php echo $source['source_title']; ?></strong>
+										<small>You are subscribed</small><span></span>
+									</span>
 									<img src="http://www.google.com/s2/favicons?domain=<?php echo $source['source_domain']; ?>" />
 								</a>
 							</li>
@@ -311,7 +327,11 @@
 						<?php foreach( $this->get( 'followings' ) as $follow ): ?>
 							<li class="source">
 								<a href="<?php echo $c_config['root']; ?>/user/<?php echo $follow['id']; ?>" class="tip">
-									<span><?php echo $follow['name']; ?><span></span></span>
+									<span>
+										<strong><?php echo $follow['name']; ?></strong>
+										<small>You follow them</small>
+										<span></span>
+									</span>
 									<img src="<?php echo !empty( $follow['avatar_url'] ) ? $follow['avatar_url'] : $c_config['root'] . '/inc/img/icons/user.png'; ?>" alt="<?php echo $follow['name']; ?>" />
 								</a>
 							</li>
@@ -326,19 +346,6 @@
 			</div><!--end left-->
 
 			<div class="right">
-				<div id="recommendations">
-				<?php foreach( $this->get( 'recommends' ) as $recommend ): ?>
-					<div>
-						<a href="<?php echo $c_config['root']; ?>/source/<?php echo $recommend['source_id']; ?>" class="tip"><span><?php echo $recommend['site_title']; ?><span></span></span><img src="http://www.google.com/s2/favicons?domain=<?php echo $recommend['source_domain']; ?>" alt="" /></a>
-						<a href="<?php echo $c_config['root']; ?>/article/<?php echo $recommend['id']; ?>"><strong><?php echo $recommend['title']; ?></strong></a>
-						<span class="meta">
-							was liked by <a href="<?php echo $c_config['root']; ?>/user/<?php echo $recommend['user_id']; ?>"><?php echo $recommend['user_name']; ?></a>
-							<span class="time"> - <?php echo $recommend['time_ago']; ?></span>
-						</span>
-					</div>
-				<?php endforeach; ?>
-				</div>
-
 				<img src="<?php echo $c_config['root']; ?>/inc/img/ads/234x60.gif" alt="" />
 
 				<div class="biglinks">
@@ -424,28 +431,67 @@
 					<?php endif; ?>
 					<p><?php echo $long ? $item['short_description'] : $item['shorter_description']; ?> <a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">read article &rarr;</a></p>
 					<div class="meta">
-						<a href="<?php echo $c_config['root'] . '/source/' . $item['source_id']; ?>" class="tip"><span><?php echo $item['source_title']; ?><span></span></span><img src="http://www.google.com/s2/favicons?domain=<?php echo $item['source_domain']; ?>" /></a>
+						<?php foreach( $item['refs'] as $ref ): ?>
+							<a href="<?php echo $c_config['root']; ?>/<?php
+								switch( $ref['source_type'] ):
+									case 'source':
+									case 'facebook':
+									case 'twitter':
+										echo 'source';
+										break;
+									case 'like':
+										echo 'user';
+										break;
+								endswitch;
+								?>/<?php echo $ref['source_id']; ?>" class="tip">
+								<span>
+									<strong><?php echo $ref['source_title']; ?></strong>
+									<small><?php
+										switch( $ref['source_type'] ):
+											case 'source':
+												echo 'You are subscribed';
+												break;
+											case 'twitter':
+												echo 'You follow them';
+												break;
+											case 'facebook':
+												echo 'You are friends';
+												break;
+											case 'like':
+												echo 'You follow them';
+												break;
+										endswitch;
+									?></small>
+									<span></span>
+								</span>
+								<?php if( isset( $ref['source_data']['domain'] ) ): ?>
+									<img src="http://www.google.com/s2/favicons?domain=<?php echo $ref['source_data']['domain']; ?>" />
+								<?php elseif( $ref['source_type'] == 'twitter' or $ref['source_type'] == 'facebook' or $ref['source_type'] == 'like' ): ?>
+									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/share/<?php echo $ref['source_type']; ?>.png" />
+								<?php else: ?>
+									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/original.png" />
+								<?php endif; ?>
+							</a>
+						<?php endforeach; ?>
 					<?php if( $mod_user->session_login() ): ?>
 						<?php
-							if( !$item['expired'] and $item['subscribed'] and $uid == $mod_user->session_userid() ):
-								echo $item['unread'] ?
+							if( isset( $item['unread'] ) and $item['unread'] == 1 ):
+								echo
 									'<form action="' . $c_config['root'] . '/process/article-read" method="post" class="hide_form">
 										<input type="hidden" name="article_id" value="' . $item['id'] . '" />
 										<input type="hidden" name="mod_token" value="' . $mod_token . '" />
 										<input type="submit" value="Hide" />
-									</form> - ' : 
-									'';
-							elseif( !$item['expired'] ):
+									</form> - ';
 							endif;
 						?>
 						<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
 							<span class="collect"><a href="#">Collect</a><!--<ul class="collections"><span class="tip"></span><li><a href="#">Collection 1</a></li><li><a href="#">Collection 2</a></li><li><form><input type="text" value="new collection..." /></form></li></ul>--></span> - 
 						<?php endif; ?>
 						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
-							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['recommended'] ? 'unrecommend' : 'recommend'; ?>" method="post" class="like_form">
+							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['liked'] ? 'unlike' : 'like'; ?>" method="post" class="like_form">
 								<input type="hidden" name="article_id" value="<?php echo $item['id']; ?>" />
 								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-								<input type="submit" value="<?php echo $item['recommended'] ? 'Unlike' : 'Like'; ?>" /> <span class="likes">(<span><?php echo $item['recommendations']; ?></span>)</span>
+								<input type="submit" value="<?php echo $item['liked'] ? 'Unlike' : 'Like'; ?>" /> <span class="likes">(<span><?php echo $item['likes']; ?></span>)</span>
 							</form>
 						<?php endif; ?>
 					<?php endif; ?>

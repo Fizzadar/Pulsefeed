@@ -22,18 +22,19 @@
 		}
 
 		//load a users sources the follow
-		public function load_sources( $user_id ) {
+		public function load_sources( $user_id, $type = false ) {
 			//load the users sources
 			$sources = $this->db->query( '
-				SELECT id, site_title AS source_title, site_url AS source_url
+				SELECT id, type, site_title AS source_title, site_url AS source_url
 				FROM mod_source, mod_user_sources
 				WHERE mod_source.id = mod_user_sources.source_id
+				' . ( $type ? ' AND mod_source.type = "' . $type . '"' : '' ) . '
 				AND mod_user_sources.user_id = ' . $user_id . '
 			' );
 
 			//make/build some data
 			foreach( $sources as $k => $s ):
-				$sources[$k]['source_domain'] = $this->data->domain_url( $s['source_url'] );
+				$sources[$k]['source_domain'] = @$this->data->domain_url( $s['source_url'] );
 				$sources[$k]['source_title'] = $this->data->str_tooltip( $s['source_title'] );
 			endforeach;
 

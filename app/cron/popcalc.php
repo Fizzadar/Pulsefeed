@@ -7,14 +7,11 @@
 	//load modules
 	global $mod_db, $mod_config;
 
-	//select articles within the last week
-	$expire_time = time() - ( 3600 * 24 * 7 );
-
 	//get articles
 	$articles = $mod_db->query( '
 		SELECT id, time, popularity, source_id
 		FROM mod_article
-		WHERE time > ' . $expire_time . '
+		WHERE expired = 0
 		ORDER BY time DESC
 	' );
 
@@ -76,7 +73,15 @@
 			LIMIT 1
 		' );
 
-		if( $update )
+		//update 2
+		$update2 = $mod_db->query( '
+			UPDATE mod_user_articles
+			SET
+				article_popscore = ' . $article['popularity_score'] . '
+			WHERE article_id = ' . $article['id'] . '
+		' );
+
+		if( $update and $update2 )
 			echo 'article updated: #' . $article['id'] . "\n";
 	endforeach;
 

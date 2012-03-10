@@ -20,15 +20,11 @@ api.hideStream = function() {
 	$( '.col' ).animate( { height: 'toggle' }, 300, function() {
 		$( '.col' ).html( '' );
 	});
-	$( '#recommendations' ).animate( { height: 'toggle' }, 300, function() {
-		$( '#recommendations' ).html( '' );
-	});
 }
 
 //show stream
 api.showStream = function() {
-	$( '#stream' ).css( { height: 'auto' } );
-	$( '#recommendations' ).css( { height: 'auto' } );
+	$( '.col' ).css( { height: 'auto' } );
 }
 
 //load more stream
@@ -48,6 +44,17 @@ api.loadStream = function( el, reload ) {
 		//success, lets distribute those articles
 		function( data, el ) {
 			if( data.result == 'success' ) {
+				if( data.stream == null ) {
+					$( el ).html( 'no more articles :(' );
+					$( el ).removeClass( 'stream_load_more' );
+					$( el ).unbind( 'click' );
+					$( el ).bind( 'click', function( ev ) {
+						ev.preventDefault();
+					});
+					$( el ).addClass( 'disabled' );
+					return;
+				}
+
 				api.showStream();
 				//build & load
 				var stream = api.buildStream( data.stream );

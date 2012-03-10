@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_config;
+	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_config, $mod_memcache;
 
 	//redirect dir
 	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/sources';
@@ -47,33 +47,13 @@
 	endif;
 
 	//insert the subscription
-	$insert = $mod_db->query( '
-		REPLACE INTO mod_user_sources
-		( user_id, source_id )
-		VALUES( ' . $mod_user->get_userid() . ', ' . $_POST['source_id'] . ' )
-	' );
+	$insert = $mod_memcache->set( 'mod_user_sources', array(
+		array(
+			'source_id' => $_POST['source_id'],
+			'user_id' => $mod_user->get_userid()
+		)
+	) );
 	$insert_rows = $mod_db->affected_rows();
-
-	//get the articles from this source in the last x hours
-	$articles = $mod_db->query( '
-		SELECT id
-		FROM mod_article
-		WHERE source_id = ' . $_POST['source_id'] . '
-		AND time > ' . ( time() - ( 3600 * 24 * 7 ) ) . '
-	' );
-	if( $articles and count( $articles ) > 0 ):
-		//insert back into unread
-		$sql = '
-			INSERT INTO mod_user_unread
-			( article_id, user_id )
-			VALUES';
-		foreach( $articles as $article ):
-			$sql .= '( ' . $article['id'] . ', ' . $mod_user->get_userid() . ' ),';
-		endforeach;
-		$sql = rtrim( $sql, ',' );
-		//run it
-		$mod_db->query( $sql );
-	endif;
 
 	//redirect
 	if( $insert ):

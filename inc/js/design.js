@@ -20,6 +20,10 @@ design.start = function() {
 		this.scrollTo( localStorage.pulsefeedprevScroll - 200 );
 		localStorage.pulsefeedprevScroll = 0;
 	}
+	//make all buttons go to disabled on click
+	$( 'input[type=submit]' ).bind( 'click', function( ev ) {
+		$( ev.target ).addClass( 'disabled' );
+	});
 }
 
 //scroll to function

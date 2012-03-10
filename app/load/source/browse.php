@@ -36,6 +36,7 @@
 			'LEFT JOIN mod_user_sources ON mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : ''
 		) . '
 		WHERE mod_source.id > 0
+		AND mod_source.type = "source"
 		' . ( ( isset( $_GET['me'] ) and $mod_user->check_login() ) ?
 			'AND mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : 
 			'AND mod_user_sources.user_id IS NULL'

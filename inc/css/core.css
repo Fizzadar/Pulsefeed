@@ -21,9 +21,6 @@ div#top {
 		display: inline;
 		float: left;
 	}
-	div#top h3.external {
-		padding-left: 79px;
-	}
 		div#top h3 a {
 			float: left;
 			padding: 8px 10px 5px 9px;
@@ -47,11 +44,12 @@ div#top {
 			font-size: 16px;
 			margin-right: 0px;
 			padding-top: 13px;
+			padding-bottom: 3px;
 			padding-left: 10px;
 			height: 22px;
 			margin-top: -10px;
 			float: left;
-			margin-left: -78px;
+			margin-left: -35px;
 			position: absolute;
 		}
 			div#top h3 a:hover small {
@@ -65,9 +63,6 @@ div#top {
 		height: 22px;
 		border: 1px solid #000;
 		overflow: hidden;
-	}
-	div#top form#search.external {
-		margin-left: 15px;
 	}
 		div#top form#search input {
 			padding: 4px;
@@ -93,7 +88,7 @@ div#top {
 		}
 	div#top ul#external {
 		float: left;
-		margin: 0 0 0 10px;
+		margin: 0 0 0 38px;
 		padding: 0;
 	}
 		div#top ul#external li {
@@ -171,7 +166,7 @@ div#top {
 			text-align: right;
 			width: 100%;
 		}
-		div#top ul#account li.top:hover {
+		div#top ul#account:hover li.top {
 			background: #FFF;
 			position: relative;
 			z-index: 10;

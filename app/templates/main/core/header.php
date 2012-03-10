@@ -44,25 +44,20 @@
 			<?php if( $this->get( 'externalHeader' ) ): ?>
 				<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/frame.js"></script>
 				<h3 class="external">
-					<span><small>&larr; back</small> Pulsefeed</span>
-					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&larr; back</small> Pulsefeed</a>
+					<span><small>&larr;</small> Pulsefeed</span>
+					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&larr;</small> Pulsefeed</a>
 				</h3>
-
-				<form id="search" class="external">
-					<input type="text" id="s" name="s" value="Search is not currently finished!" onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" disabled="disabled" />
-					<input type="submit" id="submit" value="Search &rarr;" class="disabled" disabled="disabled" />
-				</form>
 
 				<?php if( $mod_user->session_login() ): ?>
 					<ul id="external">
 						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
 						<li>
-							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'unrecommend'; ?>" method="post" class="like_form_external">
+							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>" method="post" class="like_form_external">
 								<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
 								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 								<button type="submit">
-									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['recommended'] == NULL ? 'recommend' : 'recommended'; ?>.png" alt="" />
-									<span><?php echo $this->content['article']['recommended'] == NULL ? 'Like' : 'Unlike'; ?></span>
+									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>.png" alt="" />
+									<span><?php echo $this->content['article']['liked'] == NULL ? 'Like' : 'Unlike'; ?></span>
 								</button>
 							</form>
 						</li>

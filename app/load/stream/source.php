@@ -43,7 +43,15 @@
 	//api & logged in?
 	if( !$mod_config['api'] and $mod_user->check_login() ):
 		//load the users sources
+		$accounts = array();
 		$sources = $mod_load->load_sources( $mod_user->get_userid() );
+		foreach( $sources as $key => $s ):
+			if( $s['type'] != 'source' ):
+				unset( $sources[$key] );
+				$accounts[] = $s;
+			endif;
+		endforeach;
+		$mod_template->add( 'accounts', $accounts );
 		$mod_template->add( 'sources', $sources );
 
 		//load the users followings
@@ -76,7 +84,6 @@
 
 	//add data
 	$mod_template->add( 'stream', $stream_data['items'] );
-	$mod_template->add( 'recommends', $stream_data['recommends'] );
 	$mod_template->add( 'title', 'source' );
 	$mod_template->add( 'pageTitle', $source[0]['site_title'] . ' Stream' );
 	$mod_template->add( 'userid', $mod_user->session_userid() );

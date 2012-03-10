@@ -18,6 +18,38 @@
 
 	//loop the oauths
 	foreach( $oauths as $auth ):
+		//firstly, replace sources where needed
+		if( $auth['provider'] == 'twitter' or $auth['provider'] == 'facebook' ):
+			$urldata = json_encode( array( 'oid' => $auth['o_id'], 'token' => $auth['token'], 'secret' => $auth['secret'] ) );
+		
+			$mod_db->query( '
+				INSERT INTO mod_source
+				( site_title, feed_url, site_url, owner_id, private, subscribers, type )
+				VALUES (
+					"User #' . $mod_user->get_userid() . ' on ' . $auth['provider'] . '",
+					"http://' . $auth['provider'] . '.com/' . $mod_user->get_userid() . '",
+					\'' . $urldata. '\',
+					' . $mod_user->get_userid() . ',
+					1,
+					1,
+					"' . $auth['provider'] . '"
+				) ON DUPLICATE KEY UPDATE
+				site_url = \'' . $urldata . '\'
+			' );
+
+			//add to sources
+			if( $id = $mod_db->insert_id() ):
+				$mod_db->query( '
+					INSERT IGNORE INTO mod_user_sources
+					( user_id, source_id )
+					VALUES( 
+						' . $mod_user->get_userid() . ', 
+						' . $id . ' 
+					)
+				' );
+			endif;
+		endif;
+
 		//twitter > facebook
 		if( $auth['provider'] == 'twitter' ):
 			$oauth = $auth;

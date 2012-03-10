@@ -13,7 +13,7 @@
 		public function build() {
 			global $mod_data;
 			
-			if( !$this->data ) return false;
+			if( !is_array( $this->data ) ) return false;
 			$features_type = array( 'hybrid', 'popular', 'public' );
 
 			//return arrays (3 cols)
@@ -26,22 +26,22 @@
 			$features = in_array( $this->stream_type, $features_type ) ? $this->build_features() : array();
 
 			//now re-do keys
-			$this->data['items'] = array_values( $this->data['items'] );
+			$this->data = array_values( $this->data );
 
 			switch( $this->stream_type ):
 				//2 col main, 1 col upcoming
 				case 'hybrid':
 				case 'popular':
 				case 'public':
-					if( count( $this->data['items'] ) > 2 ):
+					if( count( $this->data ) > 2 ):
 						//get 1/3 length
-						$length = count( $this->data['items'] );
+						$length = count( $this->data );
 						$third = round( $length / 3 );
 
 						//get col3, items from length - third to length
 						for( $i = $length - $third; $i < $length; $i++ ):
-							$this->data['items'][$i]['short_description'] = $this->data['items'][$i]['shorter_description'];
-							$articles['col3'][] = $this->data['items'][$i];
+							$this->data[$i]['short_description'] = $this->data[$i]['shorter_description'];
+							$articles['col3'][] = $this->data[$i];
 						endfor;
 
 						//now generate other 2 cols
@@ -49,9 +49,9 @@
 						for( $i = 0; $i < $length - $third; $i++ ):
 							//choose the col
 							if( $col2 ):
-								$articles['col2'][] = $this->data['items'][$i];
+								$articles['col2'][] = $this->data[$i];
 							else:
-								$articles['col1'][] = $this->data['items'][$i];
+								$articles['col1'][] = $this->data[$i];
 							endif;
 
 							//switch
@@ -68,23 +68,17 @@
 					$col = 1;
 
 					//add each item, increment col (back to 1 if on 3)
-					foreach( $this->data['items'] as $k => $item ):
+					foreach( $this->data as $k => $item ):
 						$articles['col' . $col][] = $item;
 						$col++;
 						if( $col > 3 ) $col = 1;
 					endforeach;
 			endswitch;
 
-			//work out recommend time agos
-			foreach( $this->data['recommends'] as $k => $recommend ):
-				$this->data['recommends'][$k]['time_ago'] = $mod_data->time_ago( $this->data['recommends'][$k]['time'] );
-			endforeach;
-
 			//finally return our array
 			return array(
 				'features' => $features,
-				'items' => $articles,
-				'recommends' => $this->data['recommends']
+				'items' => $articles
 			);
 		}
 

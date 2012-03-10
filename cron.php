@@ -14,17 +14,17 @@
 
 	//now switch our time value
 	switch( $argv[1] ):
-		case '5min':
-			$mod_app->load( 'process/cron/popularity' );
+		case 'popularity':
+			$mod_app->load( 'daemon/popularity' );
 			break;
-		case '10min':
-			$mod_app->load( 'process/cron/update' );
+		case 'update':
+			$mod_app->load( 'daemon/update' );
 			break;
-		case '30min':
-			$mod_app->load( 'process/cron/popcalc' );
+		case 'popcalc':
+			$mod_app->load( 'cron/popcalc' );
 			break;
-		case 'day':
-			$mod_app->load( 'process/cron/cleanup' );
+		case 'cleanup':
+			$mod_app->load( 'cron/cleanup' );
 			break;
 	endswitch;
 ?>

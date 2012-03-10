@@ -14,16 +14,16 @@ api.like = function( el ) {
 	$( 'input[type=submit]', el ).addClass( 'disabled' );
 
 	//do we like or unlike?
-	if( action == mod_root + '/process/article-recommend' ) {
+	if( action == mod_root + '/process/article-like' ) {
 		this.post(
-			'/process/article-recommend',
+			'/process/article-like',
 			{ article_id: article_id },
 			function( data, el ) {
 				$( 'input[type=submit]', el ).attr( 'value', 'Unlike' );
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
 				$( 'input[type=submit]', el ).removeClass( 'disabled' );
 				$( 'span.likes span', el ).html( parseInt( $( 'span.likes span', el ).html() ) + 1 );
-				$( el ).attr( 'action', mod_root + '/process/article-unrecommend' );
+				$( el ).attr( 'action', mod_root + '/process/article-unlike' );
 			},
 			function( data, el ) {
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
@@ -33,14 +33,14 @@ api.like = function( el ) {
 		);
 	} else {
 		this.post(
-			'/process/article-unrecommend',
+			'/process/article-unlike',
 			{ article_id: article_id },
 			function( data, el ) {
 				$( 'input[type=submit]', el ).attr( 'value', 'Like' );
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
 				$( 'input[type=submit]', el ).removeClass( 'disabled' );
 				$( 'span.likes span', el ).html( parseInt( $( 'span.likes span', el ).html() ) - 1 );
-				$( el ).attr( 'action', mod_root + '/process/article-recommend' );
+				$( el ).attr( 'action', mod_root + '/process/article-like' );
 			},
 			function( data, el ) {
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
@@ -88,7 +88,7 @@ api.follow = function( el ) {
 	$( 'input[type=submit]', el ).attr( 'disabled', 'disabled' );
 	$( 'input[type=submit]', el ).addClass( 'disabled' );
 
-	//do we like or unlike?
+	//do we follow or unfollow?
 	if( action == mod_root + '/process/follow' ) {
 		this.post(
 			'/process/follow',

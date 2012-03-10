@@ -12,8 +12,9 @@
 			'popular', //24 hour popular, recommendations, sorted by pop
 			'newest', //all, recommendations, sorted by time
 			'public', //24 hour all articles, sorted by pop + time
-			//'discover', //non-subscribed + popular recommendations listed as articles + popular unsubscribed articles, sorted by pop + time
+			'discover', //non-subscribed + popular recommendations listed as articles + popular unsubscribed articles, sorted by pop + time
 			'source', //stream from an individual source, sorted by time
+			'tag', //tag streams
 		);
 		private $db;
 		protected $stream_type; //stream type
@@ -84,57 +85,199 @@
 			return false;
 		}
 
+		//sort by time function
+		private function sortTime( $a, $b ) {
+			return $a['article_time'] < $b['article_time'];
+		}
+
+		//sort by popularity function
+		private function sortPopscore( $a, $b ) {
+			return $a['article_popscore'] < $b['article_popscore'];
+		}
+
 		//load our data from the database
 		private function load_data() {
-			global $mod_data;
+			global $mod_data, $mod_memcache, $mod_user;
 			//load articles & recommends
 			$articles = $this->load_articles();
-			$recommendations = $this->load_recommendations();
-			//make sure they're arrays
-			if( !$articles )
-				$articles = array();
-			if( !$recommendations )
-				$recommendations = array();
+			//not array?
+			if( !is_array( $articles ) )
+				return array();
 
-			//build our return array
-			$return = array(
-				'items' => array(), //stream items, build them now
-				'recommends' => array()
-			);
+			//return array
+			$return = array();
 
-			//duplicates
-			$dups = array();
+			//firstly, build a list of articles to grab
+			$list = array();
+			foreach( $articles as $article )
+				$list[] = array(
+					'id' => $article['article_id']
+				);
 
-			//articles
-			foreach( $articles as $key => $article ):
-				//no dupes
-				if( in_array( $key, $dups ) ) continue;
+			//get articles from memcache (we hope!)
+			$articledata = $mod_memcache->get( 'mod_article', $list );
+			//switch keys to article_ids
+			$tmp = array();
+			foreach( $articledata as $article )
+				$tmp[$article['id']] = $article;
+			$articledata = $tmp;
 
-				//check if duplicate
-				foreach( $articles as $k => $a ):
-					if( $k != $key and $this->match_endurls( $article['end_url'], $a['end_url'] ) ):
-						//$dups[] = $k;
-					endif;
-				endforeach;
+			//switch stream type
+			switch( $this->stream_type ):
+				//user
+				case 'hybrid':
+				case 'unread':
+				case 'popular':
+				case 'newest':
+				case 'discover':
+					//prepare articledata
+					foreach( $articledata as $k => $v ):
+						$articledata[$k]['article_popscore'] = 0;
+						$articledata[$k]['refs'] = array();
+					endforeach;
 
+					//loop each article
+					foreach( $articles as $k => $article ):
+						$id = $article['article_id'];
+
+						//increment popscore
+						$articledata[$id]['article_popscore'] += $article['article_popscore'];
+
+						//set data
+						$articledata[$id]['article_time'] = $article['article_time'];
+
+						if( ( $this->stream_type == 'newest' or $this->stream_type == 'popular' ) and $this->user_id == $mod_user->get_userid() )
+							$articledata[$id]['unread'] = $article['unread'];
+						elseif( $this->stream_type == 'unread' or $this->stream_type == 'hybrid' )
+							$articledata[$id]['unread'] = 1;
+
+						//remove bits
+						unset( $article['article_time'] );
+						unset( $article['article_popscore'] );
+						unset( $article['article_id'] );
+						unset( $article['unread'] );
+
+						//load source data
+						$article['source_data'] = json_decode( $article['source_data'], true );
+
+						//add source to actual article
+						$articledata[$id]['refs'][] = $article;
+					endforeach;
+					break;
+
+				//public
+				case 'public':
+					//get list of source ids
+					$list = array();
+					foreach( $articles as $article )
+						$list[] = array(
+							'id' => $article['source_id']
+						);
+					$list = array_unique( $list, SORT_REGULAR );
+
+					$sourcedata = $mod_memcache->get( 'mod_source', $list );
+					//switch keys
+					$tmp = array();
+					foreach( $sourcedata as $source )
+						$tmp[$source['id']] = $source;
+					$sourcedata = $tmp;
+
+					//loop each article
+					foreach( $articles as $k => $article ):
+						$id = $article['article_id'];
+
+						//increment popscore
+						$articledata[$id]['article_popscore'] = $article['article_popscore'];
+
+						//set data
+						$articledata[$id]['article_time'] = $article['article_time'];
+
+						//remove bits
+						unset( $article['article_time'] );
+						unset( $article['article_popscore'] );
+						unset( $article['article_id'] );
+
+						//get domain
+						$domain = parse_url( $sourcedata[$article['source_id']]['site_url'] );
+						$domain = $domain['host'];
+
+						//set ref data
+						$article['source_type'] = 'source';
+						$article['source_title'] = $sourcedata[$article['source_id']]['site_title'];
+						$article['source_data'] = array( 'domain' => $domain );
+
+						//add source to actual article
+						$articledata[$id]['refs'][] = $article;
+					endforeach;
+					break;
+
+				//source
+				case 'source':
+					//get source data
+					$data = $mod_memcache->get( 'mod_source', array(
+						array(
+							'id' => $this->source_id
+						)
+					) );
+					$data = $data[0];
+					$domain = parse_url( $data['site_url'] );
+					$domain = $domain['host'];
+
+					//loop each article
+					foreach( $articles as $k => $article ):
+						$id = $article['article_id'];
+
+						//set data
+						$articledata[$id]['article_time'] = $article['article_time'];
+
+						//remove bits
+						unset( $article['article_time'] );
+						unset( $article['article_id'] );
+
+						//set ref data
+						$article['source_type'] = 'source';
+						$article['source_title'] = $data['site_title'];
+						$article['source_data'] = array( 'domain' => $domain );
+						
+						//add source to actual article
+						$articledata[$id]['refs'][] = $article;
+					endforeach;
+					break;
+
+				//tag
+				case 'tag':
+					break;
+			endswitch;
+
+			//recommended? = matters on all articles on all streams, if logged in
+			$likes = array();
+			if( $mod_user->check_login() ):
+				//list of memcache data
+				$list = array();
+				foreach( $articledata as $article )
+					$list[] = array(
+						'user_id' => $mod_user->get_userid(),
+						'article_id' => $article['id']
+					);
+
+				//get them
+				$likes = $mod_memcache->get( 'mod_user_likes', $list );
+				//switch keys
+				$tmp = array();
+				foreach( $likes as $like )
+					$tmp[$like['article_id']] = $like;
+				$likes = $tmp;
+			endif;
+
+			//articles, stuff for all of them
+			foreach( $articledata as $key => $article ):
 				//work out stuffs
-				$article['source_domain'] = $mod_data->domain_url( $article['source_url'] );
-				$article['source_title'] = $mod_data->str_tooltip( $article['source_title'] );
 				$article['time_ago'] = $mod_data->time_ago( $article['time'] );
-				$article['type'] = 'article';
-				$article['recommended'] = ( isset( $article['recommended'] ) and is_numeric( $article['recommended'] ) and $article['recommended'] == $article['id'] );
-				$article['unread'] = ( isset( $article['unread'] ) and is_numeric( $article['unread'] ) and $article['unread'] == $article['id'] );
 				$article['short_description'] = substr( $article['description'], 0, 200 ) . ( strlen( $article['description'] ) > 200 ? '...' : '' );
 				$article['shorter_description'] = substr( $article['description'], 0, 120 ) . ( strlen( $article['description'] ) > 120 ? '...' : '' );
-				$article['expired'] = $article['expired_unread'];
-				$return['items'][] = $article;
-			endforeach;
-
-			//recommendations
-			foreach( $recommendations as $key => $recommend ):
-				$recommend['type'] = 'recommend';
-				$recommend['source_domain'] = $mod_data->domain_url( $recommend['site_url'] );
-				$return['recommends'][] = $recommend;
+				$article['liked'] = isset( $likes[$article['id']] );
+				//add to return
+				$return[] = $article;
 			endforeach;
 
 			//return it
@@ -144,135 +287,84 @@
 		//load articles (db)
 		private function load_articles() {
 			//get our logged in user (for recommend check)
-			global $mod_user, $mod_config;
-			$logged_userid = false;
-			if( $mod_user->check_login() )
-				$logged_userid = $mod_user->get_userid();
+			global $mod_config, $mod_user;
 
-			$extra_tables = '';
-			$order = 'mod_article.popularity_score';
+			//build our query
+			$article_id = 'article_id';
+			$sql = '';
 			switch( $this->stream_type ):
-				//unread
-				case 'unread':
-					$order = 'mod_article.time';
+				//user streams
 				case 'hybrid':
-					$extra_tables .= ', mod_user_unread';
-					break;
-				//all
+				case 'unread':
+				case 'popular':
 				case 'newest':
-					$order = 'mod_article.time';
-				case 'popular':
-					$extra_tables .= ', mod_user_sources';
-					break;
-				//source
-				case 'source':
-					$order = 'mod_article.time';
-			endswitch;
-
-			//build query, start selecting basic stuff
-			$sql = '
-				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title, mod_article.url, mod_article.end_url, mod_article.description, mod_article.time, mod_article.recommendations, mod_article.popularity, mod_article.popularity_score, mod_article.image_quarter, mod_article.image_third, mod_article.image_half, mod_article.expired_unread,
-					' . ( $logged_userid ? 'mod_user_recommends.article_id AS recommended, uread.article_id AS unread, usub.source_id AS subscribed,' : '' ) . '
-					mod_source.site_title AS source_title, mod_source.site_url AS source_url
-				FROM
-					' . (
-							$logged_userid ? 
-							'mod_article
-							LEFT JOIN mod_user_recommends ON mod_article.id = mod_user_recommends.article_id AND mod_user_recommends.user_id = ' . $logged_userid . '
-							LEFT JOIN mod_user_unread AS uread ON mod_article.id = uread.article_id AND uread.user_id = ' . $logged_userid . '
-							LEFT JOIN mod_user_sources AS usub ON mod_article.source_id = usub.source_id AND usub.user_id = ' . $logged_userid : 
-							'mod_article'
-						) . ',
-					mod_source' . $extra_tables . '
-				WHERE 
-					mod_source.id = mod_article.source_id
-			';
-
-			//decide where values/etc
-			switch( $this->stream_type ):
-				//unread only items
-				case 'hybrid':
+				case 'discover':
 					$sql .= '
-						AND mod_article.popularity_score != 0
-						AND mod_article.expired_stream = 0
-					';
-				case 'unread':
+						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, article_popscore
+						FROM mod_user_articles';
+					switch( $this->stream_type ):
+						case 'hybrid':
+							$sql .= '
+								WHERE expired = 0
+								AND unread = 1';
+							$order = 'article_popscore';
+							break;
+						case 'popular':
+							$sql .= '
+								WHERE expired = 0';
+							$order = 'article_popscore';
+							break;
+						case 'unread':
+							$sql .= '
+								WHERE unread = 1';
+							$order = 'article_time';
+							break;
+						case 'newest':
+							$sql .= '
+								WHERE true';
+							$order = 'article_time';
+							break;
+					endswitch;
+
+					//add user id bit
 					$sql .= '
-						AND mod_user_unread.article_id = mod_article.id
-						AND mod_user_unread.user_id = ' . $this->user_id . '
-					';
+						AND user_id = ' . $this->user_id;
+
+					//are we the not ourselves? only use source refs
+					if( $mod_user->get_userid() != $this->user_id )
+						$sql .= '
+							AND source_type = "source"';
+
 					break;
-				//popular
-				case 'popular':
+
+				//public stream
 				case 'public':
 					$sql .= '
-						AND mod_article.expired_stream = 0
-						AND mod_article.popularity_score != 0
-					';
-					if( $this->stream_type == 'public' ) break;
-				//new
-				case 'newest':
-					$sql .= '
-						AND mod_user_sources.source_id = mod_article.source_id
-						AND mod_user_sources.user_id = ' . $this->user_id . '
-					';
+						SELECT id AS article_id, source_id, time AS article_time, popularity_score AS article_popscore
+						FROM mod_article
+						WHERE expired = 0';
+					$order = 'popularity_score';
+					$article_id = 'id';
 					break;
+
+				//tag stream
+				case 'tag':
+					break;
+
 				//source stream
 				case 'source':
 					$sql .= '
-						AND mod_source.id = ' . $this->source_id . '
-					';
+						SELECT article_id, article_time, source_id
+						FROM mod_source_articles
+						WHERE source_id = ' . $this->source_id;
+					$order = 'article_time';
+					break;
 			endswitch;
 
-			//end of query (popularity_score must be above 0, aka must be ranked [min = 5])
+			//end of query
 			$sql .= '
-				AND mod_article.id > ' . $this->since_id . '
-				GROUP BY mod_article.id
+				AND ' . $article_id . ' > ' . $this->since_id . '
 				ORDER BY ' . $order . ' DESC
-				LIMIT ' . $this->offset . ', 64
-			';
-
-			//run our query, return the data
-			if( $data = $this->db->query( $sql ) )
-				return $data;
-			else
-				return false;
-		}
-
-		//load recommendations (from db)
-		private function load_recommendations() {
-			//decide our where values according to feed type
-			switch( $this->stream_type ):
-				//nothing if unread & user streams
-				case 'unread':
-				case 'public':
-				case 'source':
-					return array();
-			endswitch;
-			
-			//build query, start selecting basic stuff
-			$sql = '
-				SELECT
-					mod_article.id, mod_article.source_id, mod_article.title,
-					core_user.id AS user_id, core_user.name AS user_name, mod_user_recommends.time,
-					mod_source.site_title, mod_source.site_url
-				FROM
-					mod_article, core_user, mod_user_recommends, mod_user_follows, mod_source, mod_user_unread
-				WHERE
-					mod_article.id = mod_user_recommends.article_id
-					AND mod_source.id = mod_article.source_id
-					AND mod_user_recommends.user_id = mod_user_follows.following_id
-					AND core_user.id = mod_user_recommends.user_id
-					AND mod_user_follows.user_id = ' . $this->user_id . '
-					AND mod_user_unread.article_id = mod_user_recommends.article_id
-					AND mod_user_unread.user_id = ' . $this->user_id . '
-			';
-
-			//end
-			$sql .= '
-				GROUP BY mod_article.id
-				ORDER BY mod_user_recommends.time DESC
 				LIMIT ' . $this->offset . ', 64
 			';
 
@@ -286,7 +378,8 @@
 		//prepare our data
 		public function prepare() {
 			//already loaded?
-			if( $this->data ) return true;
+			if( is_array( $this->data ) ) return true;
+
 			//do we have our required info to start (user_id, stream_id, source_id)
 			switch( $this->stream_type ):
 				case 'hybrid':
@@ -299,103 +392,34 @@
 					if( !isset( $this->source_id ) ) return false;
 					break;
 			endswitch;
+
 			//load our articles & recommendations
 			$this->data = $this->load_data();
-			if( !$this->data )
+			if( !is_array( $this->data ) )
 				return false;
 
-			//sort -> already sorted by poptime/pop/time, now to push articles to be from differing sources
 			switch( $this->stream_type ):
+				//popularity sorted
+				case 'hybrid':
 				case 'popular':
 				case 'public':
-				case 'hybrid':
-					//array of used articles
-					$used_articles = array();
-
-					//get an array of our used source ids (none)
-					$source_ids = array();
-					foreach( $this->data['items'] as $item ):
-						$source_ids[$item['source_id']] = 0;
-					endforeach;
-
-					//loop articles
-					$articles = array();
-					foreach( $this->data['items'] as $key => $item ):
-						//already used?
-						if( isset( $used_articles[$key] ) ) continue;
-
-						//less than two articles?
-						if( false and count( $articles ) < 2 ):
-							$articles[] = $item;
-							$used_articles[$key] = true;
-							$source_ids[$item['source_id']]++;
-							continue;
-						endif;
-
-						//has this source already got content (x2) in the stream? look for another.
-						if( $source_ids[$item['source_id']] > 2 ):
-							$found = false;
-
-							//locate an article with an unused source
-							foreach( $this->data['items'] as $k => $a ):
-								if( isset( $used_articles[$k] ) ) continue;
-
-								if( $source_ids[$a['source_id']] < 2 ):
-									$found = true;
-									$articles[] = $a;
-									$used_articles[$k] = true;
-									$source_ids[$a['source_id']]++;
-									break;
-								endif;
-							endforeach;
-
-							//found an article from an unused source? continue on
-							if( $found ):
-								continue;
-							endif;
-						endif;
-
-						//last two articles and this all from same source?
-						if( count( $articles ) > 1 and $item['source_id'] == $articles[count( $articles ) - 1]['source_id'] and $item['source_id'] == $articles[count( $articles ) - 2]['source_id'] ):
-							$found = false;
-
-							//find an article with a different source id
-							foreach( $this->data['items'] as $k => $a ):
-								if( isset( $used_articles[$k] ) ) continue;
-
-								if( $a['source_id'] != $item['source_id'] ):
-									$found = true;
-									$articles[] = $a;
-									$used_articles[$k] = true;
-									$source_ids[$a['source_id']]++;
-									break;
-								endif;
-							endforeach;
-
-							//did we find an article? woop woop
-							if( $found ):
-								continue;
-							endif;
-						endif;
-
-						//default action
-						$articles[] = $item;
-						$used_articles[$key] = true;
-						$source_ids[$item['source_id']]++;
-					endforeach;
-
-					//set our net articles
-					$this->data['items'] = $articles;
+					usort( $this->data, array( 'mod_stream', 'sortPopscore' ) );
+					break;
+				//time sorted
+				case 'unread':
+				case 'newest':
+					usort( $this->data, array( 'mod_stream', 'sortTime' ) );
+					break;
 			endswitch;
-			
 
+			//a ok!
 			return true;
 		}
 
 		//send data back to template
 		public function get_data() {
 			if( !$this->data ) return false;
-			return $this->data;
+			return array( 'items' => $this->data, 'features' => array() );
 		}
 	}
 ?>

@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data;
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load;
 
 	//start template
 	$mod_template = new mod_template();
@@ -32,6 +32,25 @@
 	//set offset
 	$mod_stream->set_offset( $offset * 64 );
 
+	//api & logged in?
+	if( !$mod_config['api'] and $mod_user->check_login() ):
+		//load the users sources
+		$accounts = array();
+		$sources = $mod_load->load_sources( $mod_user->get_userid() );
+		foreach( $sources as $key => $s ):
+			if( $s['type'] != 'source' ):
+				unset( $sources[$key] );
+				$accounts[] = $s;
+			endif;
+		endforeach;
+		$mod_template->add( 'accounts', $accounts );
+		$mod_template->add( 'sources', $sources );
+
+		//load the users followings
+		$followings = $mod_load->load_users( $mod_user->get_userid() );
+		$mod_template->add( 'followings', $followings );
+	endif;
+	
 	//prepare, ok to go after this
 	if( !$mod_stream->prepare() ):
 		$mod_message->add( 'DatabaseError' );
@@ -43,7 +62,6 @@
 
 	//add data
 	$mod_template->add( 'stream', $stream_data['items'] );
-	$mod_template->add( 'recommends', $stream_data['recommends'] );
 	$mod_template->add( 'title', 'public' );
 	$mod_template->add( 'pageTitle', 'Public Stream' );
 	$mod_template->add( 'userid', $mod_user->session_userid() );

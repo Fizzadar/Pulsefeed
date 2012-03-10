@@ -54,7 +54,7 @@
 	$mod_template = new mod_template();
 
 	//set our username
-	if( $user_id == $mod_user->get_userid() and $mod_user->session_login() )
+	if( $user_id == $mod_user->get_userid() and $mod_user->check_login() )
 		$name = 'Your';
 	else
 		$name = $user[0]['name'] . '\'s';
@@ -65,7 +65,15 @@
 		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
 	
 		//load the users sources
-		$sources = $mod_load->load_sources( $user_id );
+		$accounts = array();
+		$sources = $mod_load->load_sources( $user_id, $mod_user->get_userid() == $user_id ? false : 'source' );
+		foreach( $sources as $key => $s ):
+			if( $s['type'] != 'source' ):
+				unset( $sources[$key] );
+				$accounts[] = $s;
+			endif;
+		endforeach;
+		$mod_template->add( 'accounts', $accounts );
 		$mod_template->add( 'sources', $sources );
 
 		//load the users followings
@@ -97,7 +105,6 @@
 
 	//add data
 	$mod_template->add( 'stream', $stream_data['items'] );
-	$mod_template->add( 'recommends', $stream_data['recommends'] );
 	$mod_template->add( 'title', $stream_type );
 	$mod_template->add( 'pageTitle', $name . ' ' . ( isset( $stream_name ) ? $stream_name : ucfirst( $stream_type ) ) . ' Stream' );
 	$mod_template->add( 'userid', $user_id );

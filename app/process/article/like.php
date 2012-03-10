@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_db, $mod_user, $mod_session, $mod_message, $mod_app;
+	global $mod_db, $mod_user, $mod_session, $mod_message, $mod_app, $mod_memcache;
 
 	//redirect dir
 	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/article/' . $_POST['article_id'];
@@ -36,7 +36,7 @@
 
 	//check the article exists
 	$article = $mod_db->query( '
-		SELECT id
+		SELECT id, time, popularity_score
 		FROM mod_article
 		WHERE id = ' . $_POST['article_id'] . '
 		LIMIT 1
@@ -47,25 +47,43 @@
 	endif;
 
 	//insert our recommendation
-	$insert = $mod_db->query( '
-		REPLACE INTO
-		mod_user_recommends
-		( user_id, article_id, time )
-		VALUES ( ' . $mod_user->get_userid() . ', ' . $_POST['article_id'] . ', ' . time() . ' )
-	' );
-	if( !$insert ):
-		$mod_message->add( 'UnknownError' );
-		die( header( 'Location: ' . $redir ) );
-	endif;
+	$mod_memcache->set( 'mod_user_likes', array(
+		array(
+			'user_id' => $mod_user->get_userid(),
+			'article_id' => $_POST['article_id']
+		)
+	) );
 
 	//did we add a new record?
 	if( $mod_db->affected_rows() == 1 ):
-		$mod_db->query( '
-			UPDATE mod_article
-			SET recommendations = recommendations + 1
-			WHERE id = ' . $_POST['article_id'] . '
-			LIMIT 1
-		' );
+		$article = $mod_memcache->get( 'mod_article', array(
+			array(
+				'id' => $_POST['article_id']
+			)
+		) );
+	
+		$mod_memcache->set( 'mod_article', array(
+			array(
+				'id' => $_POST['article_id'],
+				'likes' => $article[0]['likes'] + 1
+			)
+		) );
+
+		//get users following us
+		$users = $mod_db->query( '
+			SELECT user_id AS id
+			FROM mod_user_follows
+			WHERE following_id = ' . $mod_user->get_userid()
+		);
+		$sql = '
+			REPLACE INTO mod_user_articles
+			( user_id, article_id, source_type, source_title, source_id, article_time, article_popscore ) VALUES';
+		foreach( $users as $user ):
+			$sql .= ' ( ' . $user['id'] . ', ' . $_POST['article_id'] . ', "like", "' . $mod_user->session_username() . '", ' . $mod_user->get_userid() . ', ' . $article[0]['time'] . ', ' . $article[0]['popularity_score'] . ' ), ';
+		endforeach;
+		$sql = rtrim( $sql, ', ' );
+
+		$mod_db->query( $sql );
 	endif;
 
 	//& finally, redirect

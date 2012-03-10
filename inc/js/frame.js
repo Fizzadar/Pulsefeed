@@ -6,7 +6,7 @@
 //bust the frame busters (evil?)
 var prevent_bust = 0;
 window.onbeforeunload = function() {
-	prevent_bust++;
+	//prevent_bust++;
 }
 setInterval( function() {
 	if( prevent_bust > 0 ) {

@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_session, $mod_user, $mod_db, $mod_message;
+	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_memcache;
 
 	//redirect dir
 	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'];
@@ -28,13 +28,19 @@
 		die( header( 'Location: ' . $redir ) );
 	endif;
 
-	//delete our read
+	//mark unread
 	$mod_db->query( '
-		DELETE FROM mod_user_unread
-		WHERE article_id = ' . $_POST['article_id'] . '
-		AND user_id = ' . $mod_user->get_userid() . '
-		LIMIT 1
+		UPDATE mod_user_articles
+		SET unread = 0
+		WHERE user_id = ' . $mod_user->get_userid() . '
+		AND article_id = ' . $_POST['article_id'] . '
 	' );
+	$mod_memcache->set( 'mod_user_reads', array(
+		array(
+			'user_id' => $mod_user->get_userid(),
+			'article_id' => $_POST['article_id']
+		)
+	) );
 
 	//redirect
 	$mod_message->add( 'ArticleRead' );

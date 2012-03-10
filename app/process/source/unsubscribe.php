@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_session, $mod_user, $mod_db, $mod_message;
+	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_memcache;
 
 	//redirect dir
 	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/sources';
@@ -29,12 +29,12 @@
 	endif;
 
 	//delete from user sources
-	$mod_db->query( '
-		DELETE FROM mod_user_sources
-		WHERE source_id = ' . $_POST['source_id'] . '
-		AND user_id = ' . $mod_user->get_userid() . '
-		LIMIT 1
-	' );
+	$mod_memcache->delete( 'mod_user_sources', array(
+		array(
+			'source_id' => $_POST['source_id'],
+			'user_id' => $mod_user->get_userid()
+		)
+	) );
 
 	//affected?
 	if( $mod_db->affected_rows() > 0 ):
@@ -45,13 +45,6 @@
 			LIMIT 1
 		' );
 	endif;
-
-	//delete unreads for this source
-	$mod_db->query( '
-		DELETE mod_user_unread FROM mod_user_unread
-		JOIN mod_article ON mod_article.id = mod_user_unread.article_id AND mod_article.source_id = ' . $_POST['source_id'] . '
-		WHERE mod_user_unread.user_id = ' . $mod_user->get_userid() . '
-	' );
 
 	//done!
 	$mod_message->add( 'SourceUnsubscribed' );

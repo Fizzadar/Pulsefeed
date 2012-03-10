@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_db, $mod_user, $mod_session, $mod_message, $mod_app;
+	global $mod_db, $mod_user, $mod_session, $mod_message, $mod_app, $mod_memcache;
 
 	//redirect dir
 	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/article/' . $_POST['article_id'];
@@ -47,24 +47,35 @@
 	endif;
 
 	//delete our recommendation
-	$delete = $mod_db->query( '
-		DELETE FROM
-		mod_user_recommends
-		WHERE user_id = ' . $mod_user->get_userid() . '
-		AND article_id = ' . $_POST['article_id'] . '
-	' );
-	if( !$delete ):
-		$mod_message->add( 'UnknownError' );
-		die( header( 'Location: ' . $redir ) );
-	endif;
+	$mod_memcache->delete( 'mod_user_likes', array(
+		array(
+			'user_id' => $mod_user->get_userid(),
+			'article_id' => $_POST['article_id']
+		)
+	) );
 
 	//did we add a new record?
 	if( $mod_db->affected_rows() == 1 ):
+		$article = $mod_memcache->get( 'mod_article', array(
+			array(
+				'id' => $_POST['article_id']
+			)
+		) );
+	
+		$mod_memcache->set( 'mod_article', array(
+			array(
+				'id' => $_POST['article_id'],
+				'likes' => $article[0]['likes'] - 1
+			)
+		) );
+
+		//remove from mod_user_articles
 		$mod_db->query( '
-			UPDATE mod_article
-			SET recommendations = recommendations - 1
-			WHERE id = ' . $_POST['article_id'] . '
-			LIMIT 1
+			DELETE FROM
+			mod_user_articles
+			WHERE source_id = ' . $mod_user->get_userid() . '
+			AND article_id = ' . $_POST['article_id'] . '
+			AND source_type = "like"
 		' );
 	endif;
 

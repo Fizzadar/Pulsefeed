@@ -62,6 +62,9 @@ api.request = function( type, url, data, success, failure, element ) {
 				failure( data, this );
 				console.log( '[Pulsefeed] API Request Failed: ' + data.message );
 			}
+		},
+		error: function( data ) {
+			console.log( data.responseText );
 		}
 	});
 

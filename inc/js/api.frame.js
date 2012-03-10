@@ -16,11 +16,11 @@ api.likeExternal = function( el ) {
 	//do we like or unlike?
 	if( text == 'Like' ) {
 		this.post(
-			'/process/article-recommend',
+			'/process/article-like',
 			{ article_id: article_id },
 			function( data, el ) {
 				$( 'button span' ).html( 'Unlike' );
-				$( 'button img ' ).attr( 'src', mod_root + '/inc/img/icons/recommended.png' );
+				$( 'button img ' ).attr( 'src', mod_root + '/inc/img/icons/liked.png' );
 				$( 'button', el ).removeAttr( 'disabled' );
 				$( 'button', el ).removeClass( 'disabled' );
 			},
@@ -32,11 +32,11 @@ api.likeExternal = function( el ) {
 		);
 	} else {
 		this.post(
-			'/process/article-unrecommend',
+			'/process/article-unlike',
 			{ article_id: article_id },
 			function( data, el ) {
 				$( 'button span' ).html( 'Like' );
-				$( 'button img ' ).attr( 'src', mod_root + '/inc/img/icons/recommend.png' );
+				$( 'button img ' ).attr( 'src', mod_root + '/inc/img/icons/like.png' );
 				$( 'button', el ).removeAttr( 'disabled' );
 				$( 'button', el ).removeClass( 'disabled' );
 			},

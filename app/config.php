@@ -57,8 +57,8 @@
 			'source-tag' => 'source/tag', //todo
 			'source-untag' => 'source/untag', //todo
 			//article
-			'article-recommend' => 'article/recommend',
-			'article-unrecommend' => 'article/unrecommend',
+			'article-like' => 'article/like',
+			'article-unlike' => 'article/unlike',
 			'article-collect' => 'article/collect', //todo
 			'article-read' => 'article/read',
 			'article-tag' => 'article/tag', //todo
@@ -72,12 +72,15 @@
 			'mod_template' => 'template',
 			'mod_message' => 'message',
 			'mod_source' => 'source',
-			'mod_article' => 'article',
+			'mod_feed' => 'feed',
+			'mod_feed_article' => 'feed_article',
 			'mod_stream' => 'stream',
 			'mod_stream_site' => 'stream_site',
 			'mod_data' => 'data',
 			'mod_cookie' => 'cookie',
 			'mod_load' => 'load',
+			'mod_memcache' => 'memcache',
+			'mod_daemon' => 'daemon',
 			//external libs
 			'SimplePie' => 'external/simplepie',
 			'simple_html_dom' => 'external/simpledom',
@@ -125,7 +128,7 @@
 		),
 		//how much each type of share/save is worth
 		'popularity' => array(
-			'recommend' => 20, //internal recommendations
+			'like' => 20, //internal recommendations
 			'facebook_shares' => 2,
 			'facebook_comments' => 1,
 			'delicious_saves' => 5,
@@ -144,6 +147,52 @@
 			'when',
 			'any',
 			'into',
+		),
+		//app info
+		'apps' => array(
+			'facebook' => array(
+				'id' => '346508828699100',
+				'token' => '85804588b0a5a0e005bdca184dae17b5',
+			),
+			'twitter' => array(
+				'id' => '9CxR2vqndROknYPJ9vlpw',
+				'token' => 'bPnQZYzamUsUoqmdsuztxBmNwEqiqDSsg9IVj9WujyA'
+			)
+		),
+		//memcache servers
+		'memcache' => array(
+			'127.0.0.1' => 11211,
+		),
+		//database layout
+		'dblayout' => array(
+			'mod_user_reads' => array( //user read an article?
+				'user_id',
+				'article_id'
+			),
+			'mod_user_follows' => array( //user following a user?
+				'user_id',
+				'following_id'
+			),
+			'mod_user_sources' => array( //user subscribed to a source?
+				'user_id',
+				'source_id'
+			),
+			'mod_user_likes' => array( //user likes an article?
+				'user_id',
+				'article_id'
+			),
+			'mod_article' => array( //articles
+				'id'
+			),
+			'mod_source' => array( //sources
+				'id'
+			),
+			'mod_collection' => array( //collections
+				'id'
+			),
+			'mod_tag' => array( //tags
+				'id'
+			),
 		),
 	);
 ?>
