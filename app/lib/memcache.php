@@ -64,8 +64,8 @@
 			return $sql;
 		}
 
-		//get (select) by keys
-		public function get( $table, $keys ) {
+		//get (select) by keys (skipsql where getting likes/etc [ie things where there may be no record at all])
+		public function get( $table, $keys, $skipsql = false ) {
 			//select layout
 			$layout = $this->layout[$table];
 			//things to return
@@ -79,28 +79,30 @@
 			foreach( $data as $d )
 				$return[] = $d;
 
-			//remove sql where not needed
-			foreach( $keys['memcache'] as $id => $key )
-				if( isset( $data[$key] ) )
-					unset( $keys['sql'][$id] );
+			if( !$skipsql ):
+				//remove sql where not needed
+				foreach( $keys['memcache'] as $id => $key )
+					if( isset( $data[$key] ) )
+						unset( $keys['sql'][$id] );
 
-			//build mysql query
-			if( count( $keys['sql'] ) > 0 ):
-				$sql = '
-					SELECT * FROM ' . $table . '
-					WHERE';
-				$sql .= $this->whereList( $keys['sql'], $layout );
+				//build mysql query
+				if( count( $keys['sql'] ) > 0 ):
+					$sql = '
+						SELECT * FROM ' . $table . '
+						WHERE';
+					$sql .= $this->whereList( $keys['sql'], $layout );
 
-				//run query
-				$data = $this->db->query( $sql );
-				foreach( $data as $d )
-					$return[] = $d;
+					//run query
+					$data = $this->db->query( $sql );
+					foreach( $data as $d )
+						$return[] = $d;
 
-				//new key list to save
-				$saves = $this->keyList( $table, $data, $layout );
-				foreach( $saves['memcache'] as $id => $save ):
-					$this->memcache->set( $save, $saves['sql'][$id] );
-				endforeach;
+					//new key list to save
+					$saves = $this->keyList( $table, $data, $layout );
+					foreach( $saves['memcache'] as $id => $save ):
+						$this->memcache->set( $save, $saves['sql'][$id] );
+					endforeach;
+				endif;
 			endif;
 
 			return $return;
@@ -168,6 +170,21 @@
 				WHERE';
 			$sql .= $this->whereList( $keys['sql'], $layout );
 			return $this->db->query( $sql );
+		}
+
+		//sync a whole table by its layout!
+		public function sync( $table ) {
+			$layout = $this->layout[$table];
+
+			//sql
+			$sql = '
+				SELECT * FROM ' . $table;
+			//run sql, load table
+
+			//set all memcaches for each row based on layout
+
+			//return count;
+
 		}
 	}
 ?>

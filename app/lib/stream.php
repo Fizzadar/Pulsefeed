@@ -260,8 +260,8 @@
 						'article_id' => $article['id']
 					);
 
-				//get them
-				$likes = $mod_memcache->get( 'mod_user_likes', $list );
+				//get them, skip db
+				$likes = $mod_memcache->get( 'mod_user_likes', $list, true );
 				//switch keys
 				$tmp = array();
 				foreach( $likes as $like )

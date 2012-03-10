@@ -271,7 +271,7 @@
 	}
 
 	//load daemon (db func, thread func, threads, thread time, db time)
-	$daemon = new mod_daemon( 'dbupdate', 'update', 1, 120, 300 );
+	$daemon = new mod_daemon( 'dbupdate', 'update', 10, 120, 300 );
 
 	//and go!
 	$daemon->start();
