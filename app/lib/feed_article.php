@@ -24,7 +24,7 @@
 			endif;
 
 			//set img root
-			$this->imgdir = $lockfile = $c_config['core_dir'] . '/data/';
+			$this->imgdir = $lockfile = $c_config['core_dir'] . '/../data/';
 
 			//set url
 			$this->url = $url;
