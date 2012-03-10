@@ -91,7 +91,6 @@
 						SELECT * FROM ' . $table . '
 						WHERE';
 					$sql .= $this->whereList( $keys['sql'], $layout );
-
 					//run query
 					$data = $this->db->query( $sql );
 					foreach( $data as $d )

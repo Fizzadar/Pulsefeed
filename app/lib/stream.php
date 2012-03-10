@@ -182,9 +182,9 @@
 						$list[] = array(
 							'id' => $article['source_id']
 						);
-					$list = array_unique( $list, SORT_REGULAR );
 
 					$sourcedata = $mod_memcache->get( 'mod_source', $list );
+
 					//switch keys
 					$tmp = array();
 					foreach( $sourcedata as $source )
@@ -357,7 +357,8 @@
 					$sql .= '
 						SELECT id AS article_id, source_id, time AS article_time, popularity_score AS article_popscore
 						FROM mod_article
-						WHERE expired = 0';
+						WHERE expired = 0
+						AND source_id > 0';
 					$order = 'popularity_score';
 					$article_id = 'id';
 					break;
