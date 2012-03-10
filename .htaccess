@@ -35,6 +35,7 @@ RewriteRule ^tag/([0-9]+)$								index.php?load=tag&id=$1 [QSA,L]					#tag stre
 
 #Source Stream
 RewriteRule ^source/([0-9]+)$							index.php?load=source&id=$1 [QSA,L]					#source stream
+RewriteRule ^account/([0-9]+)$							index.php?load=source&id=$1 [QSA,L]					#source (via /account) stream
 
 #User Streams
 RewriteRule ^user/([0-9]+)+$							index.php?load=user&id=$1 [QSA,L]					#user streams (hybrid)

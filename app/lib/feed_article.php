@@ -200,7 +200,7 @@
 					$size = $s[0] * $s[1];
 
 					//image too small? fuck it
-					if( $s[0] < ( $conf['w'] * 0.8 ) or $s[1] < ( $conf['h'] * 0.8 ) ):
+					if( $s[0] < ( $conf['w'] * 0.7 ) or $s[1] < ( $conf['h'] * 0.7 ) ):
 						echo 'image too small: ' . $image . PHP_EOL;
 						continue;
 					endif;
@@ -242,9 +242,9 @@
 			endforeach;
 
 			//now delete the images (since we only use thumbs)
-			//foreach( $this->images as $image )
-			//	if( file_exists( $image ) )
-			//		unlink( $image );
+			foreach( $this->images as $image )
+				if( file_exists( $image ) )
+					unlink( $image );
 
 			//return the shit
 			return $return;
