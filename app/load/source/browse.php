@@ -16,8 +16,6 @@
 	$order = 'mod_source.subscribers';
 	if( isset( $_GET['new'] ) )
 		$order = 'mod_source.time';
-	if( isset( $_GET['me'] ) )
-		$order = 'mod_source.articles';
 
 	//my sources/no login?
 	if( isset( $_GET['me'] ) and !$mod_user->check_login() ):
