@@ -17,6 +17,7 @@
 	$oauths = $mod_user->get_oauths();
 
 	//loop the oauths
+	$oauth = false;
 	foreach( $oauths as $auth ):
 		//firstly, replace sources where needed
 		if( $auth['provider'] == 'twitter' or $auth['provider'] == 'facebook' ):
@@ -51,16 +52,15 @@
 		endif;
 
 		//twitter > facebook
-		if( $auth['provider'] == 'twitter' ):
+		if( !$oauth and $auth['provider'] == 'twitter' ):
 			$oauth = $auth;
-			break;
-		elseif( $auth['provider'] == 'facebook' ):
+		elseif( !$oauth and $auth['provider'] == 'facebook' ):
 			$oauth = $auth;
 		endif;
 	endforeach;
 
 	//work out avatar
-	if( isset( $oauth ) ):
+	if( $oauth ):
 		if( $oauth['provider'] == 'twitter' ):
 			$data = @file_get_contents( 'http://api.twitter.com/1/users/show.json?user_id=' . $oauth['o_id'] );
 			$data = json_decode( $data );
