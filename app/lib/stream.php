@@ -310,19 +310,19 @@
 				case 'discover':
 				case 'account':
 					$sql .= '
-						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, article_popscore
+						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, ( article_popscore * article_popmultiply ) AS article_popscore
 						FROM mod_user_articles';
 					switch( $this->stream_type ):
 						case 'hybrid':
 							$sql .= '
 								WHERE expired = 0
 								AND unread = 1';
-							$order = 'article_popscore';
+							$order = 'article_popscore * article_popmultiply';
 							break;
 						case 'popular':
 							$sql .= '
 								WHERE expired = 0';
-							$order = 'article_popscore';
+							$order = 'article_popscore * article_popmultiply';
 							break;
 						case 'unread':
 							$sql .= '

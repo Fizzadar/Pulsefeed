@@ -179,7 +179,8 @@
 									'user_id' => $user['user_id'],
 									'article_id' => $item['id']
 								)
-							) ) ) == 1 ? 0 : 1
+							) ) ) == 1 ? 0 : 1,
+							'article_popmultiply' => 1
 						);
 					endforeach;
 				endforeach;
@@ -194,7 +195,7 @@
 						'source_type' => $source['type'],
 						'source_id' => $source['id'],
 						'source_title' => $item['ex_username'],
-						'source_data' => '{}',
+						'source_data' => json_encode( array( 'user_id' => $item['ex_userid'] ) ),
 						'article_time' => $item['time'],
 						'article_popscore' => $item['popscore'],
 						'unread' => count( $mod_memcache->get( 'mod_user_reads', array(
@@ -202,7 +203,8 @@
 								'user_id' => $source['owner_id'],
 								'article_id' => $item['id']
 							)
-						) ) ) == 1 ? 0 : 1
+						) ) ) == 1 ? 0 : 1,
+						'article_popmultiply' => 2
 					);
 				endforeach;
 
@@ -212,11 +214,11 @@
 		//build the mod_source_articles query
 		if( count( $user_article ) > 0 ):
 			$sql = '
-				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, article_popscore, unread, source_data )
+				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, article_popscore, unread, source_data, article_popmultiply )
 				VALUES';
 
 			foreach( $user_article as $bit )
-				$sql .= ' ( ' . $bit['user_id'] . ', ' . $bit['article_id'] . ', "' . $bit['source_type'] . '", "' . $bit['source_id'] . '", "' . $bit['source_title'] . '", ' . $bit['article_time'] . ', ' . $bit['article_popscore'] . ', ' . $bit['unread'] . ', \'' . $bit['source_data'] . '\' ),';
+				$sql .= ' ( ' . $bit['user_id'] . ', ' . $bit['article_id'] . ', "' . $bit['source_type'] . '", "' . $bit['source_id'] . '", "' . $bit['source_title'] . '", ' . $bit['article_time'] . ', ' . $bit['article_popscore'] . ', ' . $bit['unread'] . ', \'' . $bit['source_data'] . '\', ' . $bit['article_popmultiply'] . ' ),';
 
 			$sql = rtrim( $sql, ',' );
 
