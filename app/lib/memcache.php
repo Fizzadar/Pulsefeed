@@ -176,14 +176,23 @@
 			$layout = $this->layout[$table];
 
 			//sql
-			$sql = '
-				SELECT * FROM ' . $table;
+			$sql = 'SELECT * FROM ' . $table;
 			//run sql, load table
+			$tabledata = $this->db->query( $sql );
 
 			//set all memcaches for each row based on layout
+			$count = 0;
+			foreach( $tabledata as $row ):
+				$key = $table;
+				foreach( $layout as $k ):
+					$key .= '_' . $row[$k];
+				endforeach;
+				if( @$this->memcache->set( $key, $row ) )
+					$count++;
+			endforeach;
 
 			//return count;
-
+			return $count;
 		}
 	}
 ?>

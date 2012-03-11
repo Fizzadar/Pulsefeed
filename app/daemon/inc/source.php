@@ -40,16 +40,6 @@
 		$mod_db->__destruct();
 		unset( $mod_db );
 
-		//remove images older than 48 hour
-		$oldtime = time() - ( 3600 * 48 );
-		$images = glob( $c_config['core_dir'] . '/../data/images/*' );
-		foreach( $images as $img ):
-			if( filemtime( $img ) < $oldtime ):
-				unlink( $img );
-				echo 'old image removed : ' . $img . PHP_EOL;
-			endif;
-		endforeach;
-
 		//return to daemon
 		return $sources;
 	}
