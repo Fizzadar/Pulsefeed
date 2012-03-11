@@ -249,7 +249,7 @@
 					);
 
 					//original source?
-					if( isset( $item['original_source'] ) ):
+					if( isset( $item['original_source'] ) and $item['original_source']['id'] > 0 ):
 						$domain = parse_url( $item['original_source']['domain'] );
 						$domain = $domain['host'];
 
