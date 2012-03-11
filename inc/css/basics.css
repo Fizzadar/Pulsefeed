@@ -1,3 +1,17 @@
+#devmessage {
+	color: #9F6000;
+	font-weight: bold;
+	padding: 2px 7px 2px 7px;
+	background: #FEEFB3;
+	border: 1px solid #000;
+	border-bottom: 0;
+	margin-left: 20px;
+	margin-top: 7px;
+	float: left;
+	display: inline;
+	border-radius: 5px 5px 0 0;
+}
+
 /*
 	basics
 */
@@ -190,14 +204,17 @@ div.wrap {
 		box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
 	}
 	.tip span span {
-		background: transparent url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip_bottom.png' ) center bottom no-repeat;
+		background: transparent url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip_bottom.png' ) center 9px no-repeat;
 		border: none;
-		width: 120px;
+		width: 20px;
 		height: 9px;
 		left: 20px;
 		margin-top: 0;
-		margin-left: -57px;
+		margin-left: -6px;
 		box-shadow: none;
+	}
+	.tip.hover span span {
+		height: 20px;
 	}
 	.tip:hover span {
 		display: block;

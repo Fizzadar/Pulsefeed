@@ -19,7 +19,7 @@
 			foreach( $mod_config['memcache'] as $host => $port )
 				$this->memcache->addServer( $host, $port );
 
-			//start db
+			//get db
 			$this->db = $mod_db;
 
 			//set layout
@@ -107,7 +107,7 @@
 			return $return;
 		}
 
-		//set (insert, update) by data (each array in data must include all keys)
+		//set (insert, update) by data (each array in data must include all keys) <= overwrites values
 		public function set( $table, $keyslist ) {
 			//select layout
 			$layout = $this->layout[$table];
@@ -120,13 +120,12 @@
 
 			//update all got memcaches
 			foreach( $keys['memcache'] as $id => $key )
-				if( isset( $data[$key] ) )
-					foreach( $keys['sql'][$id] as $k => $v )
-						$data[$key][$k] = $v;
+				foreach( $keys['sql'][$id] as $k => $v )
+					$data[$key][$k] = $v;
 
 			//now save each one
 			foreach( $data as $k => $v )
-				@$this->memcache->set( $k, $v );
+				$this->memcache->set( $k, $v );
 
 			//now build sql query
 			$sql = '
@@ -187,7 +186,7 @@
 				foreach( $layout as $k ):
 					$key .= '_' . $row[$k];
 				endforeach;
-				if( @$this->memcache->set( $key, $row ) )
+				if( $this->memcache->set( $key, $row ) )
 					$count++;
 			endforeach;
 

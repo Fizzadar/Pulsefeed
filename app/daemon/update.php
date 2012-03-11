@@ -124,7 +124,7 @@
 				$feed = @$test->find( $url );
 
 				//found one?
-				if( $feed ):
+				if( $feed and isset( $feed['feed_url'] ) and !empty( $feed['feed_url'] ) ):
 					$exist = $mod_db->query( '
 						SELECT id
 						FROM mod_source

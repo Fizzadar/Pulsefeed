@@ -55,4 +55,36 @@
 		public function str_tooltip( $string ) {
 			return substr( $string, 0, 18 ) . ( strlen( $string ) > 18 ? '...' : '' );
 		}
+
+		//get remote data
+		function get_data( $url, $post_data = '', $content_type = '' ) {
+			$curl = curl_init();
+
+			//post?
+			if( !empty( $post_data ) ):
+				curl_setopt( $curl, CURLOPT_POST, true );
+				curl_setopt( $curl, CURLOPT_POSTFIELDS, $post_data );
+			endif;
+
+			//special content type?
+			if( !empty( $content_type ) ):
+				curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Content-Type: ' . $content_type ) );
+			endif;
+
+			//options
+			curl_setopt( $curl, CURLOPT_URL, $url );
+			curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+			curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false );
+			curl_setopt( $curl, CURLOPT_TIMEOUT, 5 );
+
+			//what do we get
+			$data = curl_exec( $curl );
+
+			//returns an array, containing success t/f, data and maybe a message (on failure)
+			if( $data and !empty( $data ) ):
+				return array( 'success' => true, 'data' => $data );
+			else:
+				return array( 'success' => false, 'message' => curl_error( $curl ), 'data' => $data );
+			endif;
+		}
 	}

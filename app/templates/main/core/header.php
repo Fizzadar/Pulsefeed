@@ -86,6 +86,7 @@
 						</li>
 					</ul>
 				<?php endif; ?>
+
 			<?php else: ?>
 				<h3>
 					<span>Pulsefeed</span>
@@ -97,6 +98,8 @@
 					<input type="submit" id="submit" value="Search &rarr;" class="disabled" disabled="disabled" />
 				</form>
 			<?php endif; ?>
+
+			<div id="devmessage"><a href="http://pulsefeed.com/article/4041">[!] Pulsefeed is currently in development &rarr;</a></div>
 
 			<ul id="account"<?php echo $mod_user->session_login() ? '' : ' class="nologin"'; ?>>
 			<?php if( $mod_user->session_login() ): ?>

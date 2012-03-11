@@ -8,7 +8,7 @@
 	global $mod_db, $mod_config, $mod_memcache;
 
 	//72 hours ago
-	$expire_stream = time() - ( 3600 * 72 );
+	$expire_stream = time() - ( 3600 * 48 );
 
 	//expire 48 hour articles
 	$mod_db->query( '

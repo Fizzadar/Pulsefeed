@@ -443,7 +443,7 @@
 										echo 'user';
 										break;
 								endswitch;
-								?>/<?php echo $ref['source_id']; ?>" class="tip">
+								?>/<?php echo $ref['source_id']; ?>" class="tip hover">
 								<span>
 									<strong><?php echo $ref['source_title']; ?></strong>
 									<small><?php
