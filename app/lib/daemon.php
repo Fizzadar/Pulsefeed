@@ -12,20 +12,25 @@
 		private $maxthreads;
 		private $threadtime;
 		private $dbupdate;
+		private $lock;
 
 		//construct
-		public function __construct( $dbfunc, $threadfunc, $maxthreads = 10, $threadtime = 60, $dbupdate = 300 ) {
+		public function __construct( $dbfunc, $threadfunc, $maxthreads = 10, $threadtime = 60, $dbupdate = 300, $lock = '' ) {
 			$this->dbfunc = $dbfunc;
 			$this->threadfunc = $threadfunc;
 			$this->maxthreads = $maxthreads;
 			$this->threadtime = $threadtime;
 			$this->dbupdate = $dbupdate;
+			$this->lock = $lock;
 		}
 
 		public function start() {
 			global $c_config, $argv;
 			$arg = count( $argv ) - 1;
-			$lockfile = $c_config['core_dir'] . '/../tmp/' . $this->threadfunc . '.lock';
+			if( empty( $this->lock ) )
+				$lockfile = $c_config['core_dir'] . '/../tmp/' . $this->threadfunc . '.lock';
+			else
+				$lockfile = $c_config['core_dir'] . '/../tmp/' . $this->lock . '.lock';
 
 			//check for lock file
 			if( file_exists( $lockfile ) and filemtime( $lockfile ) > time() - 60 and ( !isset( $argv[$arg] ) or $argv[$arg] != 'force' ) ):

@@ -22,7 +22,7 @@
 	$mod_app->load( 'daemon/inc/' . $argv[2] );
 
 	//load daemon (db func, thread func, threads, thread time, db time)
-	$daemon = new mod_daemon( 'dbupdate', 'update', $threads, $threadtime, $dbtime );
+	$daemon = new mod_daemon( 'dbupdate', 'update', $threads, $threadtime, $dbtime, 'update_' . $argv[2] );
 
 	//and go!
 	$daemon->start();
