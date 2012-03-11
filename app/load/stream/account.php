@@ -75,7 +75,7 @@
 	//add data
 	$mod_template->add( 'stream', $stream_data['items'] );
 	$mod_template->add( 'title', 'account' );
-	$mod_template->add( 'pageTitle', 'Your ' . ucfirst( $_GET['type'] ) . ' Stream' );
+	$mod_template->add( 'pageTitle', 'Articles from your ' . ucfirst( $_GET['type'] ) );
 	$mod_template->add( 'userid', $mod_user->session_userid() );
 	$mod_template->add( 'username', $mod_user->session_username() );
 	$mod_template->add( 'streamid', 0 );

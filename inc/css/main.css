@@ -151,7 +151,7 @@ div.feature.edit {
 			font-weight: bold;
 		}
 		div.feature h1 a:hover {
-			color: #454E9B;
+			color: #A40802;
 		}
 	div.feature div.left {
 		float: left;
@@ -168,7 +168,7 @@ div.feature.edit {
 			}
 			div.feature h2 a:hover {
 				text-decoration: none;
-				color: #454E9B;
+				color: #A40802;
 			}
 	div.feature div.meta {
 		font-family: Verdana;
@@ -263,7 +263,7 @@ div.item {
 		}
 		div.item h1 a:hover, div.item h2 a:hover, div.item h3 a:hover {
 			text-decoration: none;
-			color: #454E9B;
+			color: #A40802;
 		}
 	div.item p {
 		margin: 0;
@@ -282,7 +282,7 @@ div.item {
 			float: none;
 		}
 		div.item div.meta input {
-			color: #454E9B;
+			color: #A40802;
 			background: transparent;
 			border: none;
 			width: auto;
@@ -507,7 +507,7 @@ div.source {
 		}
 		div.source h2 a:hover {
 			text-decoration: none;
-			color: #454E9B;
+			color: #A40802;
 		}
 	div.source span {
 		display: block;

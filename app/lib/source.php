@@ -10,7 +10,7 @@
 		private $url;
 
 		//start the class
-		public function __construct( $url, $type = 'source' ) {
+		public function __construct( $url = '', $type = 'source' ) {
 			global $mod_config;
 
 			//make sure type is valid
@@ -100,9 +100,10 @@
 
 				//check for article
 				$check = $mod_db->query( '
-					SELECT id, popularity_score, time, title, url, end_url, image_quarter, image_half, image_third, description
+					SELECT id, popularity_score, time, title, url, end_url
 					FROM mod_article
 					WHERE end_url = "' . $i->get_end_url() . '"
+					OR url = "' . $item->get_permalink() . '"
 					LIMIT 1
 				' );
 				if( $check and count( $check ) == 1 ):
@@ -112,8 +113,9 @@
 						'title' => $check[0]['title'],
 						'url' => $check[0]['url'],
 						'end_url' => $check[0]['end_url'],
-						'time' => $item->get_time(),
+						'time' => $check[0]['time'],
 					);
+				echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
 				else:
 					$i->get_article(); //populates thumb images
 					$images = $i->get_thumbs();
@@ -132,12 +134,12 @@
 			endforeach;
 
 			//return them
-			return $articles;
+			return $this->articleClean( $articles );
 		}
 
 		//load twitter data
 		private function loadTwitter() {
-			global $mod_config, $argv;
+			global $mod_config, $argv, $mod_db;
 
 			//load oauth data (passed as json via url)
 			$data = json_decode( $this->url );
@@ -172,35 +174,60 @@
 
 			//now, get each article
 			$articles = array();
-			foreach( $tweets as $tweet ):
+			foreach( $tweets as $key => $tweet ):
+				echo 'tweet #' . $key . ' / ' . count( $tweets ) . PHP_EOL;
+
+				//start feed_article
 				$i = new mod_feed_article( $tweet['url'] );
-				$i->get_article(); //populate thumbs + rip content
-				$images = $i->get_thumbs();
 
-				//dont use tweets for titles
-				if( empty( $i->riptitle ) )
-					continue;
+				//check for article
+				$check = $mod_db->query( '
+					SELECT id, popularity_score, time, title, url, end_url
+					FROM mod_article
+					WHERE end_url = "' . $i->get_end_url() . '"
+					LIMIT 1
+				' );
+				if( $check and count( $check ) == 1 ):
+					$articles[] = array(
+						'id' => $check[0]['id'],
+						'popularity_score' => $check[0]['popularity_score'],
+						'title' => $check[0]['title'],
+						'url' => $check[0]['url'],
+						'end_url' => $check[0]['end_url'],
+						'time' => $check[0]['time'],
+						'ex_username' => $tweet['user'],
+						'ex_userid' => $tweet['user_id']
+					);
+					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
+				else:
+					$i->get_article(); //populate thumbs + rip content
+					$images = $i->get_thumbs();
 
-				$articles[] = array(
-					'title' => $i->riptitle,
-					'url' => $tweet['url'],
-					'end_url' => $i->get_end_url(),
-					'summary' => $i->get_summary(),
-					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-					'time' => $tweet['time'],
-					'ex_username' => $tweet['user'],
-					'ex_userid' => $tweet['user_id']
-				);
+					//dont use tweets for titles
+					if( empty( $i->riptitle ) )
+						continue;
+
+					$articles[] = array(
+						'title' => $i->riptitle,
+						'url' => $tweet['url'],
+						'end_url' => $i->get_end_url(),
+						'summary' => $i->get_summary(),
+						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+						'time' => $tweet['time'],
+						'ex_username' => $tweet['user'],
+						'ex_userid' => $tweet['user_id']
+					);
+				endif;
 			endforeach;
 
-			return $articles;
+			return $this->articleClean( $articles );
 		}
 
 		//load facebook data
 		private function loadFacebook() {
-			global $mod_config;
+			global $mod_config, $mod_db, $argv;
 
 			//oauth data
 			$data = json_decode( $this->url );
@@ -237,24 +264,58 @@
 
 			//now, get each article
 			$articles = array();
-			foreach( $links as $link ):
-				$i = new mod_feed_article( $link['url'] );
-				$i->get_article(); //populate thumbs + rip content
-				$images = $i->get_thumbs();
+			foreach( $links as $key => $link ):
+				echo 'fblink #' . $key . ' / ' . count( $links ) . PHP_EOL;
 
-				$articles[] = array(
-					'title' => $link['title'],
-					'url' => $link['url'],
-					'end_url' => $i->get_end_url(),
-					'summary' => $i->get_summary(),
-					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-					'time' => $link['time'],
-					'ex_username' => $link['user'],
-					'ex_userid' => $link['user_id']
-				);
+				//start feed_article
+				$i = new mod_feed_article( $link['url'] );
+
+				//check for article
+				$check = $mod_db->query( '
+					SELECT id, popularity_score, time, title, url, end_url
+					FROM mod_article
+					WHERE end_url = "' . $i->get_end_url() . '"
+					LIMIT 1
+				' );
+				if( $check and count( $check ) == 1 ):
+					$articles[] = array(
+						'id' => $check[0]['id'],
+						'popularity_score' => $check[0]['popularity_score'],
+						'title' => $check[0]['title'],
+						'url' => $check[0]['url'],
+						'end_url' => $check[0]['end_url'],
+						'time' => $check[0]['time'],
+						'ex_username' => $link['user'],
+						'ex_userid' => $link['user_id']
+					);
+					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
+				else:
+					$i->get_article(); //populate thumbs + rip content
+					$images = $i->get_thumbs();
+
+					$articles[] = array(
+						'title' => $link['title'],
+						'url' => $link['url'],
+						'end_url' => $i->get_end_url(),
+						'summary' => $i->get_summary(),
+						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+						'time' => $link['time'],
+						'ex_username' => $link['user'],
+						'ex_userid' => $link['user_id']
+					);
+				endif;
 			endforeach;
+
+			return $this->articleClean( $articles );
+		}
+
+		//remove non-wanted articles
+		private function articleClean( $articles ) {
+			foreach( $articles as $key => $article )
+				if( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) )
+					unset( $articles[$key] );
 
 			return $articles;
 		}

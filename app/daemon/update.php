@@ -3,11 +3,31 @@
 		file: app/daemon/update.php
 		desc: update server (daemon)
 	*/
-	global $mod_db;
+	global $mod_db, $argv, $mod_app;
 	
 	//remove mod_db
 	$mod_db->__destruct();
 	unset( $mod_db );
+
+	//inc relevant update file
+	if( !isset( $argv[2] ) or !in_array( $argv[2], array( 'source', 'twitter', 'facebook' ) ) )
+		die();
+
+	//data
+	$threads = 20;
+	$threadtime = 600;
+	$dbtime = 300;
+
+	//load inc bit
+	$mod_app->load( 'daemon/inc/' . $argv[2] );
+
+	//load daemon (db func, thread func, threads, thread time, db time)
+	$daemon = new mod_daemon( 'dbupdate', 'update', $threads, $threadtime, $dbtime );
+
+	//and go!
+	$daemon->start();
+
+
 
 	//function pushed to each thread, update our source in this case
 	function update( $source ) {
@@ -94,7 +114,7 @@
 		//if we're twitter / facebook
 		if( $source['type'] == 'twitter' or $source['type'] == 'facebook' ):
 			//loop articles
-			foreach( $items as $item ):
+			foreach( $items as $key => $item ):
 				//work out source url
 				$url = parse_url( $item['end_url'] );
 				$url = $url['scheme'] . '://' . $url['host'];
@@ -127,8 +147,27 @@
 								'article_time' => $item['time']
 							);
 							echo 'new source added: ' . $feed['site_title'] . PHP_EOL;
+							$items[$key]['original_source'] = array(
+								'title' => $feed['site_title'],
+								'id' => $id,
+								'domain' => $feed['site_url']
+							);
 						endif;
+					else:
+						$source_article[] = array(
+							'article_id' => $item['id'],
+							'source_id' => $exist[0]['id'],
+							'article_time' => $item['time']
+						);
+						echo 'original source added to article: ' . $item['id'] . PHP_EOL;
+						$items[$key]['original_source'] = array(
+							'title' => $feed['site_title'],
+							'id' => $exist[0]['id'],
+							'domain' => $feed['site_url']
+						);
 					endif;
+				else:
+					echo 'could not find feed on: ' . $url . PHP_EOL;
 				endif;
 			endforeach;
 		endif;
@@ -189,6 +228,13 @@
 			case 'twitter':
 			case 'facebook':
 				foreach( $items as $item ):
+					$unread = count( $mod_memcache->get( 'mod_user_reads', array(
+						array(
+							'user_id' => $source['owner_id'],
+							'article_id' => $item['id']
+						)
+					) ) ) == 1 ? 0 : 1;
+
 					$user_article[] = array(
 						'user_id' => $source['owner_id'],
 						'article_id' => $item['id'],
@@ -198,14 +244,28 @@
 						'source_data' => json_encode( array( 'user_id' => $item['ex_userid'] ) ),
 						'article_time' => $item['time'],
 						'article_popscore' => $item['popscore'],
-						'unread' => count( $mod_memcache->get( 'mod_user_reads', array(
-							array(
-								'user_id' => $source['owner_id'],
-								'article_id' => $item['id']
-							)
-						) ) ) == 1 ? 0 : 1,
+						'unread' => $unread,
 						'article_popmultiply' => 2
 					);
+
+					//original source?
+					if( isset( $item['original_source'] ) ):
+						$domain = parse_url( $item['origial_source']['domain'] );
+						$domain = $domain['host'];
+
+						$user_article[] = array(
+							'user_id' => $source['owner_id'],
+							'article_id' => $item['id'],
+							'source_type' => 'original',
+							'source_id' => $item['origial_source']['id'],
+							'source_title' => $item['origial_source']['title'],
+							'source_data' => json_encode( array( 'domain' => $domain ) ),
+							'article_time' => $item['time'],
+							'article_popscore' => $item['popscore'],
+							'unread' => $unread,
+							'article_popmultiply' => 0
+						);
+					endif;
 				endforeach;
 
 				break;
@@ -241,75 +301,4 @@
 		//exit
 		exit( 0 );
 	}
-
-	//function used by deamon to get 'jobs'
-	function dbupdate() {
-		global $mod_config, $argv, $c_config;
-
-		//new db
-		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
-		$mod_db->connect();
-
-		//min 60 min between source checks
-		$update_time = time() - 3600;
-
-		if( isset( $argv[3] ) and is_numeric( $argv[3] ) ):
-			//select articles to update (last article_expire hours, 60 max, lowest update time first)
-			$sources = $mod_db->query( '
-				SELECT id, feed_url, type, update_time, owner_id, site_title, site_url
-				FROM mod_source
-				WHERE id = ' . $argv[3] . '
-				LIMIT 1
-			' );
-
-			$mod_db->query( '
-				UPDATE mod_source
-				SET update_time = ' . time() . '
-				WHERE id = ' . $argv[3] . '
-				LIMIT 1
-			' );
-		else:
-			//select articles to update (last article_expire hours, 60 max, lowest update time first)
-			$sources = $mod_db->query( '
-				SELECT id, feed_url, type, update_time, owner_id, site_title, site_url
-				FROM mod_source
-				WHERE update_time < ' . $update_time . '
-				AND id > 0
-				ORDER BY update_time ASC
-				LIMIT 200
-			' );
-
-			$mod_db->query( '
-				UPDATE mod_source
-				SET update_time = ' . time() . '
-				WHERE update_time < ' . $update_time . '
-				AND id > 0
-				ORDER BY update_time ASC
-				LIMIT 200
-			' );
-		endif;
-	
-		//remove db
-		$mod_db->__destruct();
-		unset( $mod_db );
-
-		//remove images older than 48 hour
-		$oldtime = time() - ( 3600 * 48 );
-		$images = glob( $c_config['core_dir'] . '/../data/images/*' );
-		foreach( $images as $img ):
-			if( filemtime( $img ) < $oldtime ):
-				unlink( $img );
-				echo 'old image removed : ' . $img . PHP_EOL;
-			endif;
-		endforeach;
-
-		//return to daemon
-		return $sources;
-	}
-
-	//load daemon (db func, thread func, threads, thread time, db time)
-	$daemon = new mod_daemon( 'dbupdate', 'update', 20, 600, 300 );
-
-	//and go!
-	$daemon->start();
 ?>
