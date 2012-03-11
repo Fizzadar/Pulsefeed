@@ -250,15 +250,15 @@
 
 					//original source?
 					if( isset( $item['original_source'] ) ):
-						$domain = parse_url( $item['origial_source']['domain'] );
+						$domain = parse_url( $item['original_source']['domain'] );
 						$domain = $domain['host'];
 
 						$user_article[] = array(
 							'user_id' => $source['owner_id'],
 							'article_id' => $item['id'],
 							'source_type' => 'original',
-							'source_id' => $item['origial_source']['id'],
-							'source_title' => $item['origial_source']['title'],
+							'source_id' => $item['original_source']['id'],
+							'source_title' => $item['original_source']['title'],
 							'source_data' => json_encode( array( 'domain' => $domain ) ),
 							'article_time' => $item['time'],
 							'article_popscore' => $item['popscore'],
