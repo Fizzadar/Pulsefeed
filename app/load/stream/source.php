@@ -69,7 +69,7 @@
 	endif;
 
 	//set offset
-	$mod_stream->set_offset( $offset * 64 );
+	$mod_stream->set_offset( $offset );
 
 	//set source id
 	$mod_stream->set_sourceid( $_GET['id'] );

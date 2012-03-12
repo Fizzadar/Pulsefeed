@@ -108,7 +108,7 @@
 				</a>
 				<a href="<?php echo $c_config['root']; ?>/sources/add" class="linkthird middle">
 					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/add.png" alt="" />Add Directly
-					<span>Enter a website / feed url</span>
+					<span>Enter websites / feed urls</span>
 				</a>
 				<a href="<?php echo $c_config['root']; ?>/sources/me" class="linkthird">
 					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/manage.png" alt="" />Manage Sources
@@ -435,15 +435,17 @@
 							<a href="<?php echo $c_config['root']; ?>/<?php
 								switch( $ref['source_type'] ):
 									case 'source':
-									case 'facebook':
-									case 'twitter':
-										echo 'source';
+									case 'original':
+										echo 'source' . '/' . $ref['source_id'];
 										break;
 									case 'like':
-										echo 'user';
+										echo 'user' . '/' . $ref['source_id'];
 										break;
+									case 'facebook':
+									case 'twitter':
+										echo 'account/' . $ref['source_type'];
 								endswitch;
-								?>/<?php echo $ref['source_id']; ?>" class="tip hover">
+								?>" class="tip hover">
 								<span>
 									<strong><?php echo $ref['source_title']; ?></strong>
 									<small><?php
@@ -459,6 +461,9 @@
 												break;
 											case 'like':
 												echo 'You follow them';
+												break;
+											case 'original':
+												echo 'Original source';
 												break;
 										endswitch;
 									?></small>

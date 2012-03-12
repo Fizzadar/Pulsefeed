@@ -91,7 +91,7 @@
 
 	//set user & stream id 
 	$mod_stream->set_userid( $user_id );
-	$mod_stream->set_offset( $offset * 64 );
+	$mod_stream->set_offset( $offset );
 	$mod_stream->set_sinceid( $since_id );
 
 	//prepare, ok to go after this

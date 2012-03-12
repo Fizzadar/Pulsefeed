@@ -35,7 +35,7 @@
 		WHERE user_id = ' . $mod_user->get_userid() . '
 		AND article_id = ' . $_POST['article_id'] . '
 	' );
-	$mod_memcache->set( 'mod_user_reads', array(
+	$mod_memcache->set( 'mod_user_hides', array(
 		array(
 			'user_id' => $mod_user->get_userid(),
 			'article_id' => $_POST['article_id']

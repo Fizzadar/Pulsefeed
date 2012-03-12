@@ -31,5 +31,10 @@
 			//return mod feed article
 			return new mod_feed_article( $this->get_permalink(), $content );
 		}
+
+		//get_title trim
+		public function get_title() {
+			return trim( parent::get_title() );
+		}
 	}
 ?>

@@ -14,14 +14,25 @@
 
 	<div class="wrap" id="content">
 		<div class="main">
-			<p>Enter a website or feed address below, and we'll do our very best to add it to Pulsefeed &amp; subscribe you to it's updates.</p>
-
-			<form action="<?php echo $c_config['root']; ?>/process/source-add" method="post">
+			<form action="<?php echo $c_config['root']; ?>/process/source-add" method="post" class="half">
+				<p>Enter a website or feed address below, and we'll do our very best to add it to Pulsefeed &amp; subscribe you to it's updates.</p>
 
 				<label for="source_url">Web/feed address:</label>
 				<input type="text" name="source_url" id="source_url" value="http://" onclick="if( this.value == 'http://' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'http://'; }" />
 
 				<input type="submit" value="Add to Pulsefeed &#187;" />
+				<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+			</form>
+
+			<div class="midor">or</div>
+
+			<form action="<?php echo $c_config['root']; ?>/process/source-add" method="post" class="half">
+				<p>Upload an OPML file, which contains a list of all your feeds. These can be exported from many RSS readers <a href="#">Read more &rarr;</a></p>
+
+				<label for="opml_file">An OPML File:</label>
+				<input type="file" name="opml_file" id="opml_file" />
+
+				<input type="submit" value="Upload &#187;" />
 				<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 			</form>
 		</div><!--end main-->

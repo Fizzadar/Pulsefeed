@@ -16,7 +16,7 @@
 			//start memcache
 			$this->memcache = new Memcache;
 			//add servers
-			foreach( $mod_config['memcache'] as $host => $port )
+			foreach( $mod_config['memcache']['mod'] as $host => $port )
 				$this->memcache->addServer( $host, $port );
 
 			//get db
@@ -186,7 +186,7 @@
 				foreach( $layout as $k ):
 					$key .= '_' . $row[$k];
 				endforeach;
-				if( $this->memcache->set( $key, $row ) )
+				if( @$this->memcache->set( $key, $row ) )
 					$count++;
 			endforeach;
 

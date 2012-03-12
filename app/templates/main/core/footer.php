@@ -5,7 +5,7 @@
 			<div class="inner">
 				<div class="bottom">
 					<div class="left">
-						A <a href="#">Fanatical Dev</a> production<br /><a href="#">Copyright Info</a> - <a href="#">Stats</a> - <a href="#">Contact</a>
+						A <a href="#">Fanatical Dev</a> production<br /><a href="#">Copyright Info</a> - <a href="#">Stats</a> - <a href="#">Contact</a> - v<?php echo PULSEFEED_VERSION; ?>
 					</div><!--end left-->
 					<div class="right">
 						Icons: <a href="#">PC.DE</a> - Colors: <a href="#">ColorLovers</a><br />

@@ -105,9 +105,11 @@
 
 		//load our data from the database
 		private function load_data() {
-			global $mod_data, $mod_memcache, $mod_user;
+			global $mod_data, $mod_memcache, $mod_user, $mod_streamcache;
+			
 			//load articles & recommends
 			$articles = $this->load_articles();
+
 			//not array?
 			if( !is_array( $articles ) )
 				return array();
@@ -134,6 +136,30 @@
 			switch( $this->stream_type ):
 				//user
 				case 'hybrid':
+					//prepare articledata
+					foreach( $articledata as $k => $v ):
+						$articledata[$k]['article_popscore'] = 0;
+						$articledata[$k]['refs'] = array();
+						$articledata[$k]['unread'] = 1;
+					endforeach;
+
+					//add references
+					foreach( $articles as $article ):
+						$articledata[$article['article_id']]['article_popscore'] = $article['article_popscore'];
+						$articledata[$article['article_id']]['refs'][] = array(
+							'source_type' => $article['source_type'],
+							'source_id' => $article['source_id'],
+							'source_title' => $article['source_title'],
+							'source_data' => json_decode( $article['source_data'], true )
+						);
+					endforeach;
+
+					//loop articledata
+					foreach( $articledata as $key => $article ):
+						$articledata[$key]['article_popscore'] = $article['article_popscore'] * count( $article['refs'] )^2;
+					endforeach;
+					break;
+
 				case 'unread':
 				case 'popular':
 				case 'newest':
@@ -149,16 +175,13 @@
 					foreach( $articles as $k => $article ):
 						$id = $article['article_id'];
 
-						//increment popscore
-						$articledata[$id]['article_popscore'] += $article['article_popscore'];
-
 						//set data
 						$articledata[$id]['article_time'] = $article['article_time'];
 
-						if( ( $this->stream_type == 'newest' or $this->stream_type == 'popular' ) and $this->user_id == $mod_user->get_userid() )
-							$articledata[$id]['unread'] = $article['unread'];
-						elseif( $this->stream_type == 'unread' or $this->stream_type == 'hybrid' )
+						if( $this->stream_type == 'unread' )
 							$articledata[$id]['unread'] = 1;
+						elseif( ( $this->stream_type == 'newest' or $this->stream_type == 'popular' ) and $this->user_id == $mod_user->get_userid() )
+							$articledata[$id]['unread'] = $article['unread'];
 
 						//remove bits
 						unset( $article['article_time'] );
@@ -310,19 +333,19 @@
 				case 'discover':
 				case 'account':
 					$sql .= '
-						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, ( article_popscore * article_popmultiply ) AS article_popscore
+						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, article_popscore
 						FROM mod_user_articles';
 					switch( $this->stream_type ):
 						case 'hybrid':
 							$sql .= '
 								WHERE expired = 0
 								AND unread = 1';
-							$order = 'article_popscore * article_popmultiply';
+							$order = 'article_popscore * multiplier';
 							break;
 						case 'popular':
 							$sql .= '
 								WHERE expired = 0';
-							$order = 'article_popscore * article_popmultiply';
+							$order = 'article_popscore';
 							break;
 						case 'unread':
 							$sql .= '
@@ -336,9 +359,20 @@
 							break;
 						case 'account':
 							$sql .='
-								WHERE source_type = "' . $this->account_type . '"';
+								WHERE ( source_type = "' . $this->account_type . '" OR source_type = "original" )';
 							$order = 'article_time';
 							break;
+					endswitch;
+
+					//sources only unless hybrid stream
+					switch( $this->stream_type ):
+						case 'hybrid':
+							$sql .= '
+							AND source_type != "original"';
+							break;
+						default:
+							$sql .= '
+							AND source_type = "source"';
 					endswitch;
 
 					//add user id bit
@@ -346,7 +380,7 @@
 						AND user_id = ' . $this->user_id;
 
 					//are we the not ourselves? only use source refs
-					if( $this->stream_type != 'account' and $mod_user->get_userid() != $this->user_id )
+					if( $this->stream_type == 'hybrid' and $mod_user->get_userid() != $this->user_id )
 						$sql .= '
 							AND source_type = "source"';
 
@@ -380,9 +414,21 @@
 			//end of query
 			$sql .= '
 				AND ' . $article_id . ' > ' . $this->since_id . '
-				ORDER BY ' . $order . ' DESC
-				LIMIT ' . $this->offset . ', 64
-			';
+				ORDER BY ' . $order . ' DESC';
+
+			//1000 limit on hybrid, rest normal
+			switch( $this->stream_type ):
+				case 'hybrid':
+					$sql .= '
+						LIMIT 64
+					';
+					break;
+				default:
+					$sql .= '
+						LIMIT ' . $this->offset . ', 64
+					';
+					break;
+			endswitch;
 
 			//run our query, return the data
 			if( $data = $this->db->query( $sql ) )

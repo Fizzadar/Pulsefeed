@@ -61,6 +61,7 @@
 
 		//loop each item, check to see if we have the article, if we do, assign ID, if not, insert and assign
 		foreach( $items as $key => $item ):
+			//already got id?
 			if( isset( $item['id'] ) ):
 				$items[$key]['id'] = $item['id'];
 				$items[$key]['popscore'] = $item['popularity_score'];
@@ -69,36 +70,24 @@
 				continue;
 			endif;
 
-			$check = $mod_db->query( '
-				SELECT id, popularity_score, time
-				FROM mod_article
-				WHERE end_url = "' . $item['end_url'] . '"
-				LIMIT 1
-			' );
-			if( $check and count( $check ) == 1 ):
-				$items[$key]['id'] = $check[0]['id'];
-				$items[$key]['popscore'] = $check[0]['popularity_score'];
-				$items[$key]['time'] = $check[0]['time'];
-				echo 'article already in db: ' . $item['end_url'] . PHP_EOL;
-			else:
-				$sourceid = 0;
-				if( $source['type'] == 'source' )
-					$sourceid = $source['id'];
+			//set source id
+			$sourceid = 0;
+			if( $source['type'] == 'source' )
+				$sourceid = $source['id'];
 
-				//insert the article
-				$insert = $mod_db->query( '
-					INSERT INTO mod_article
-					( title, url, end_url, description, time, image_quarter, image_third, image_half, source_id )
-					VALUES( "' . $item['title'] . '", "' . $item['url'] . '", "' . $item['end_url'] . '", "' . $item['summary'] . '", ' . $item['time'] . ', "' . $item['image_quarter'] . '", "' . $item['image_third'] . '", "' . $item['image_half'] . '", ' . $sourceid . ' )
-				' );
-				if( $insert ):
-					$items[$key]['id'] = $mod_db->insert_id();
-					$items[$key]['popscore'] = 0;
-					echo 'inserted: ' . $item['end_url'] . PHP_EOL;
-				else:
-					echo 'insert failed on: ' . $item['end_url'] . ' : ' . mysql_error() . PHP_EOL;
-					unset( $items[$key] );
-				endif;
+			//insert the article
+			$insert = $mod_db->query( '
+				INSERT INTO mod_article
+				( title, url, end_url, description, time, image_quarter, image_third, image_half, source_id )
+				VALUES( "' . $item['title'] . '", "' . $item['url'] . '", "' . $item['end_url'] . '", "' . $item['summary'] . '", ' . $item['time'] . ', "' . $item['image_quarter'] . '", "' . $item['image_third'] . '", "' . $item['image_half'] . '", ' . $sourceid . ' )
+			' );
+			if( $insert ):
+				$items[$key]['id'] = $mod_db->insert_id();
+				$items[$key]['popscore'] = 0;
+				echo 'inserted: ' . $item['end_url'] . PHP_EOL;
+			else:
+				echo 'insert failed on: ' . $item['end_url'] . ' : ' . mysql_error() . PHP_EOL;
+				unset( $items[$key] );
 			endif;
 		endforeach;
 
@@ -115,6 +104,24 @@
 		if( $source['type'] == 'twitter' or $source['type'] == 'facebook' ):
 			//loop articles
 			foreach( $items as $key => $item ):
+				//id set? source_id must be too
+				if( isset( $item['id'] ) and isset( $item['source_id'] ) and $item['source_id'] > 0 ):
+					$s = $mod_memcache->get( 'mod_source', array(
+						array(
+							'id' => $item['source_id']
+						)
+					) );
+					if( isset( $s ) and is_array( $s ) and $s['type'] == 'source' ):
+						echo 'original source added to article: ' . $item['id'] . PHP_EOL;
+						$items[$key]['original_source'] = array(
+							'title' => $s['site_title'],
+							'id' => $item['source_id'],
+							'domain' => $s['site_url']
+						);
+						continue;
+					endif;
+				endif;
+
 				//work out source url
 				$url = parse_url( $item['end_url'] );
 				$url = $url['scheme'] . '://' . $url['host'];
@@ -219,7 +226,7 @@
 									'article_id' => $item['id']
 								)
 							) ) ) == 1 ? 0 : 1,
-							'article_popmultiply' => 1
+							'multiplier' => 1
 						);
 					endforeach;
 				endforeach;
@@ -245,7 +252,7 @@
 						'article_time' => $item['time'],
 						'article_popscore' => $item['popscore'],
 						'unread' => $unread,
-						'article_popmultiply' => 2
+						'multiplier' => 2
 					);
 
 					//original source?
@@ -263,7 +270,7 @@
 							'article_time' => $item['time'],
 							'article_popscore' => $item['popscore'],
 							'unread' => $unread,
-							'article_popmultiply' => 0
+							'multiplier' => 0
 						);
 					endif;
 				endforeach;
@@ -274,11 +281,11 @@
 		//build the mod_source_articles query
 		if( count( $user_article ) > 0 ):
 			$sql = '
-				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, article_popscore, unread, source_data, article_popmultiply )
+				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, article_popscore, unread, source_data, multiplier )
 				VALUES';
 
 			foreach( $user_article as $bit )
-				$sql .= ' ( ' . $bit['user_id'] . ', ' . $bit['article_id'] . ', "' . $bit['source_type'] . '", "' . $bit['source_id'] . '", "' . $bit['source_title'] . '", ' . $bit['article_time'] . ', ' . $bit['article_popscore'] . ', ' . $bit['unread'] . ', \'' . $bit['source_data'] . '\', ' . $bit['article_popmultiply'] . ' ),';
+				$sql .= ' ( ' . $bit['user_id'] . ', ' . $bit['article_id'] . ', "' . $bit['source_type'] . '", "' . $bit['source_id'] . '", "' . $bit['source_title'] . '", ' . $bit['article_time'] . ', ' . $bit['article_popscore'] . ', ' . $bit['unread'] . ', \'' . $bit['source_data'] . '\', ' . $bit['multiplier'] . ' ),';
 
 			$sql = rtrim( $sql, ',' );
 

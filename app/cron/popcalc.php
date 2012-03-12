@@ -56,7 +56,7 @@
 	
 	//now scale all our sources (skipping source 0)
 	foreach( $sources as $key => $source )
-		$sources[$key]['scale'] = $key == 0 ? 1 : $sources[$bigSource]['average'] / ( $source['average'] + 1 );
+		$sources[$key]['scale'] = $sources[$bigSource]['average'] / ( $source['average'] + 1 );
 
 	//now work out scores for each article
 	foreach( $articles as $key => $article )

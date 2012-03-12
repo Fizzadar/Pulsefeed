@@ -80,7 +80,7 @@
 		}
 
 		//load a feeds data
-		private function loadSource() {
+		private function loadSource( $sourceid = 0 ) {
 			global $mod_db;
 
 			//set the url
@@ -98,39 +98,28 @@
 			
 				$i = $item->get_item();
 
-				//check for article
-				$check = $mod_db->query( '
-					SELECT id, popularity_score, time, title, url, end_url
-					FROM mod_article
-					WHERE end_url = "' . $i->get_end_url() . '"
-					OR url = "' . $item->get_permalink() . '"
-					LIMIT 1
-				' );
-				if( $check and count( $check ) == 1 ):
-					$articles[] = array(
-						'id' => $check[0]['id'],
-						'popularity_score' => $check[0]['popularity_score'],
-						'title' => $check[0]['title'],
-						'url' => $check[0]['url'],
-						'end_url' => $check[0]['end_url'],
-						'time' => $check[0]['time'],
-					);
-				echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
-				else:
-					$i->get_article(); //populates thumb images
-					$images = $i->get_thumbs();
-
-					$articles[] = array(
-						'title' => $item->get_title(),
-						'url' => $item->get_permalink(),
-						'end_url' => $i->get_end_url(),
-						'summary' => $i->get_summary(),
-						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-						'time' => $item->get_time(),
-					);
+				//check article
+				$check = $this->checkArticle( $i->get_end_url(), $item->get_permalink(), $item->get_title() );
+				if( $check and is_array( $check ) ):
+					$articles[] = $check;
+					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
+					continue;
 				endif;
+
+				$i->get_article(); //populates thumb images
+				$images = $i->get_thumbs();
+
+				$articles[] = array(
+					'title' => $item->get_title(),
+					'url' => $item->get_permalink(),
+					'end_url' => $i->get_end_url(),
+					'summary' => $i->get_summary(),
+					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'time' => $item->get_time(),
+				);
+
 			endforeach;
 
 			//return them
@@ -180,46 +169,31 @@
 				//start feed_article
 				$i = new mod_feed_article( $tweet['url'] );
 
-				//check for article
-				$check = $mod_db->query( '
-					SELECT id, popularity_score, time, title, url, end_url
-					FROM mod_article
-					WHERE end_url = "' . $i->get_end_url() . '"
-					LIMIT 1
-				' );
-				if( $check and count( $check ) == 1 ):
-					$articles[] = array(
-						'id' => $check[0]['id'],
-						'popularity_score' => $check[0]['popularity_score'],
-						'title' => $check[0]['title'],
-						'url' => $check[0]['url'],
-						'end_url' => $check[0]['end_url'],
-						'time' => $check[0]['time'],
-						'ex_username' => $tweet['user'],
-						'ex_userid' => $tweet['user_id']
-					);
+				$i->get_article(); //populate thumbs + rip content
+				$images = $i->get_thumbs();
+
+				//check article
+				$check = $this->checkArticle( $i->get_end_url(), $tweet['url'], $i->riptitle );
+				if( $check and is_array( $check ) ):
+					$check['ex_username'] = $tweet['user'];
+					$check['ex_userid'] = $tweet['user_id'];
+					$articles[] = $check;
 					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
-				else:
-					$i->get_article(); //populate thumbs + rip content
-					$images = $i->get_thumbs();
-
-					//dont use tweets for titles
-					if( empty( $i->riptitle ) )
-						continue;
-
-					$articles[] = array(
-						'title' => $i->riptitle,
-						'url' => $tweet['url'],
-						'end_url' => $i->get_end_url(),
-						'summary' => $i->get_summary(),
-						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-						'time' => $tweet['time'],
-						'ex_username' => $tweet['user'],
-						'ex_userid' => $tweet['user_id']
-					);
+					continue;
 				endif;
+
+				$articles[] = array(
+					'title' => $i->riptitle,
+					'url' => $tweet['url'],
+					'end_url' => $i->get_end_url(),
+					'summary' => $i->get_summary(),
+					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'time' => $tweet['time'],
+					'ex_username' => $tweet['user'],
+					'ex_userid' => $tweet['user_id']
+				);
 			endforeach;
 
 			return $this->articleClean( $articles );
@@ -270,42 +244,31 @@
 				//start feed_article
 				$i = new mod_feed_article( $link['url'] );
 
-				//check for article
-				$check = $mod_db->query( '
-					SELECT id, popularity_score, time, title, url, end_url
-					FROM mod_article
-					WHERE end_url = "' . $i->get_end_url() . '"
-					LIMIT 1
-				' );
-				if( $check and count( $check ) == 1 ):
-					$articles[] = array(
-						'id' => $check[0]['id'],
-						'popularity_score' => $check[0]['popularity_score'],
-						'title' => $check[0]['title'],
-						'url' => $check[0]['url'],
-						'end_url' => $check[0]['end_url'],
-						'time' => $check[0]['time'],
-						'ex_username' => $link['user'],
-						'ex_userid' => $link['user_id']
-					);
-					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
-				else:
-					$i->get_article(); //populate thumbs + rip content
-					$images = $i->get_thumbs();
+				$i->get_article(); //populate thumbs + rip content
+				$images = $i->get_thumbs();
 
-					$articles[] = array(
-						'title' => $link['title'],
-						'url' => $link['url'],
-						'end_url' => $i->get_end_url(),
-						'summary' => $i->get_summary(),
-						'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-						'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-						'image_half' => isset( $images['half'] ) ? $images['half'] : '',
-						'time' => $link['time'],
-						'ex_username' => $link['user'],
-						'ex_userid' => $link['user_id']
-					);
+				//check article
+				$check = $this->checkArticle( $i->get_end_url(), $link['url'], $i->riptitle );
+				if( $check and is_array( $check ) ):
+					$check['ex_username'] = $link['user'];
+					$check['ex_userid'] = $link['user_id'];
+					$articles[] = $check;
+					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
+					continue;
 				endif;
+
+				$articles[] = array(
+					'title' => $link['title'],
+					'url' => $link['url'],
+					'end_url' => $i->get_end_url(),
+					'summary' => $i->get_summary(),
+					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
+					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
+					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'time' => $link['time'],
+					'ex_username' => $link['user'],
+					'ex_userid' => $link['user_id']
+				);
 			endforeach;
 
 			return $this->articleClean( $articles );
@@ -314,10 +277,46 @@
 		//remove non-wanted articles
 		private function articleClean( $articles ) {
 			foreach( $articles as $key => $article )
-				if( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) )
+				if( !isset( $article['id'] ) and ( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) ) )
 					unset( $articles[$key] );
 
 			return $articles;
+		}
+
+		//check articles
+		private function checkArticle( $end_url, $url, $title ) {
+			global $mod_db;
+
+			//check for article
+			$check = $mod_db->query( '
+				SELECT id, popularity_score, time, title, url, end_url, source_id
+				FROM mod_article
+				WHERE end_url = "' . $end_url . '"
+				OR url = "' . $url . '"
+				OR title = "' . $title . '"
+				LIMIT 1
+			' );
+			if( $check and count( $check ) == 1 ):
+				//source matching
+				$domain = parse_url( $end_url );
+				$domain2 = parse_url( $check[0]['end_url'] );
+
+				//either url or end url matches, or both from the same domain
+				if( $check[0]['end_url'] == $end_url or $check[0]['url'] == $url or $domain['host'] == $domain2['host'] ):
+					$article = array(
+						'id' => $check[0]['id'],
+						'popularity_score' => $check[0]['popularity_score'],
+						'title' => $check[0]['title'],
+						'url' => $check[0]['url'],
+						'end_url' => $check[0]['end_url'],
+						'time' => $check[0]['time'],
+						'source_id' => $check[0]['source_id']
+					);
+					return $article;
+				endif;
+			endif;
+
+			return false;
 		}
 	}
 ?>

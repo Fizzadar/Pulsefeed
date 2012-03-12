@@ -66,6 +66,10 @@ form {
 	display: block;
 	margin: 20px 0;
 }
+form.half {
+	float: left;
+	width: 350px;
+}
 form#subunsub {
 	margin: 0;
 }
@@ -229,4 +233,13 @@ div.wrap {
 	clear: both;
 	width: 100%;
 	margin-bottom: 20px;
+}
+
+.midor {
+	float: left;
+	width: 10%;
+	margin-top: 125px;
+	font-size: 25px;
+	font-family: PT Sans;
+	font-weight: bold;
 }

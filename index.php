@@ -15,6 +15,7 @@
 	if( $_SERVER['HTTP_HOST'] != 'pulsefeed.dev' )
 		ini_set( 'display_errors', 0 );
 
+
 	//get the core
 	require( 'core/core.php' );
 
@@ -22,22 +23,38 @@
 	require( 'app/config.php' );
 	require( 'app/config.ext.php' );
 
+
 	//set our header if api
 	if( $mod_config['api'] )
 		header( 'Content-Type: application/json' );
 
+
 	//start the app
 	$mod_app = new c_app( $mod_config['libs'] );
 
-	//start our db
-	$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
+	//start query memcache
+	$mod_querycache = new Memcache;
+	//add servers
+	foreach( $mod_config['memcache']['query'] as $host => $port )
+		$mod_querycache->addServer( $host, $port );
 
-	//memcache
+	//start our db
+	$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'], $mod_querycache );
+
+	//memcache <=> db
 	$mod_memcache = new mod_memcache( $mod_db );
 	
+	//start stream memcache
+	$mod_streamcache = new Memcache;
+	//add servers
+	foreach( $mod_config['memcache']['stream'] as $host => $port )
+		$mod_streamcache->addServer( $host, $port );
+
+
 	//if cron, return here
 	if( isset( $_GET['iscron'] ) and $_GET['iscron'] ) return;
 	
+
 	//user & setup
 	$mod_user = new c_user( $mod_db, 'pulsefeed_' );
 	$mod_user->set_facebook( $mod_config['apps']['facebook']['id'], $mod_config['apps']['facebook']['token'] );
@@ -65,6 +82,7 @@
 	//load
 	$mod_load = new mod_load( $mod_db, $mod_data );
 
+
 	//process(must be posted)
 	if( isset( $_GET['process'] ) and isset( $mod_config['process'][$_GET['process']] ) ):
 		$mod_app->load( 'process/' . $mod_config['process'][$_GET['process']] );
@@ -75,6 +93,7 @@
 	else:
 		$mod_app->load( 'load/' . $mod_config['load']['default'] );
 	endif;
+
 
 	//debug (only works if enabled above)
 	$c_debug->display();

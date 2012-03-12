@@ -30,7 +30,7 @@
 	endif;
 
 	//set offset
-	$mod_stream->set_offset( $offset * 64 );
+	$mod_stream->set_offset( $offset );
 
 	//api & logged in?
 	if( !$mod_config['api'] and $mod_user->check_login() ):

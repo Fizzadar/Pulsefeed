@@ -47,6 +47,36 @@
 				$return = curl_getinfo( $curl, CURLINFO_EFFECTIVE_URL );
 			curl_close( $curl );
 
+			//split up url
+			$bits = parse_url( $return );
+			if( !isset( $bits['path'] ) ) $bits['path'] = '';
+			if( !isset( $bits['scheme'] ) ) $bits['scheme'] = 'http';
+
+			//remove non-wanted query bits
+			if( isset( $bits['query'] ) ):
+				$qbits = explode( '&', $bits['query'] );
+				foreach( $qbits as $bit ):
+					$q = explode( '=', $bit );
+					if( in_array( $q[0], array(
+						'utm_source',
+						'utm_medium',
+						'utm_campaign'
+					) ) ):
+						$bits['query'] = str_replace( '&' . $bit, '', $bits['query'] );
+						$bits['query'] = str_replace( $bit, '', $bits['query'] );
+					endif;
+				endforeach;
+
+				if( strlen( $bits['query'] ) > 0 ):
+					$bits['query'] = '?' . $bits['query'];
+				endif;
+			else:
+				$bits['query'] = '';
+			endif;
+
+			//rebuilt return
+			$return = $bits['scheme'] . '://' . $bits['host'] . $bits['path'] . $bits['query'];
+
 			//return whatever we got
 			$this->endlink = $return;
 			return $return;
@@ -77,7 +107,7 @@
 			//works?
 			if( $readability->init() ):
 				$return = $readability->getContent()->innerHTML;
-				$this->riptitle = $readability->getTitle()->textContent;
+				$this->riptitle = trim( $readability->getTitle()->textContent );
 			endif;
 
 			$this->content = $return;

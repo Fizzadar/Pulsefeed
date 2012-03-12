@@ -55,7 +55,7 @@
 	endif;
 
 	//set offset
-	$mod_stream->set_offset( $offset * 64 );
+	$mod_stream->set_offset( $offset );
 
 	//set userid
 	$mod_stream->set_userid( $mod_user->get_userid() );

@@ -30,6 +30,9 @@ div#content {
 		line-height: 20px;
 		display: block;
 	}
+	div.main span.edit.inline {
+		display: inline;
+	}
 	div.main a.morelink {
 		font-size: 20px;
 		font-family: PT Sans, Arial;

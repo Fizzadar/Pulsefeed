@@ -36,10 +36,13 @@
 				<h2>Linked Accounts</h2>
 				<p>All the accounts you have used (and can use) to login to Pulsefeed. <a href="<?php echo $c_config['root']; ?>/login"><strong>Add another account &rarr;</strong></a></p>
 				<?php foreach( $this->get( 'oauths' ) as $oauth ): ?>
-					<strong><?php echo $oauth['provider']; ?></strong> &rarr; <?php echo $oauth['o_id']; ?><br />
+					<strong><?php echo $oauth['provider']; ?></strong> &rarr; <?php echo $oauth['o_id']; ?>
+					 <span class="edit inline"> - <a class="edit" href="#">stop sync</a> or <a class="edit" href="#">delete</a></span>
+					<br />
 				<?php endforeach; ?>
 				<?php foreach( $this->get( 'oids' ) as $oid ): $bits = parse_url( $oid['open_id'] ); ?>
-					<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?><br />
+					<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?> <span class="edit inline">- <a <a class="edit" href="#">delete</a></span>
+					<br />
 				<?php endforeach; ?>
 			</div>
 		</div><!--end main-->

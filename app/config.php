@@ -4,7 +4,7 @@
 		desc: configuration for pulsefeed app
 	*/
 	
-	define( 'PULSEFEED_VERSION', '0.8.0' );
+	define( 'PULSEFEED_VERSION', '0.9.0' );
 
 	//config array
 	$mod_config = array(
@@ -34,7 +34,6 @@
 			'search' => 'search', //todo - must do
 			//users
 			'login' => 'user/login',
-			'invite' => 'user/invite',
 			'settings' => 'user/settings',
 		),
 		'process' => array(
@@ -49,8 +48,7 @@
 			'load' => 'user/load',
 			'follow' => 'user/follow',
 			'unfollow' => 'user/unfollow',
-			'invite' => 'user/invite',
-			'settings' => 'user/settings', //todo
+			'settings' => 'user/settings',
 			//source
 			'source-add' => 'source/add',
 			'subscribe' => 'source/subscribe',
@@ -162,11 +160,23 @@
 		),
 		//memcache servers
 		'memcache' => array(
-			'127.0.0.1' => 11211,
+			'mod' => array(
+				'127.0.0.1' => 11211,
+			),
+			'stream' => array(
+				'127.0.0.1' => 11211,
+			),
+			'query' => array(
+				'127.0.0.1' => 11211,
+			)
 		),
 		//database layout
 		'dblayout' => array(
 			'mod_user_reads' => array( //user read an article?
+				'user_id',
+				'article_id'
+			),
+			'mod_user_hides' => array( //user hide an article?
 				'user_id',
 				'article_id'
 			),
