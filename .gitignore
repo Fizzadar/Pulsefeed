@@ -6,3 +6,4 @@ core/
 *.sh
 tmp/
 *.sql
+*.log

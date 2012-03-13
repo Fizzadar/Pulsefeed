@@ -77,7 +77,7 @@
 		$update2 = $mod_db->query( '
 			UPDATE mod_user_articles
 			SET
-				article_popscore = ' . $article['popularity_score'] . '
+				popscore = ' . $article['popularity_score'] . '
 			WHERE article_id = ' . $article['id'] . '
 		' );
 
