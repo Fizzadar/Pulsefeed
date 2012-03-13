@@ -226,11 +226,6 @@
 
 			echo 'item complete: ' . $key . ' / ' . count( $items ) . PHP_EOL;
 		endforeach;
-//article id 920 fucks up
-print_r( $user_article );
-var_dump( $user_article );
-echo 'DOUBLE U TEE EFF' . PHP_EOL;
-die();
 
 		//build the mod_source_articles query (after we have article ids)
 		if( count( $source_article ) > 0 ):
