@@ -100,7 +100,7 @@
 
 		//sort by popularity function
 		private function sortPopscore( $a, $b ) {
-			return $a['article_popscore'] < $b['article_popscore'];
+			return $a['popscore'] < $b['popscore'];
 		}
 
 		//load our data from the database
@@ -134,66 +134,35 @@
 
 			//switch stream type
 			switch( $this->stream_type ):
-				//user
+				//user streams
 				case 'hybrid':
-					//prepare articledata
-					foreach( $articledata as $k => $v ):
-						$articledata[$k]['article_popscore'] = 0;
-						$articledata[$k]['refs'] = array();
-						$articledata[$k]['unread'] = 1;
-					endforeach;
-
-					//add references
-					foreach( $articles as $article ):
-						$articledata[$article['article_id']]['article_popscore'] = $article['article_popscore'];
-						$articledata[$article['article_id']]['refs'][] = array(
-							'source_type' => $article['source_type'],
-							'source_id' => $article['source_id'],
-							'source_title' => $article['source_title'],
-							'source_data' => json_decode( $article['source_data'], true )
-						);
-					endforeach;
-
-					//loop articledata
-					foreach( $articledata as $key => $article ):
-						$articledata[$key]['article_popscore'] = $article['article_popscore'] * count( $article['refs'] )^2;
-					endforeach;
-					break;
-
 				case 'unread':
 				case 'popular':
 				case 'newest':
 				case 'discover':
 				case 'account':
-					//prepare articledata
+					//prepare articledata refs
 					foreach( $articledata as $k => $v ):
-						$articledata[$k]['article_popscore'] = 0;
 						$articledata[$k]['refs'] = array();
 					endforeach;
 
-					//loop each article
-					foreach( $articles as $k => $article ):
-						$id = $article['article_id'];
+					//add references
+					foreach( $articles as $article ):
+						//set popscore, time & unread (overwrites, no matter)
+						$articledata[$article['article_id']]['popscore'] = $article['popscore'];
+						$articledata[$article['article_id']]['article_time'] = $article['article_time'];
+						$articledata[$article['article_id']]['unread'] = $article['unread'];
 
-						//set data
-						$articledata[$id]['article_time'] = $article['article_time'];
-
-						if( $this->stream_type == 'unread' )
-							$articledata[$id]['unread'] = 1;
-						elseif( ( $this->stream_type == 'newest' or $this->stream_type == 'popular' ) and $this->user_id == $mod_user->get_userid() )
-							$articledata[$id]['unread'] = $article['unread'];
-
-						//remove bits
-						unset( $article['article_time'] );
-						unset( $article['article_popscore'] );
-						unset( $article['article_id'] );
-						unset( $article['unread'] );
-
-						//load source data
-						$article['source_data'] = json_decode( $article['source_data'], true );
-
-						//add source to actual article
-						$articledata[$id]['refs'][] = $article;
+						//add ref
+						$articledata[$article['article_id']]['refs'][] = array(
+							'source_type' => $article['source_type'],
+							'source_id' => $article['source_id'],
+							'source_title' => $article['source_title'],
+							'source_data' => json_decode( $article['source_data'], true ),
+							'origin_id' => $article['origin_id'],
+							'origin_title' => $article['origin_title'],
+							'origin_data' => $article['origin_data']
+						);
 					endforeach;
 					break;
 
@@ -219,14 +188,14 @@
 						$id = $article['article_id'];
 
 						//increment popscore
-						$articledata[$id]['article_popscore'] = $article['article_popscore'];
+						$articledata[$id]['popscore'] = $article['popscore'];
 
 						//set data
 						$articledata[$id]['article_time'] = $article['article_time'];
 
 						//remove bits
 						unset( $article['article_time'] );
-						unset( $article['article_popscore'] );
+						unset( $article['popscore'] );
 						unset( $article['article_id'] );
 
 						//get domain
@@ -333,19 +302,22 @@
 				case 'discover':
 				case 'account':
 					$sql .= '
-						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, article_popscore
+						SELECT article_id, unread, source_type, source_id, source_title, source_data, article_time, popscore, origin_id, origin_title, origin_data
 						FROM mod_user_articles';
 					switch( $this->stream_type ):
 						case 'hybrid':
 							$sql .= '
 								WHERE expired = 0
 								AND unread = 1';
-							$order = 'article_popscore * multiplier';
+							//only display tweets/facebook/etc to current user
+							$sql .= $mod_user->get_userid() == $this->user_id ? '' : '
+								AND source_type = "source"';
+							$order = 'popscore';
 							break;
 						case 'popular':
 							$sql .= '
 								WHERE expired = 0';
-							$order = 'article_popscore';
+							$order = 'popscore';
 							break;
 						case 'unread':
 							$sql .= '
@@ -359,41 +331,25 @@
 							break;
 						case 'account':
 							$sql .='
-								WHERE ( source_type = "' . $this->account_type . '" OR source_type = "original" )';
+								WHERE ( source_type = "' . $this->account_type . '" )';
 							$order = 'article_time';
 							break;
-					endswitch;
-
-					//sources only unless hybrid stream
-					switch( $this->stream_type ):
-						case 'hybrid':
-							$sql .= '
-							AND source_type != "original"';
-							break;
-						default:
-							$sql .= '
-							AND source_type = "source"';
 					endswitch;
 
 					//add user id bit
 					$sql .= '
 						AND user_id = ' . $this->user_id;
 
-					//are we the not ourselves? only use source refs
-					if( $this->stream_type == 'hybrid' and $mod_user->get_userid() != $this->user_id )
-						$sql .= '
-							AND source_type = "source"';
-
 					break;
 
 				//public stream
 				case 'public':
 					$sql .= '
-						SELECT id AS article_id, source_id, time AS article_time, popularity_score AS article_popscore
+						SELECT id AS article_id, source_id, time AS article_time, popularity AS popscore
 						FROM mod_article
 						WHERE expired = 0
 						AND source_id > 0';
-					$order = 'popularity_score';
+					$order = 'popularity';
 					$article_id = 'id';
 					break;
 

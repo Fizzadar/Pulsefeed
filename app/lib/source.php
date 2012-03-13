@@ -138,7 +138,7 @@
 
 			//load home stream
 			$home = $tw->get( 'statuses/home_timeline', array(
-				'count' => ( isset( $argv[3] ) and is_numeric( $argv[3] ) ) ? 50 : 200,
+				'count' => 200,
 				'include_entities' => true,
 				'exclude_replies' => true
 			) );
@@ -215,7 +215,7 @@
 			//get home stream
 			$home = $fb->api( '/me/home', 'GET', array(
 				'access_token' => $data->token,
-				'limit' => ( isset( $argv[3] ) and is_numeric( $argv[3] ) ) ? 50 : 200
+				'limit' => 200
 			) );
 
 			//loop items
@@ -289,7 +289,7 @@
 
 			//check for article
 			$check = $mod_db->query( '
-				SELECT id, popularity_score, time, title, url, end_url, source_id
+				SELECT id, time, title, url, end_url, source_id
 				FROM mod_article
 				WHERE end_url = "' . $end_url . '"
 				OR url = "' . $url . '"
@@ -305,7 +305,6 @@
 				if( $check[0]['end_url'] == $end_url or $check[0]['url'] == $url or $domain['host'] == $domain2['host'] ):
 					$article = array(
 						'id' => $check[0]['id'],
-						'popularity_score' => $check[0]['popularity_score'],
 						'title' => $check[0]['title'],
 						'url' => $check[0]['url'],
 						'end_url' => $check[0]['end_url'],

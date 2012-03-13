@@ -10,6 +10,8 @@
 			$mod_app->load( 'load/user/settings' );
 		endif;
 	else:
+		$mod_app->load( 'load/stream/public' );
+		die();
 		//start template
 		$template = new mod_template();
 

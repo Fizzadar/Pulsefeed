@@ -49,7 +49,7 @@
 	if( isset( $_GET['recipe'] ) and $_GET['recipe'] == 1 )
 		die( $mod_template->load( 'article/recipe' ) );
 
-	//delete unread
+	//set unread
 	if( $mod_user->check_login() ):
 		$mod_db->query( '
 			UPDATE mod_user_articles

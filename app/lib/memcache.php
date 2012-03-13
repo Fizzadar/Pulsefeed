@@ -171,11 +171,12 @@
 		}
 
 		//sync a whole table by its layout!
-		public function sync( $table ) {
+		public function sync( $table, $where = 'true' ) {
 			$layout = $this->layout[$table];
 
 			//sql
 			$sql = 'SELECT * FROM ' . $table;
+			$sql .= ' WHERE ' . $where;
 			//run sql, load table
 			$tabledata = $this->db->query( $sql );
 

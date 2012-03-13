@@ -39,5 +39,6 @@
 
 	//sync required tables
 	$mod_memcache->sync( 'mod_user_likes' );
+	$mod_memcache->sync( 'mod_article', 'expired = 0' );
 	echo 'tables synced with memcache' . PHP_EOL;
 ?>

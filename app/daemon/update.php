@@ -15,7 +15,7 @@
 
 	//data
 	$threads = 20;
-	$threadtime = 600;
+	$threadtime = 3600;
 	$dbtime = 300;
 
 	//load inc bit
@@ -51,255 +51,249 @@
 		//clean the items for mysql
 		$items = $mod_db->clean( $items );
 
-		//loop each item, remove any older than update_time
+		//insert arrays
+		$source_article = array();
+		$user_article = array();
+
+		//get our subscribers
+		if( $source['type'] == 'source' ):
+			$subscribers = $mod_db->query( '
+				SELECT user_id
+				FROM mod_user_sources
+				WHERE source_id = ' . $source['id'] . '
+			' );
+		else:
+			$subscribers = array(
+				array(
+					'user_id' => $source['owner_id']
+				)
+			);
+		endif;
+
+		//loop each item
 		foreach( $items as $key => $item ):
+			//remove any older than update time
 			if( $item['time'] < $source['update_time'] ):
 				unset( $items[$key] );
 				echo 'old article, skipping ' . $item['end_url'] . PHP_EOL;
 			endif;
-		endforeach;
 
-		//loop each item, check to see if we have the article, if we do, assign ID, if not, insert and assign
-		foreach( $items as $key => $item ):
-			//already got id?
-			if( isset( $item['id'] ) ):
-				$items[$key]['id'] = $item['id'];
-				$items[$key]['popscore'] = $item['popularity_score'];
-				$items[$key]['time'] = $item['time'];
-				echo 'article already has id: ' . $item['end_url'] . PHP_EOL;
-				continue;
-			endif;
+			//work out source, locate/insert where needed
+			if( !isset( $item['source_id'] ) ):
+				if( $source['type'] == 'source' ):
+					$items[$key]['source_id'] = $item['source_id'] = $source['id'];
+				else:
+					//not a source updating, so lets try find one, first work out root url
+					$url = parse_url( $item['end_url'] );
+					$url = $url['scheme'] . '://' . $url['host'];
 
-			//set source id
-			$sourceid = 0;
-			if( $source['type'] == 'source' )
-				$sourceid = $source['id'];
+					//look for feeds on the url
+					$test = new mod_source( $url );
+					$feed = @$test->find( $url );
 
-			//insert the article
-			$insert = $mod_db->query( '
-				INSERT INTO mod_article
-				( title, url, end_url, description, time, image_quarter, image_third, image_half, source_id )
-				VALUES( "' . $item['title'] . '", "' . $item['url'] . '", "' . $item['end_url'] . '", "' . $item['summary'] . '", ' . $item['time'] . ', "' . $item['image_quarter'] . '", "' . $item['image_third'] . '", "' . $item['image_half'] . '", ' . $sourceid . ' )
-			' );
-			if( $insert ):
-				$items[$key]['id'] = $mod_db->insert_id();
-				$items[$key]['popscore'] = 0;
-				echo 'inserted: ' . $item['end_url'] . PHP_EOL;
-			else:
-				echo 'insert failed on: ' . $item['end_url'] . ' : ' . mysql_error() . PHP_EOL;
-				unset( $items[$key] );
-			endif;
-		endforeach;
+					//found one?
+					if( $feed and isset( $feed['feed_url'] ) and !empty( $feed['feed_url'] ) ):
+						echo 'source located @: ' . $url . PHP_EOL;
 
-		//add each article to the source
-		$source_article = array();
-		foreach( $items as $item )
-			$source_article[] = array( 
-				'article_id' => $item['id'],
-				'source_id' => $source['id'],
-				'article_time' => $item['time']
-			);
-
-		//if we're twitter / facebook
-		if( $source['type'] == 'twitter' or $source['type'] == 'facebook' ):
-			//loop articles
-			foreach( $items as $key => $item ):
-				//id set? source_id must be too
-				if( isset( $item['id'] ) and isset( $item['source_id'] ) and $item['source_id'] > 0 ):
-					$s = $mod_memcache->get( 'mod_source', array(
-						array(
-							'id' => $item['source_id']
-						)
-					) );
-					if( isset( $s ) and is_array( $s ) and $s['type'] == 'source' ):
-						echo 'original source added to article: ' . $item['id'] . PHP_EOL;
-						$items[$key]['original_source'] = array(
-							'title' => $s['site_title'],
-							'id' => $item['source_id'],
-							'domain' => $s['site_url']
-						);
-						continue;
-					endif;
-				endif;
-
-				//work out source url
-				$url = parse_url( $item['end_url'] );
-				$url = $url['scheme'] . '://' . $url['host'];
-
-				//look for feeds on the url
-				$test = new mod_source( $url );
-				$feed = @$test->find( $url );
-
-				//found one?
-				if( $feed and isset( $feed['feed_url'] ) and !empty( $feed['feed_url'] ) ):
-					$exist = $mod_db->query( '
-						SELECT id
-						FROM mod_source
-						WHERE feed_url = "' . $feed['feed_url'] . '"
-						LIMIT 1
-					' );
-					if( !$exist or count( $exist ) == 0 ):
-						//create the source
-						$create = $mod_db->query( '
-							INSERT INTO mod_source
-							( site_title, site_url, feed_url, time )
-							VALUES ( "' . $feed['site_title'] . '", "' . $feed['site_url'] . '", "' . $feed['feed_url'] . '", ' . time() . ' )
+						//do we have it already?
+						$exist = $mod_db->query( '
+							SELECT id
+							FROM mod_source
+							WHERE feed_url = "' . $feed['feed_url'] . '"
+							LIMIT 1
 						' );
-						//create worked?
-						if( $create ):
-							$id = $mod_db->insert_id();
-							$source_article[] = array(
-								'article_id' => $item['id'],
-								'source_id' => $id,
-								'article_time' => $item['time']
-							);
-							echo 'new source added: ' . $feed['site_title'] . PHP_EOL;
-							$items[$key]['original_source'] = array(
-								'title' => $feed['site_title'],
-								'id' => $id,
-								'domain' => $feed['site_url']
-							);
+						//no?
+						if( !$exist or count( $exist ) == 0 ):
+							//create the source
+							$create = $mod_db->query( '
+								INSERT INTO mod_source
+								( site_title, site_url, feed_url, time )
+								VALUES ( "' . $feed['site_title'] . '", "' . $feed['site_url'] . '", "' . $feed['feed_url'] . '", ' . time() . ' )
+							' );
+							//create worked?
+							if( $create ):
+								$items[$key]['source_id'] = $item['source_id'] = $mod_db->insert_id();
+								echo 'source inserted: ' . $url . PHP_EOL;
+							endif;
+						//yes!
+						else:
+							$items[$key]['source_id'] = $item['source_id'] = $exist[0]['id'];
 						endif;
 					else:
-						$source_article[] = array(
-							'article_id' => $item['id'],
-							'source_id' => $exist[0]['id'],
-							'article_time' => $item['time']
-						);
-						echo 'original source added to article: ' . $item['id'] . PHP_EOL;
-						$items[$key]['original_source'] = array(
-							'title' => $feed['site_title'],
-							'id' => $exist[0]['id'],
-							'domain' => $feed['site_url']
-						);
+						$items[$key]['source_id'] = $item['source_id'] = 0;
+						echo 'could not find feed on: ' . $url . PHP_EOL;
 					endif;
-				else:
-					echo 'could not find feed on: ' . $url . PHP_EOL;
 				endif;
-			endforeach;
-		endif;
+			else:
+				echo 'article already has source: ' . $item['source_id'] . PHP_EOL;
+			endif;
 
-		//build the mod_source_articles query
+			//work out id, insert where needed (now we have source_id)
+			if( !isset( $item['id'] ) ):
+				//insert the article
+				$insert = $mod_db->query( '
+					INSERT INTO mod_article
+					( title, url, end_url, description, time, image_quarter, image_third, image_half, source_id )
+					VALUES(
+						"' . $item['title'] . '",
+						"' . $item['url'] . '",
+						"' . $item['end_url'] . '",
+						"' . $item['summary'] . '",
+						' . $item['time'] . ',
+						"' . $item['image_quarter'] . '",
+						"' . $item['image_third'] . '",
+						"' . $item['image_half'] . '",
+						' . $item['source_id'] . '
+					)
+				' );
+				//all good?
+				if( $insert ):
+					$items[$key]['id'] = $item['id'] = $mod_db->insert_id();
+					echo 'inserted: #' . $item['id'] . ' : ' . $item['end_url'] . PHP_EOL;
+				else:
+					unset( $items[$key] );
+					echo 'insert failed on: ' . $item['end_url'] . ' : ' . mysql_error() . PHP_EOL;
+					continue;
+				endif;
+			else:
+				echo 'article already has id: ' . $item['id'] . PHP_EOL;
+			endif;
+
+			//finally, add to source_article
+			if( $item['source_id'] > 0 ):
+				$source_article[] = array(
+					'source_id' => $item['source_id'],
+					'article_id' => $item['id'],
+					'article_time' => $item['time']
+				);
+			endif;
+
+			//finally finally, add to user_articles, gets complicated
+			foreach( $subscribers as $subscriber ):
+				//standard data
+				$tmp = array(
+					'user_id' => $subscriber['user_id'],
+					'article_id' => $item['id'],
+					'source_type' => $source['type'],
+					'article_time' => $item['time'],
+					'unread' => count( $mod_memcache->get( 'mod_user_reads', array(
+						array(
+							'user_id' => $subscriber['user_id'],
+							'article_id' => $item['id']
+						)
+					) ) ) == 1 ? 0 : 1,
+					'origin_id' => 0,
+					'origin_title' => '',
+					'origin_data' => '{}'
+				);
+
+				//now, source_id, source_title, source_data, ( +where needed: origin_id, origin_title, origin_data )
+				if( $source['type'] == 'source' ):
+					$tmp['source_id'] = $item['source_id']; //same as $source['id']
+					$tmp['source_title'] = $source['site_title'];
+
+					$domain = parse_url( $source['site_url'] );
+					$domain = $domain['host'];
+					$tmp['source_data'] = json_encode( array( 'domain' => $domain ) );
+				else:
+					$tmp['source_id'] = $source['id']; //do NOT use articles source_id, thats for origin ;)
+					$tmp['source_title'] = $item['ex_username'];
+					$tmp['source_data'] = json_encode( array( 'user_id' => $item['ex_userid'] ) );
+
+					//origin? source_id > 0 and not the fb/tw source
+					if( $item['source_id'] > 0 and $item['source_id'] != $source['id'] ):
+						//get the source
+						$sdata = $mod_memcache->get( 'mod_source', array(
+							array(
+								'id' => $item['source_id']
+							)
+						) );
+						if( count( $sdata ) == 1 ):
+							$sdata = $sdata[0];
+							$domain = parse_url( $sdata['site_url'] );
+							$domain = $domain['host'];
+
+							$tmp['origin_id'] = $item['source_id'];
+							$tmp['origin_title'] = $sdata['site_title'];
+							$tmp['origin_data'] = json_encode( array( 'domain' => $domain ) );
+						endif;
+					endif;
+				endif;
+
+				//add to user_article
+				$user_article[] = $tmp;
+			endforeach;
+
+			echo 'item complete: ' . $key . ' / ' . count( $items ) . PHP_EOL;
+		endforeach;
+//article id 920 fucks up
+print_r( $user_article );
+var_dump( $user_article );
+echo 'DOUBLE U TEE EFF' . PHP_EOL;
+die();
+
+		//build the mod_source_articles query (after we have article ids)
 		if( count( $source_article ) > 0 ):
 			$sql = '
 				INSERT IGNORE INTO mod_source_articles ( source_id, article_id, article_time )
 				VALUES';
 
 			foreach( $source_article as $bit )
-				$sql .= ' ( ' . $bit['source_id'] . ', ' . $bit['article_id'] . ', ' . $bit['article_time'] . ' ),';
+				$sql .= ' (
+					' . $bit['source_id'] . ',
+					' . $bit['article_id'] . ',
+					' . $bit['article_time'] . '
+				),';
 
 			$sql = rtrim( $sql, ',' );
 
 			//run it
-			$mod_db->query( $sql );
+			$insert = $mod_db->query( $sql );
+
+			//fail message
+			if( !$insert ):
+				echo 'mod_source_article insert failed: ' . mysql_error() . PHP_EOL . $sql . PHP_EOL;
+			else:
+				echo 'mod_source_article insert complete' . PHP_EOL;
+			endif;
 		endif;
-
-		//now, mod_user_articles
-		$user_article = array();
-		switch( $source['type'] ):
-			case 'source':
-				//get domain
-				$domain = parse_url( $source['site_url'] );
-				$domain = $domain['host'];
-
-				//get subscribed users
-				$subscribed = $mod_db->query( '
-					SELECT user_id
-					FROM mod_user_sources
-					WHERE source_id = ' . $source['id'] . '
-				' );
-				//for each user, add the articles
-				foreach( $subscribed as $user ):
-					foreach( $items as $item ):
-						$user_article[] = array(
-							'user_id' => $user['user_id'],
-							'article_id' => $item['id'],
-							'source_type' => 'source',
-							'source_id' => $source['id'],
-							'source_title' => $source['site_title'],
-							'source_data' => json_encode( array( 'domain' => $domain ) ),
-							'article_time' => $item['time'],
-							'article_popscore' => $item['popscore'],
-							'unread' => count( $mod_memcache->get( 'mod_user_reads', array(
-								array(
-									'user_id' => $user['user_id'],
-									'article_id' => $item['id']
-								)
-							) ) ) == 1 ? 0 : 1,
-							'multiplier' => 1
-						);
-					endforeach;
-				endforeach;
-				break;
-
-			case 'twitter':
-			case 'facebook':
-				foreach( $items as $item ):
-					$unread = count( $mod_memcache->get( 'mod_user_reads', array(
-						array(
-							'user_id' => $source['owner_id'],
-							'article_id' => $item['id']
-						)
-					) ) ) == 1 ? 0 : 1;
-
-					$user_article[] = array(
-						'user_id' => $source['owner_id'],
-						'article_id' => $item['id'],
-						'source_type' => $source['type'],
-						'source_id' => $source['id'],
-						'source_title' => $item['ex_username'],
-						'source_data' => json_encode( array( 'user_id' => $item['ex_userid'] ) ),
-						'article_time' => $item['time'],
-						'article_popscore' => $item['popscore'],
-						'unread' => $unread,
-						'multiplier' => 2
-					);
-
-					//original source?
-					if( isset( $item['original_source'] ) and $item['original_source']['id'] > 0 ):
-						$domain = parse_url( $item['original_source']['domain'] );
-						$domain = $domain['host'];
-
-						$user_article[] = array(
-							'user_id' => $source['owner_id'],
-							'article_id' => $item['id'],
-							'source_type' => 'original',
-							'source_id' => $item['original_source']['id'],
-							'source_title' => $item['original_source']['title'],
-							'source_data' => json_encode( array( 'domain' => $domain ) ),
-							'article_time' => $item['time'],
-							'article_popscore' => $item['popscore'],
-							'unread' => $unread,
-							'multiplier' => 0
-						);
-					endif;
-				endforeach;
-
-				break;
-		endswitch;
 
 		//build the mod_source_articles query
 		if( count( $user_article ) > 0 ):
 			$sql = '
-				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, article_popscore, unread, source_data, multiplier )
+				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, unread, source_data, origin_id, origin_title, origin_data )
 				VALUES';
 
 			foreach( $user_article as $bit )
-				$sql .= ' ( ' . $bit['user_id'] . ', ' . $bit['article_id'] . ', "' . $bit['source_type'] . '", "' . $bit['source_id'] . '", "' . $bit['source_title'] . '", ' . $bit['article_time'] . ', ' . $bit['article_popscore'] . ', ' . $bit['unread'] . ', \'' . $bit['source_data'] . '\', ' . $bit['multiplier'] . ' ),';
+				$sql .= ' (
+					' . $bit['user_id'] . ',
+					' . $bit['article_id'] . ',
+					"' . $bit['source_type'] . '",
+					"' . $bit['source_id'] . '",
+					"' . $bit['source_title'] . '",
+					' . $bit['article_time'] . ',
+					' . $bit['unread'] . ',
+					\'' . $bit['source_data'] . '\',
+					' . $bit['origin_id'] . ',
+					"' . $bit['origin_title'] . '",
+					\'' . $bit['origin_data'] . '\'
+				),';
 
 			$sql = rtrim( $sql, ',' );
 
 			//run it
-			$mod_db->query( $sql );
+			$insert = $mod_db->query( $sql );
+
+			//fail message
+			if( !$insert ):
+				echo 'mod_user_article insert failed: ' . mysql_error() . PHP_EOL . $sql . PHP_EOL;
+			else:
+				echo 'mod_user_article insert complete' . PHP_EOL;
+			endif;
 		endif;
 
-		//we're done! now unlock the source, update tme
-		$mod_db->query( '
-			UPDATE mod_source
-			SET update_time = ' . time() . '
-			WHERE id = ' . $source['id'] . '
-			LIMIT 1
-		' );
+		//complete
+		echo 'source update complete #' . $source['id'] . PHP_EOL;
 
 		//remove db
 		$mod_db->__destruct();
