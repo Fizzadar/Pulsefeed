@@ -99,7 +99,7 @@
 				</form>
 			<?php endif; ?>
 
-			<div id="devmessage"><a href="http://pulsefeed.com/article/4041">[!] Pulsefeed is currently in development &rarr;</a></div>
+			<div id="devmessage"><a target="_blank" href="http://blog.pulsefeed.com/pulsefeed-is-currently-in-development/">[!] Pulsefeed is currently in development &rarr;</a></div>
 
 			<ul id="account"<?php echo $mod_user->session_login() ? '' : ' class="nologin"'; ?>>
 			<?php if( $mod_user->session_login() ): ?>
