@@ -50,7 +50,7 @@
 		//sources index
 		$sources = array(
 			0 => array(
-				'articleCount' => 0,
+				'articleCount' => 1,
 				'popTotal' => 0
 			)
 		);
