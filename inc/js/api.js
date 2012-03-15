@@ -31,7 +31,7 @@ api.start = function() {
 		api.follow( ev.target );
 	});
 	//pf stream?
-	if( pulsefeed.stream ) {
+	if( pulsefeed.stream && false ) {
 		$( '.stream_load_more' ).bind( 'click', function( ev ) {
 			ev.preventDefault();
 			api.loadStream( ev.target );

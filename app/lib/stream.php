@@ -370,21 +370,8 @@
 			//end of query
 			$sql .= '
 				AND ' . $article_id . ' > ' . $this->since_id . '
-				ORDER BY ' . $order . ' DESC';
-
-			//1000 limit on hybrid, rest normal
-			switch( $this->stream_type ):
-				case 'hybrid':
-					$sql .= '
-						LIMIT 64
-					';
-					break;
-				default:
-					$sql .= '
-						LIMIT ' . $this->offset . ', 64
-					';
-					break;
-			endswitch;
+				ORDER BY ' . $order . ' DESC
+				LIMIT ' . ( $this->offset * 64 ) . ', 64';
 
 			//run our query, return the data
 			if( $data = $this->db->query( $sql ) )
