@@ -74,7 +74,7 @@
 			if( !isset( $sources[$article['source_id']] ) ):
 				$sources[$article['source_id']] = array(
 					'articleCount' => 1,
-					'popTotal' => $pop_time;
+					'popTotal' => $pop_time
 				);
 				continue;
 			endif;
