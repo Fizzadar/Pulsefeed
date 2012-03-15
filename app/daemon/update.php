@@ -220,7 +220,7 @@
 				$user_article[] = $tmp;
 			endforeach;
 
-			echo 'item complete: ' . $key . ' / ' . count( $items ) . PHP_EOL;
+			echo 'item complete: ' . $key . ' / ' . count( $items ) . ' : ' . $item['end_url'] . PHP_EOL;
 		endforeach;
 
 		//build the mod_source_articles query (after we have article ids)
