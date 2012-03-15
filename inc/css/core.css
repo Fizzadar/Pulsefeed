@@ -181,9 +181,11 @@ div#top {
 			div#top ul#account:hover li.top a:hover {
 				color: #1A1B1B;
 			}
-			div#top ul#account.nologin li.top:hover, div#top ul#account.nologin li.top:hover a {
-				color: #FFF;
+			div#top ul#account.nologin li.top:hover {
 				background: rgba( 0, 0, 0, 0.2 );
+			}
+			div#top ul#account.nologin li.top:hover a {
+				color: #FFF;
 			}
 		div#top ul#account:hover {
 			border-color: #000;
@@ -317,7 +319,7 @@ div#header {
 		width: 140px;
 		margin-right: 10px;
 		margin-top: 1px;
-		padding-top: 19px;
+		padding-top: 18px;
 	}
 	div#header div.left {
 		border-right: 1px solid #D7D7D7;

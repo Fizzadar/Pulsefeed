@@ -4,11 +4,6 @@ Options -indexes
 #Engage config!
 RewriteEngine On
 
-#Force no www.
-RewriteCond %{HTTP_HOST} !^pulsefeed.com$
-RewriteCond %{HTTP_HOST} !^pulsefeed.dev$
-RewriteRule ^(.*)$ http://pulsefeed.com/$1 [R=302]
-
 
 #Error Docs
 #Document Code											#File

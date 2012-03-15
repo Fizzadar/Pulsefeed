@@ -7,3 +7,4 @@ core/
 tmp/
 *.sql
 *.log
+*.nginx
