@@ -161,7 +161,7 @@
 							'source_data' => json_decode( $article['source_data'], true ),
 							'origin_id' => $article['origin_id'],
 							'origin_title' => $article['origin_title'],
-							'origin_data' => $article['origin_data']
+							'origin_data' => json_decode( $article['origin_data'], true )
 						);
 					endforeach;
 					break;
@@ -345,12 +345,12 @@
 				//public stream
 				case 'public':
 					$sql .= '
-						SELECT id AS article_id, source_id, time AS article_time, popularity AS popscore
+						SELECT mod_article.id AS article_id, mod_article.time AS article_time, mod_article.popularity AS popscore, mod_source_articles.source_id
 						FROM mod_article
-						WHERE expired = 0
-						AND source_id > 0';
-					$order = 'popularity';
-					$article_id = 'id';
+						JOIN mod_source_articles ON mod_article.id = mod_source_articles.article_id
+						WHERE mod_article.expired = 0';
+					$order = 'mod_article.popularity';
+					$article_id = 'mod_article.id';
 					break;
 
 				//tag stream

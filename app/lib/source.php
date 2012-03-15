@@ -276,9 +276,17 @@
 
 		//remove non-wanted articles
 		private function articleClean( $articles ) {
-			foreach( $articles as $key => $article )
-				if( !isset( $article['id'] ) and ( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) ) )
+			//not got right data?
+			foreach( $articles as $key => $article ):
+				if( !isset( $article['id'] ) and ( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) ) ):
 					unset( $articles[$key] );
+				endif;
+
+				//youtube link? NO THANKS
+				if( preg_match( '/youtube.com/', $article['end_url'] ) ):
+					unset( $articles[$key] );
+				endif;
+			endforeach;
 
 			return $articles;
 		}
@@ -289,7 +297,7 @@
 
 			//check for article
 			$check = $mod_db->query( '
-				SELECT id, time, title, url, end_url, source_id
+				SELECT id, time, title, url, end_url
 				FROM mod_article
 				WHERE end_url = "' . $end_url . '"
 				OR url = "' . $url . '"
@@ -308,8 +316,7 @@
 						'title' => $check[0]['title'],
 						'url' => $check[0]['url'],
 						'end_url' => $check[0]['end_url'],
-						'time' => $check[0]['time'],
-						'source_id' => $check[0]['source_id']
+						'time' => $check[0]['time']
 					);
 					return $article;
 				endif;

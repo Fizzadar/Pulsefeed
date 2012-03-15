@@ -3,7 +3,7 @@
 		file: app/daemon/update.php
 		desc: update server (daemon)
 	*/
-	global $mod_db, $argv, $mod_app;
+	global $mod_db, $argv, $mod_app, $threads, $threadtime, $dbtime;
 	
 	//remove mod_db
 	$mod_db->__destruct();
@@ -14,8 +14,8 @@
 		die();
 
 	//data
-	$threads = 20;
-	$threadtime = 3600;
+	$threads = 10;
+	$threadtime = 300;
 	$dbtime = 300;
 
 	//load inc bit
@@ -79,53 +79,50 @@
 			endif;
 
 			//work out source, locate/insert where needed
-			if( !isset( $item['source_id'] ) ):
-				if( $source['type'] == 'source' ):
-					$items[$key]['source_id'] = $item['source_id'] = $source['id'];
-				else:
-					//not a source updating, so lets try find one, first work out root url
-					$url = parse_url( $item['end_url'] );
-					$url = $url['scheme'] . '://' . $url['host'];
-
-					//look for feeds on the url
-					$test = new mod_source( $url );
-					$feed = @$test->find( $url );
-
-					//found one?
-					if( $feed and isset( $feed['feed_url'] ) and !empty( $feed['feed_url'] ) ):
-						echo 'source located @: ' . $url . PHP_EOL;
-
-						//do we have it already?
-						$exist = $mod_db->query( '
-							SELECT id
-							FROM mod_source
-							WHERE feed_url = "' . $feed['feed_url'] . '"
-							LIMIT 1
-						' );
-						//no?
-						if( !$exist or count( $exist ) == 0 ):
-							//create the source
-							$create = $mod_db->query( '
-								INSERT INTO mod_source
-								( site_title, site_url, feed_url, time )
-								VALUES ( "' . $feed['site_title'] . '", "' . $feed['site_url'] . '", "' . $feed['feed_url'] . '", ' . time() . ' )
-							' );
-							//create worked?
-							if( $create ):
-								$items[$key]['source_id'] = $item['source_id'] = $mod_db->insert_id();
-								echo 'source inserted: ' . $url . PHP_EOL;
-							endif;
-						//yes!
-						else:
-							$items[$key]['source_id'] = $item['source_id'] = $exist[0]['id'];
-						endif;
-					else:
-						$items[$key]['source_id'] = $item['source_id'] = 0;
-						echo 'could not find feed on: ' . $url . PHP_EOL;
-					endif;
-				endif;
+			if( $source['type'] == 'source' ):
+				//article may appear on multiple sources, in this case we're adding it to this source
+				$items[$key]['source_id'] = $item['source_id'] = $source['id'];
 			else:
-				echo 'article already has source: ' . $item['source_id'] . PHP_EOL;
+				//not a source updating, so lets try find one, first work out root url
+				$url = parse_url( $item['end_url'] );
+				$url = $url['scheme'] . '://' . $url['host'];
+
+				//look for feeds on the url
+				$test = new mod_source( $url );
+				$feed = @$test->find( $url );
+
+				//found one?
+				if( $feed and isset( $feed['feed_url'] ) and !empty( $feed['feed_url'] ) ):
+					echo 'source located @: ' . $url . PHP_EOL;
+
+					//do we have it already?
+					$exist = $mod_db->query( '
+						SELECT id
+						FROM mod_source
+						WHERE feed_url = "' . $feed['feed_url'] . '"
+						LIMIT 1
+					' );
+					//no?
+					if( !$exist or count( $exist ) == 0 ):
+						//create the source
+						$create = $mod_db->query( '
+							INSERT INTO mod_source
+							( site_title, site_url, feed_url, time )
+							VALUES ( "' . $feed['site_title'] . '", "' . $feed['site_url'] . '", "' . $feed['feed_url'] . '", ' . time() . ' )
+						' );
+						//create worked?
+						if( $create ):
+							$items[$key]['source_id'] = $item['source_id'] = $mod_db->insert_id();
+							echo 'source inserted: ' . $url . PHP_EOL;
+						endif;
+					//yes!
+					else:
+						$items[$key]['source_id'] = $item['source_id'] = $exist[0]['id'];
+					endif;
+				else:
+					$items[$key]['source_id'] = $item['source_id'] = 0;
+					echo 'could not find feed on: ' . $url . PHP_EOL;
+				endif;
 			endif;
 
 			//work out id, insert where needed (now we have source_id)
@@ -133,7 +130,7 @@
 				//insert the article
 				$insert = $mod_db->query( '
 					INSERT INTO mod_article
-					( title, url, end_url, description, time, image_quarter, image_third, image_half, source_id )
+					( title, url, end_url, description, time, image_quarter, image_third, image_half )
 					VALUES(
 						"' . $item['title'] . '",
 						"' . $item['url'] . '",
@@ -142,8 +139,7 @@
 						' . $item['time'] . ',
 						"' . $item['image_quarter'] . '",
 						"' . $item['image_third'] . '",
-						"' . $item['image_half'] . '",
-						' . $item['source_id'] . '
+						"' . $item['image_half'] . '"
 					)
 				' );
 				//all good?
@@ -189,7 +185,7 @@
 
 				//now, source_id, source_title, source_data, ( +where needed: origin_id, origin_title, origin_data )
 				if( $source['type'] == 'source' ):
-					$tmp['source_id'] = $item['source_id']; //same as $source['id']
+					$tmp['source_id'] = $source['id'];
 					$tmp['source_title'] = $source['site_title'];
 
 					$domain = parse_url( $source['site_url'] );
@@ -256,7 +252,7 @@
 		//build the mod_source_articles query
 		if( count( $user_article ) > 0 ):
 			$sql = '
-				REPLACE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, unread, source_data, origin_id, origin_title, origin_data )
+				INSERT IGNORE INTO mod_user_articles ( user_id, article_id, source_type, source_id, source_title, article_time, unread, source_data, origin_id, origin_title, origin_data )
 				VALUES';
 
 			foreach( $user_article as $bit )

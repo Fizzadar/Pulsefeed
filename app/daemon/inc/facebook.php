@@ -3,6 +3,12 @@
 		file: app/daemon/inc/facebook.php
 		desc: update server (daemon) => facebook dbupdate function
 	*/
+	global $threads, $threadtime, $dbtime;
+
+	//setup update data
+	$threads = 20;
+	$threadtime = 600;
+	$dbtime = 60;
 
 	//function used by deamon to get 'jobs'
 	function dbupdate() {
@@ -22,6 +28,7 @@
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
 			AND type = "facebook"
+			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
 		' );
@@ -32,6 +39,7 @@
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
 			AND type = "facebook"
+			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
 		' );

@@ -3,6 +3,12 @@
 		file: app/daemon/inc/source.php
 		desc: update server (daemon) => source dbupdate function
 	*/
+	global $threads, $threadtime, $dbtime;
+
+	//setup update data
+	$threads = 20;
+	$threadtime = 300;
+	$dbtime = 300;
 
 	//function used by deamon to get 'jobs'
 	function dbupdate() {
@@ -22,6 +28,7 @@
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
 			AND type = "source"
+			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
 		' );
@@ -32,6 +39,7 @@
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
 			AND type = "source"
+			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
 		' );

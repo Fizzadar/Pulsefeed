@@ -36,7 +36,7 @@
 
 	//check the article exists
 	$article = $mod_db->query( '
-		SELECT id, time, popularity_score
+		SELECT id, time
 		FROM mod_article
 		WHERE id = ' . $_POST['article_id'] . '
 		LIMIT 1
@@ -77,9 +77,9 @@
 		);
 		$sql = '
 			REPLACE INTO mod_user_articles
-			( user_id, article_id, source_type, source_title, source_id, article_time, article_popscore ) VALUES';
+			( user_id, article_id, source_type, source_title, source_id, article_time ) VALUES';
 		foreach( $users as $user ):
-			$sql .= ' ( ' . $user['id'] . ', ' . $_POST['article_id'] . ', "like", "' . $mod_user->session_username() . '", ' . $mod_user->get_userid() . ', ' . $article[0]['time'] . ', ' . $article[0]['popularity_score'] . ' ), ';
+			$sql .= ' ( ' . $user['id'] . ', ' . $_POST['article_id'] . ', "like", "' . $mod_user->session_username() . '", ' . $mod_user->get_userid() . ', ' . $article[0]['time'] . ' ), ';
 		endforeach;
 		$sql = rtrim( $sql, ', ' );
 

@@ -435,7 +435,6 @@
 							<a href="<?php echo $c_config['root']; ?>/<?php
 								switch( $ref['source_type'] ):
 									case 'source':
-									case 'original':
 										echo 'source' . '/' . $ref['source_id'];
 										break;
 									case 'like':
@@ -444,6 +443,9 @@
 									case 'facebook':
 									case 'twitter':
 										echo 'account/' . $ref['source_type'];
+										break;
+									default:
+										echo '#';
 								endswitch;
 								?>" class="tip hover">
 								<span>
@@ -457,26 +459,42 @@
 												echo 'You follow them';
 												break;
 											case 'facebook':
-												echo 'You are friends';
+												echo 'You are subscribed';
 												break;
 											case 'like':
 												echo 'You follow them';
 												break;
-											case 'original':
-												echo 'Original source';
-												break;
+											default:
+												echo 'Unknown';
 										endswitch;
 									?></small>
 									<span></span>
 								</span>
-								<?php if( isset( $ref['source_data']['domain'] ) ): ?>
-									<img src="http://www.google.com/s2/favicons?domain=<?php echo $ref['source_data']['domain']; ?>" />
-								<?php elseif( $ref['source_type'] == 'twitter' or $ref['source_type'] == 'facebook' or $ref['source_type'] == 'like' ): ?>
-									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/share/<?php echo $ref['source_type']; ?>.png" />
-								<?php else: ?>
-									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/original.png" />
-								<?php endif; ?>
+								<img src="<?php
+									switch( $ref['source_type'] ):
+										case 'source':
+											echo 'http://www.google.com/s2/favicons?domain=' . $ref['source_data']['domain'];
+											break;
+										case 'like':
+										case 'facebook':
+										case 'twitter':
+											echo $c_config['root'] . '/inc/img/icons/share/' . $ref['source_type'] . '.png';
+											break;
+										default:
+											echo $c_config['root'] . '/inc/img/icons/sidebar/original.png';
+									endswitch;
+								?>" />
 							</a>
+							<?php if( isset( $ref['origin_id'] ) and $ref['origin_id'] > 0 and isset( $ref['origin_title'] ) and isset( $ref['origin_data'] ) ): ?>
+								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $ref['origin_id']; ?>" class="tip hover">
+									<span>
+										<strong><?php echo $ref['origin_title']; ?></strong>
+										<small>Original source</small>
+										<span></span>
+									</span>
+									<img src="http://www.google.com/s2/favicons?domain=<?php echo $ref['origin_data']['domain']; ?>" />
+								</a>
+							<?php endif; ?>
 						<?php endforeach; ?>
 					<?php if( $mod_user->session_login() ): ?>
 						<?php

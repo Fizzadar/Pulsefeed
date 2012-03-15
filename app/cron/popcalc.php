@@ -1,89 +1,126 @@
 <?php
 	/*
 		file: app/process/cron/popcalc.php
-		desc: updates the poptime for all recent articles (every 30 mins), then scales + makes pop score
+		desc: updates the poptime for all recent articles (every 30 mins), then scales + makes pop score PER USER!
 	*/
 
 	//load modules
-	global $mod_db, $mod_config;
+	global $mod_db, $mod_config, $mod_memcache;
 
-	//get articles
-	$articles = $mod_db->query( '
-		SELECT id, time, popularity, source_id
-		FROM mod_article
-		WHERE expired = 0
-		ORDER BY time DESC
+	//get users
+	$users = $mod_db->query( '
+		SELECT id
+		FROM core_user
 	' );
 
-	//sources array
-	$sources = array();
+	//loop users
+	foreach( $users as $user ):
+		//get users non-expired article ids
+		$ids = $mod_db->query( '
+			SELECT article_id AS id, source_id, source_type, origin_id
+			FROM mod_user_articles
+			WHERE user_id = ' . $user['id'] . '
+		' );
+		//now get the articles
+		$articledata = $mod_memcache->get( 'mod_article', $ids );
 
-	//update each articles poptime
-	foreach( $articles as $key => $article ):
-		//calculate time in hours since posting
-		$time = time() - $article['time'];
-		$time = round( $time / 3600 );
-		$time = $time ^ 2;
+		//make each key = article id
+		$articles = array();
+		foreach( $articledata as $article ):
+			$articles[$article['id']] = array(
+				'refs' => 0,
+				'popularity' => $article['popularity'],
+				'time' => $article['time']
+			);
+		endforeach;
 
-		//poptime = popularity / hours
-		if( $time <= 1 ) $time = 1;
-		$pop_time = $article['popularity'] / $time;
-		
-		//set array
-		$articles[$key]['popularity_time'] = $pop_time;
+		//now add our ref count to each article
+		foreach( $ids as $id ):
+			//add ref
+			$articles[$id['id']]['refs']++;
 
-		//no source? add it
-		if( !isset( $sources[$article['source_id']] ) )
-			$sources[$article['source_id']] = array(
+			//if no source id or source id = 0
+			if( !isset( $articles[$id['id']]['source_id'] ) or $articles[$id['id']]['source_id'] == 0 )
+				$articles[$id['id']]['source_id'] = ( $id['source_type'] =='source' ) ? $id['source_id'] : $id['origin_id'];
+		endforeach;
+
+		//sources index
+		$sources = array(
+			0 => array(
 				'articleCount' => 0,
 				'popTotal' => 0
+			)
+		);
+		$bigsource = 0;
+
+		//now loop articles
+		foreach( $articles as $key => $article ):
+			//calculate poptime
+			$time = time() - $article['time'];
+			$time = round( $time / 3600 );
+			$time = $time ^ 2;
+
+			//poptime = popularity / hours
+			if( $time <= 1 ) $time = 1;
+			$pop_time = $article['popularity'] / $time;
+			
+			//set array
+			$articles[$key]['popularity_time'] = $pop_time;
+
+			//no source? add it
+			if( !isset( $sources[$article['source_id']] ) )
+				$sources[$article['source_id']] = array(
+					'articleCount' => 0,
+					'popTotal' => 0
+				);
+			
+			//now update the source info
+			$sources[$article['source_id']]['articleCount']++;
+			$sources[$article['source_id']]['popTotal'] += $pop_time;
+		endforeach;
+
+		//loop sources
+		foreach( $sources as $key => $source ):
+			//calculate average poptime
+			$sources[$key]['avgPop'] = $source['avgPop'] = $source['popTotal'] / $source['articleCount'];
+
+			//check if biggest source
+			if( $bigsource == 0 or ( $source['avgPop'] > $sources[$bigsource]['avgPop'] and $key != 0 ) )
+				$bigsource = $key;
+		endforeach;
+
+		//re-loop sources
+		foreach( $sources as $key => $source ):
+			//no division by 0!
+			if( $source['avgPop'] <= 0 )
+				$source['avgPop'] = 1;
+
+			//make source scale
+			$sources[$key]['scale'] = $sources[$bigsource]['avgPop'] / ( $source['avgPop'] );
+		endforeach;
+
+		//loop articles
+		foreach( $articles as $key => $article ):
+			//scale articles using the source scale and # of refs
+			$articles[$key]['popscore'] = $article['popscore'] = round( $article['popularity_time'] * $sources[$article['source_id']]['scale'] * 100 ) * pow( $article['refs'], 2 );
+
+			//finally, update db with popscore
+			$update = $mod_db->query( '
+				UPDATE mod_user_articles
+				SET popscore = ' . $article['popscore'] . '
+				WHERE user_id = ' . $user['id'] . '
+				AND article_id = ' . $key
 			);
-		
-		//now update the source info
-		$sources[$article['source_id']]['articleCount']++;
-		$sources[$article['source_id']]['popTotal'] += $pop_time;
+
+			//error?
+			if( !$update )
+				echo 'error updating user ' . $user['id'] . ' and article ' . $key . ' : ' . mysql_error() . PHP_EOL;
+		endforeach;
+
+		//echo and done this user!
+		echo 'user #' . $user['id'] . ' streams updated (' . count( $articles ) . ' articles)' . PHP_EOL;
 	endforeach;
 
-	//work out average for each source
-	foreach( $sources as $key => $source )
-		$sources[$key]['average'] = $source['popTotal'] / $source['articleCount'];
-
-	//locate the highest source
-	$bigSource = 0;
-	foreach( $sources as $key => $source )
-		if( $bigSource == 0 or $source['average'] > $sources[$bigSource]['average'] )
-			$bigSource = $key;
-	
-	//now scale all our sources (skipping source 0)
-	foreach( $sources as $key => $source )
-		$sources[$key]['scale'] = $sources[$bigSource]['average'] / ( $source['average'] + 1 );
-
-	//now work out scores for each article
-	foreach( $articles as $key => $article )
-		$articles[$key]['popularity_score'] = round( $article['popularity_time'] * $sources[$article['source_id']]['scale'] * 10000 );
-
-	//loop articles, update
-	foreach( $articles as $article ):
-		//and update!
-		$update = $mod_db->query( '
-			UPDATE mod_article
-			SET
-				popularity_score = ' . $article['popularity_score'] . '
-			WHERE id = ' . $article['id'] . '
-			LIMIT 1
-		' );
-
-		//update 2
-		$update2 = $mod_db->query( '
-			UPDATE mod_user_articles
-			SET
-				popscore = ' . $article['popularity_score'] . '
-			WHERE article_id = ' . $article['id'] . '
-		' );
-
-		if( $update and $update2 )
-			echo 'article updated: #' . $article['id'] . "\n";
-	endforeach;
-
-	echo 'updated ' . count( $articles ) . ' articles' . "\n";
+	//echo & we're done!
+	echo 'popcalc complete, updated ' . count( $users ) . ' users' . PHP_EOL;
 ?>
