@@ -93,10 +93,11 @@
 
 			//loop items, build articles
 			$articles = array();
-			foreach( $items as $key => $item ):
-				echo 'item #' . $key . ' / ' . count( $items ) . PHP_EOL;
-			
+			foreach( $items as $key => $item ):	
 				$i = $item->get_item();
+
+				//debug
+				echo 'item #' . $key . ' / ' . count( $items ) . ' : ' . $i->get_end_url() . PHP_EOL;
 
 				//check article
 				$check = $this->checkArticle( $i->get_end_url(), $item->get_permalink(), $item->get_title() );
@@ -164,10 +165,11 @@
 			//now, get each article
 			$articles = array();
 			foreach( $tweets as $key => $tweet ):
-				echo 'tweet #' . $key . ' / ' . count( $tweets ) . PHP_EOL;
-
 				//start feed_article
 				$i = new mod_feed_article( $tweet['url'] );
+
+				//debug
+				echo 'tweet #' . $key . ' / ' . count( $tweets ) . ' : ' . $i->get_end_url() . PHP_EOL;
 
 				$i->get_article(); //populate thumbs + rip content
 				$images = $i->get_thumbs();
@@ -239,11 +241,12 @@
 			//now, get each article
 			$articles = array();
 			foreach( $links as $key => $link ):
-				echo 'fblink #' . $key . ' / ' . count( $links ) . PHP_EOL;
-
 				//start feed_article
 				$i = new mod_feed_article( $link['url'] );
 
+				//debug
+				echo 'fblink #' . $key . ' / ' . count( $links ) . ' : ' . $i->get_end_url() . PHP_EOL;
+				
 				$i->get_article(); //populate thumbs + rip content
 				$images = $i->get_thumbs();
 
