@@ -416,6 +416,12 @@
 	function item_template( $item, $uid, $header = 'h3' ) {
 		global $mod_user, $mod_token, $c_config;
 
+		//work out if we have the source ref
+		$source = false;
+		foreach( $item['refs'] as $ref )
+			if( $ref['source_type'] == 'source' )
+				$source = true;
+
 		$long = true;
 ?>
 				<div class="item" id="article_<?php echo $item['id']; ?>">
@@ -485,7 +491,7 @@
 									endswitch;
 								?>" />
 							</a>
-							<?php if( isset( $ref['origin_id'] ) and $ref['origin_id'] > 0 and isset( $ref['origin_title'] ) and isset( $ref['origin_data'] ) ): ?>
+							<?php if( !$source and isset( $ref['origin_id'] ) and $ref['origin_id'] > 0 and isset( $ref['origin_title'] ) and isset( $ref['origin_data'] ) ): ?>
 								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $ref['origin_id']; ?>" class="tip hover">
 									<span>
 										<strong><?php echo $ref['origin_title']; ?></strong>
