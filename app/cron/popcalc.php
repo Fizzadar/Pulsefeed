@@ -21,6 +21,9 @@
 			FROM mod_user_articles
 			WHERE user_id = ' . $user['id'] . '
 		' );
+		if( !$ids or count( $ids ) <= 0 )
+			continue;
+		
 		//now get the articles
 		$articledata = $mod_memcache->get( 'mod_article', $ids );
 
@@ -68,11 +71,13 @@
 			$articles[$key]['popularity_time'] = $pop_time;
 
 			//no source? add it
-			if( !isset( $sources[$article['source_id']] ) )
+			if( !isset( $sources[$article['source_id']] ) ):
 				$sources[$article['source_id']] = array(
-					'articleCount' => 0,
-					'popTotal' => 0
+					'articleCount' => 1,
+					'popTotal' => $pop_time;
 				);
+				continue;
+			endif;
 			
 			//now update the source info
 			$sources[$article['source_id']]['articleCount']++;
