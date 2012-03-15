@@ -43,6 +43,9 @@
 		'weekly_email' => ( isset( $_POST['weekly_email'] ) and $_POST['weekly_email'] == 'on' ) ? 1 : 0,
 	) );
 
+	//delete username cookie
+	$mod_cookie->delete( 'ChangeUsernameMessage' );
+
 	//redirect
 	$mod_message->add( 'SettingsUpdated' );
 	header( 'Location: ' . $redir );
