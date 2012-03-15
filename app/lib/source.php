@@ -139,7 +139,7 @@
 
 			//load home stream
 			$home = $tw->get( 'statuses/home_timeline', array(
-				'count' => 200,
+				'count' => 100,
 				'include_entities' => true,
 				'exclude_replies' => true
 			) );
@@ -217,7 +217,7 @@
 			//get home stream
 			$home = $fb->api( '/me/home', 'GET', array(
 				'access_token' => $data->token,
-				'limit' => 200
+				'limit' => 100
 			) );
 
 			//loop items
