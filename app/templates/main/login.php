@@ -8,12 +8,14 @@
 		<h1><span>Pulsefeed <small>&rarr; login</small></span>Pulsefeed</h1>
 		<div id="buttons">
 			<p>Pulsefeed has <em>no</em> registration process, to save time simply login with a service below (you will be taken to their site to do this) / <a href="<?php echo $this->get( 'redir' ); ?>">go back &rarr;</a></p>
-			<a class="login" href="<?php echo $c_config['root']; ?>/process/fb-out">
-				<img src="<?php echo $c_config['root']; ?>/inc/img/login/facebook.png" /> Login with Facebook
+			<a class="login big" href="<?php echo $c_config['root']; ?>/process/fb-out">
+				<img src="<?php echo $c_config['root']; ?>/inc/img/login/facebook.png" /> <em>Login with Facebook</em>
+				<span>accounts can sync</span>
 			</a>
 
-			<a class="login" href="<?php echo $c_config['root']; ?>/process/tw-out">
-				<img src="<?php echo $c_config['root']; ?>/inc/img/login/twitter.png" /> Login with Twitter
+			<a class="login big" href="<?php echo $c_config['root']; ?>/process/tw-out">
+				<img src="<?php echo $c_config['root']; ?>/inc/img/login/twitter.png" /> <em>Login with Twitter</em>
+				<span>accounts can sync</span>
 			</a>
 
 			<a class="login" href="<?php echo $c_config['root']; ?>/process/openid?openid=https://www.google.com/accounts/o8/id">

@@ -288,7 +288,7 @@
 					</ul>
 				<?php endif; ?>
 
-				<?php if( isset( $this->content['accounts'] ) and count( $this->content['accounts'] ) > 0 ): ?>
+				<?php if( isset( $this->content['accounts'] ) and $mod_user->session_userid() == $this->get( 'userid' ) ): ?>
 					<ul>
 						<li class="title">Accounts <a href="<?php echo $c_config['root']; ?>/settings" class="edit">edit</a></li>
 						<?php foreach( $this->content['accounts'] as $account ): ?>
@@ -297,7 +297,9 @@
 							<?php else: ?>
 								<li><a href="<?php echo $c_config['root']; ?>/account/<?php echo $account['type']; ?>"><?php echo ucfirst( $account['type'] ); ?></a></li>
 							<?php endif; ?>
-						<?php endforeach; ?>
+						<?php endforeach; if( count( $this->get( 'accounts' ) ) <= 0 ): ?>
+							<li><a href="<?php echo $c_config['root']; ?>/settings">Add accounts &rarr;</a></li>
+						<?php endif; ?>
 					</ul>
 				<?php endif; ?>
 

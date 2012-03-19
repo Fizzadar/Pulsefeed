@@ -50,8 +50,28 @@ div#login {
 			font-family: PT Sans, Arial;
 			margin: 15px 0 15px 15px;
 		}
+		div#login div#buttons a.login.big {
+			text-decoration: none;
+		}
 			div#login div#buttons a.login img {
 				float: left;
 				margin-top: -5px;
 				margin-right: 10px;
+			}
+			div#login div#buttons a.login.big img {
+				margin-top: 2px;
+			}
+			div#login div#buttons a.login.big em {
+				font-style: normal;
+			}
+			div#login div#buttons a.login.big:hover em {
+				text-decoration: underline;
+			}
+			div#login div#buttons a.login span {
+				font-size: 11px;
+				font-family: Verdana;
+				color: #666;
+				display: block;
+				line-height: 8px;
+				text-decoration: none;
 			}

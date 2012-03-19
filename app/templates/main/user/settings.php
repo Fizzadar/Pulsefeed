@@ -34,7 +34,8 @@
 
 			<div class="right half">
 				<h2>Linked Accounts</h2>
-				<p>All the accounts you have used (and can use) to login to Pulsefeed. <a href="<?php echo $c_config['root']; ?>/login"><strong>Add another account &rarr;</strong></a></p>
+				<p>All the accounts can use to login to Pulsefeed. <strong>Facebook</strong> &amp; <strong>Twitter</strong> accounts can also sync with your article stream <a href="<?php echo $c_config['root']; ?>/login"><strong>Add another account &rarr;</strong></a></p>
+
 				<?php foreach( $this->get( 'oauths' ) as $oauth ): ?>
 					<strong><?php echo $oauth['provider']; ?></strong> &rarr; <?php echo $oauth['o_id']; ?>
 					 <span class="edit inline"> - 
@@ -43,6 +44,9 @@
 					 </span>
 					<br />
 				<?php endforeach; ?>
+
+				<br />
+				OpenID's:<br />
 				<?php foreach( $this->get( 'oids' ) as $oid ): $bits = parse_url( $oid['open_id'] ); ?>
 					<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?> 
 					<span class="edit inline">- <form action="" method="post" class="inline"><input type="submit" class="edit" value="delete" /></form></span>
