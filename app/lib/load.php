@@ -35,7 +35,6 @@
 			//make/build some data
 			foreach( $sources as $k => $s ):
 				$sources[$k]['source_domain'] = @$this->data->domain_url( $s['source_url'] );
-				$sources[$k]['source_title'] = $this->data->str_tooltip( $s['source_title'] );
 			endforeach;
 
 			//return

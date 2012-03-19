@@ -51,16 +51,27 @@
 
 	//set unread
 	if( $mod_user->check_login() ):
+		//update user articles
 		$mod_db->query( '
 			UPDATE mod_user_articles
 			SET unread = 0
 			WHERE user_id = ' . $mod_user->get_userid() . '
 			AND article_id = ' . $article[0]['id'] . '
 		' );
+		//set as read (used for tag recommends)
 		$mod_memcache->set( 'mod_user_reads', array(
 			array(
 				'user_id' => $mod_user->get_userid(),
-				'article_id' => $article[0]['id']
+				'article_id' => $article[0]['id'],
+				'time' => $article[0]['time']
+			)
+		) );
+		//and hide
+		$mod_memcache->set( 'mod_user_hides', array(
+			array(
+				'user_id' => $mod_user->get_userid(),
+				'article_id' => $article[0]['id'],
+				'time' => $article[0]['time']
 			)
 		) );
 	endif;

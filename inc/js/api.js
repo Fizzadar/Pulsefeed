@@ -5,7 +5,7 @@
 var api = {};
 
 //api startup
-api.start = function() {
+api.start = function( full ) {
 	//bind like buttons
 	$( '.like_form' ).bind( 'submit', function( ev ) {
 		ev.preventDefault();
@@ -30,18 +30,24 @@ api.start = function() {
 		ev.preventDefault();
 		api.follow( ev.target );
 	});
-	//pf stream?
-	if( pulsefeed.stream && false ) {
-		$( '.stream_load_more' ).bind( 'click', function( ev ) {
-			ev.preventDefault();
-			api.loadStream( ev.target );
-		});
+
+	//full load?
+	if( full ) {
+		//pf stream?
+		if( pulsefeed.stream ) {
+			$( '.stream_load_more' ).bind( 'click', function( ev ) {
+				ev.preventDefault();
+				api.loadStream( ev.target, false );
+			});
+		}
+		//load more sources
+		if( pulsefeed.sbrowser ) {
+			$( '.source_load_more' ).bind( 'click', function( ev ) {
+				ev.preventDefault();
+				api.loadSource( ev.target );
+			});
+		}
 	}
-	//load more sources
-	$( '..source_load_more' ).bind( 'click', function( ev ) {
-		ev.preventDefault();
-		api.loadSource();
-	});
 }
 
 //request

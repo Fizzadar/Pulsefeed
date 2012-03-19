@@ -2,6 +2,12 @@
 	global $mod_user, $mod_token, $mod_cookie;
 ?>
 
+<script type="text/javascript">
+	pulsefeed.sbrowser = true;
+	pulsefeed.sourceOffset = <?php echo $this->get( 'nextOffset' ); ?>;
+	pulsefeed.sourceType = '<?php echo $this->get( 'sourceType' ); ?>';
+</script>
+
 <?php if( !$this->get( 'mainOnly' ) ): ?>
 	<div id="header">
 		<div class="wrap">

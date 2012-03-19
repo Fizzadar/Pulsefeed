@@ -35,10 +35,12 @@
 		WHERE user_id = ' . $mod_user->get_userid() . '
 		AND article_id = ' . $_POST['article_id'] . '
 	' );
+	//set hidden
 	$mod_memcache->set( 'mod_user_hides', array(
 		array(
 			'user_id' => $mod_user->get_userid(),
-			'article_id' => $_POST['article_id']
+			'article_id' => $_POST['article_id'],
+			'time' => time() //not quite article_time, but doesn't matter (only used to delete)
 		)
 	) );
 

@@ -127,10 +127,10 @@
 
 			//work out id, insert where needed (now we have source_id)
 			if( !isset( $item['id'] ) ):
-				//insert the article
+				//insert the article (update time = now + 3600, give articles an hour to update)
 				$insert = $mod_db->query( '
 					INSERT INTO mod_article
-					( title, url, end_url, description, time, image_quarter, image_third, image_half )
+					( title, url, end_url, description, time, image_quarter, image_third, image_half, update_time )
 					VALUES(
 						"' . $item['title'] . '",
 						"' . $item['url'] . '",
@@ -139,7 +139,8 @@
 						' . $item['time'] . ',
 						"' . $item['image_quarter'] . '",
 						"' . $item['image_third'] . '",
-						"' . $item['image_half'] . '"
+						"' . $item['image_half'] . '",
+						' . ( time() + 3600 ) . '
 					)
 				' );
 				//all good?
@@ -172,7 +173,7 @@
 					'article_id' => $item['id'],
 					'source_type' => $source['type'],
 					'article_time' => $item['time'],
-					'unread' => count( $mod_memcache->get( 'mod_user_reads', array(
+					'unread' => count( $mod_memcache->get( 'mod_user_hides', array(
 						array(
 							'user_id' => $subscriber['user_id'],
 							'article_id' => $item['id']

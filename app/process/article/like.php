@@ -50,7 +50,8 @@
 	$mod_memcache->set( 'mod_user_likes', array(
 		array(
 			'user_id' => $mod_user->get_userid(),
-			'article_id' => $_POST['article_id']
+			'article_id' => $_POST['article_id'],
+			'time' => time()
 		)
 	) );
 

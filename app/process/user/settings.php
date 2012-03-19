@@ -22,6 +22,8 @@
 
 	//hmtl ents on username
 	$_POST['username'] = filter_var( $_POST['username'], FILTER_SANITIZE_URL );
+	//make username 30 chars long
+	$_POST['username'] = substr( $_POST['username'], 0, 30 );
 
 	//validate the email (as much as we can)
 	if( !empty( $_POST['email'] ) and !filter_var( $_POST['email'], FILTER_VALIDATE_EMAIL ) ):

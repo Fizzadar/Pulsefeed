@@ -7,11 +7,15 @@
 	endif;
 ?>
 
+<script type="text/javascript">
+	pf_frameurl = '<?php echo $this->content['article']['url']; ?>';
+</script>
+
 <div class="iframeborder">
 	<div id="loader">
 		<div class="wrap">
 			<img src="<?php echo $c_config['root']; ?>/inc/img/icons/loader.gif" alt="" /> article loading...
 		</div>
 	</div>
-	<iframe class="externalarticle" onload="$( '.iframeborder #loader' ).slideUp();" src="<?php echo $this->content['article']['url']; ?>"></iframe>
+	<iframe class="externalarticle" src="<?php echo $this->content['article']['url']; ?>"></iframe>
 </div><!--end frameborder-->

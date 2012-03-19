@@ -3,6 +3,56 @@
 	desc: extra page data (offsets)
 */
 
+//load more sources
+api.loadSource = function( el ) {
+	$( el ).html( 'loading <img src="' + mod_root + '/inc/img/icons/loader.gif" alt="" />' );
+	
+	//make our request
+	this.get(
+		'/sources/' + pulsefeed.sourceType,
+		{ offset: pulsefeed.sourceOffset },
+		//success, lets distribute those articles
+		function( data, el ) {
+			console.log( data );
+			if( data.result == 'success' ) {
+				if( data.sources == null || data.sources.length == 0 ) {
+					$( el ).html( 'no more sources :(' );
+					$( el ).removeClass( 'source_load_more' );
+					$( el ).unbind( 'click' );
+					$( el ).bind( 'click', function( ev ) {
+						ev.preventDefault();
+					});
+					$( el ).addClass( 'disabled' );
+					return;
+				} else {
+					//loop sources, add to div
+					for( var i = 0; i < data.sources.length; i++ ) {
+						$( '#sources' ).append( template.source( data.sources[i] ) );
+						//fade in
+						queue.add( function( args ) {
+							$( '#source_' + args.id ).animate( { opacity: 1 }, 300 );
+						}, 200, { id: data.sources[i].id } );
+					}
+				}
+
+				//up offset
+				pulsefeed.sourceOffset++;
+				//reload links
+				api.start( false );
+				//loading text
+				$( el ).html( 'load more sources &darr;' );
+			} else {
+				window.location = mod_root + '/sources/' + pulsefeed.sourceType + '?offset=' + pulsefeed.sourceOffset;
+			}
+		},
+		//failure!
+		function( data, el ) {
+			window.location = mod_root + '/sources/' + pulsefeed.sourceType + '?offset=' + pulsefeed.sourceOffset;
+		},
+		el
+	);
+}
+
 //work out stream api link
 api.linkStream = function() {
 	switch( pulsefeed.streamType ) {
@@ -10,6 +60,8 @@ api.linkStream = function() {
 			return  '/public';
 		case 'source':
 			return '/source/' + pulsefeed.streamSource;
+		case 'account':
+			return '/account/' + pulsefeed.streamAccount;
 		default:
 			return '/user/' + pulsefeed.streamUser + '/' + pulsefeed.streamType;
 	}
@@ -62,24 +114,19 @@ api.loadStream = function( el, reload ) {
 				//increase our page offset
 				pulsefeed.streamOffset++;
 				//reload links
-				api.start();
+				api.start( false );
 				//loading text
 				$( el ).html( 'load more articles &darr;' );
 			} else {
-				window.location = mod_root + api.streamLink();
+				window.location = mod_root + api.linkStream() + '?offset=' + pulsefeed.streamOffset;
 			}
 		},
 		//failure!
 		function( data, el ) {
-			window.location = mod_root + api.streamLink();
+			window.location = mod_root + api.linkStream() + '?offset=' + pulsefeed.streamOffset;
 		},
 		el
 	);
-}
-
-//load more sources
-api.loadSource = function() {
-	console.log( 'moar' );
 }
 
 //render stream
@@ -167,6 +214,7 @@ api.buildStream = function( items ) {
 		case 'newest':
 		case 'discover':
 		case 'source':
+		case 'account':
 			var col = 1;
 
 			//add each item

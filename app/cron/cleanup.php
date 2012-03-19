@@ -28,6 +28,7 @@
 		AND time < ' . $expire_stream . '
 	' );
 	echo $mod_db->affected_rows() . ' articles set to expired' . PHP_EOL;
+
 	//expire on mod_user_articles
 	$mod_db->query( '
 		UPDATE mod_user_articles
@@ -37,8 +38,33 @@
 	' );
 	echo $mod_db->affected_rows() . ' user_articles set to expired' . PHP_EOL;
 
+	//week ago
+	$delete_time = time() - ( 3600 * 24 * 7 );
+
+	//delete old mod_user_articles
+	$mod_db->query( '
+		DELETE FROM mod_user_articles
+		WHERE article_time < ' . $delete_time . '
+	' );
+	echo $mod_db->affected_rows()  . ' user_articles deleted' . PHP_EOL;
+
+	//delete old mod_user_hides
+	$mod_db->query( '
+		DELETE FROM mod_user_hides
+		WHERE time < ' . $delete_time . '
+	' );
+	echo $mod_db->affected_rows() . ' user_hides deleted' . PHP_EOL;
+
+	//delete old mod_user_reads
+	$mod_db->query( '
+		DELETE FROM mod_user_reads
+		WHERE time < ' . $delete_time . '
+	' );
+	echo $mod_db->affected_rows() . ' user_reads deleted' . PHP_EOL;
+	
 	//sync required tables
 	$mod_memcache->sync( 'mod_user_likes' );
 	$mod_memcache->sync( 'mod_article', 'expired = 0' );
+
 	echo 'tables synced with memcache' . PHP_EOL;
 ?>

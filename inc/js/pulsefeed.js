@@ -11,7 +11,7 @@ pulsefeed.start = function() {
 
 	//start stuff
 	message.start();
-	api.start();
+	api.start( true );
 	design.start();
 	queue.start();
 

@@ -50,7 +50,8 @@
 
 	$mod_template->add( 'nextOffset', $offset + 1 );
 	$mod_template->add( 'sourceOrder', isset( $_GET['me'] ) ? 'mod_source.articles' : $order );
-	
+	$mod_template->add( 'sourceType', isset( $_GET['me'] ) ? 'me' : ( isset( $_GET['new'] ) ? 'new' : 'popular' ) );
+
 	//templates
 	$mod_template->load( 'core/header' );
 	$mod_template->load( 'source/browse' );

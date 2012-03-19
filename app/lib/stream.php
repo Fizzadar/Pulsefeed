@@ -151,7 +151,6 @@
 						//set popscore, time & unread (overwrites, no matter)
 						$articledata[$article['article_id']]['popscore'] = $article['popscore'];
 						$articledata[$article['article_id']]['article_time'] = $article['article_time'];
-						$articledata[$article['article_id']]['unread'] = $article['unread'];
 
 						//add ref
 						$articledata[$article['article_id']]['refs'][] = array(
@@ -203,7 +202,7 @@
 						$domain = $domain['host'];
 
 						//set ref data
-						$article['source_type'] = 'source';
+						$article['source_type'] = 'public';
 						$article['source_title'] = $sourcedata[$article['source_id']]['site_title'];
 						$article['source_data'] = array( 'domain' => $domain );
 
@@ -277,6 +276,12 @@
 				$article['short_description'] = substr( $article['description'], 0, 200 ) . ( strlen( $article['description'] ) > 200 ? '...' : '' );
 				$article['shorter_description'] = substr( $article['description'], 0, 120 ) . ( strlen( $article['description'] ) > 120 ? '...' : '' );
 				$article['liked'] = isset( $likes[$article['id']] );
+
+				//hybrid & unread = unread
+				if( in_array( $this->stream_type, array( 'hybrid', 'unread' ) ) ):
+					$article['unread'] = 1;
+				endif;
+
 				//add to return
 				$return[] = $article;
 			endforeach;

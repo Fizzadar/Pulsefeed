@@ -15,10 +15,10 @@
 	<div class="wrap" id="content">
 		<div class="main">
 			<form action="<?php echo $c_config['root']; ?>/process/settings" method="post" class="left half">
-				<label for="username">Username:</label>
+				<label for="username">Username <small>(30 character max)</small>:</label>
 				<input type="text" name="username" id="username" value="<?php echo $settings['name']; ?>" maxlength="30" />
 
-				<label for="email">Email (optional):</label>
+				<label for="email">Email <small>(optional)</small>:</label>
 				<input type="text" name="email" id="email" value="<?php echo $settings['email']; ?>" />
 
 				<p><em>Note:</em> <strong>email updates don't currently run</strong></p>
@@ -37,11 +37,15 @@
 				<p>All the accounts you have used (and can use) to login to Pulsefeed. <a href="<?php echo $c_config['root']; ?>/login"><strong>Add another account &rarr;</strong></a></p>
 				<?php foreach( $this->get( 'oauths' ) as $oauth ): ?>
 					<strong><?php echo $oauth['provider']; ?></strong> &rarr; <?php echo $oauth['o_id']; ?>
-					 <span class="edit inline"> - <a class="edit" href="#">stop sync</a> or <a class="edit" href="#">delete</a></span>
+					 <span class="edit inline"> - 
+					 	<form action="" method="post" class="inline"><input type="submit" class="edit" value="stop sync" /></form> or 
+					 	<form action="" method="post" class="inline"><input type="submit" class="edit" value="delete" /></form>
+					 </span>
 					<br />
 				<?php endforeach; ?>
 				<?php foreach( $this->get( 'oids' ) as $oid ): $bits = parse_url( $oid['open_id'] ); ?>
-					<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?> <span class="edit inline">- <a <a class="edit" href="#">delete</a></span>
+					<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?> 
+					<span class="edit inline">- <form action="" method="post" class="inline"><input type="submit" class="edit" value="delete" /></form></span>
 					<br />
 				<?php endforeach; ?>
 			</div>

@@ -12,7 +12,7 @@
 	*/
 	
 	//disable error reporting unless localhost
-	if( $_SERVER['HTTP_HOST'] != 'pulsefeed.dev' )
+	if( $_SERVER['HTTP_HOST'] != 'pulsefeed.dev' and !isset( $argv ) )
 		ini_set( 'display_errors', 0 );
 
 
@@ -44,16 +44,8 @@
 	//memcache <=> db
 	$mod_memcache = new mod_memcache( $mod_db );
 	
-	//start stream memcache
-	$mod_streamcache = new Memcache;
-	//add servers
-	foreach( $mod_config['memcache']['stream'] as $host => $port )
-		$mod_streamcache->addServer( $host, $port );
-
-
 	//if cron, return here
 	if( isset( $_GET['iscron'] ) and $_GET['iscron'] ) return;
-	
 
 	//user & setup
 	$mod_user = new c_user( $mod_db, 'pulsefeed_' );

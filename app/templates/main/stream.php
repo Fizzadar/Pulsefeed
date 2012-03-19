@@ -8,7 +8,7 @@
 
 	//work out if even cols or not
 	$evencols = false;
-	if( in_array( $this->get( 'title' ), array( 'unread', 'source', 'newest', 'discover' ) ) )	$evencols = true;
+	if( in_array( $this->get( 'title' ), array( 'unread', 'source', 'newest', 'account' ) ) )	$evencols = true;
 ?>
 
 <script type="text/javascript">
@@ -17,6 +17,8 @@
 	pulsefeed.streamOffset = <?php echo $this->get( 'nextOffset' ); ?>;
 <?php if( $this->get( 'title' ) == 'source' ): ?>
 	pulsefeed.streamSource = <?php echo $this->get( 'source_id' ); ?>;
+<?php elseif( $this->get( 'title' ) == 'account' ): ?>
+	pulsefeed.streamAccount = '<?php echo $this->get( 'account_type' ); ?>';
 <?php else: ?>
 	pulsefeed.streamUser = <?php echo $this->get( 'userid' ) ? $this->get( 'userid' ) : -1; ?>;
 <?php endif; ?>
@@ -53,13 +55,13 @@
 						<form action="<?php echo $c_config['root']; ?>/process/unfollow" method="post" id="subunsub" class="user_follow">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="user_id" value="<?php echo $this->get( 'userid' ); ?>" />
-							<input type="submit" value="UnFollow <?php echo $this->get( 'username' ); ?>" class="button" />
+							<input type="submit" value="UnFollow" class="button" />
 						</form>
 					<?php else: ?>
 						<form action="<?php echo $c_config['root']; ?>/process/follow" method="post" id="subunsub" class="user_follow">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="user_id" value="<?php echo $this->get( 'userid' ); ?>" />
-							<input type="submit" value="+ Follow <?php echo $this->get( 'username' ); ?>" class="button" />
+							<input type="submit" value="+ Follow" class="button" />
 						</form>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -418,6 +420,7 @@
 
 		//work out if we have the source ref
 		$source = false;
+		$orig = false;
 		foreach( $item['refs'] as $ref )
 			if( $ref['source_type'] == 'source' )
 				$source = true;
@@ -453,11 +456,14 @@
 									default:
 										echo '#';
 								endswitch;
-								?>" class="tip hover">
+								?>" class="tip">
 								<span>
 									<strong><?php echo $ref['source_title']; ?></strong>
 									<small><?php
 										switch( $ref['source_type'] ):
+											case 'public':
+												echo 'Public source';
+												break;
 											case 'source':
 												echo 'You are subscribed';
 												break;
@@ -479,6 +485,7 @@
 								<img src="<?php
 									switch( $ref['source_type'] ):
 										case 'source':
+										case 'public':
 											echo 'http://www.google.com/s2/favicons?domain=' . $ref['source_data']['domain'];
 											break;
 										case 'like':
@@ -491,8 +498,8 @@
 									endswitch;
 								?>" />
 							</a>
-							<?php if( !$source and isset( $ref['origin_id'] ) and $ref['origin_id'] > 0 and isset( $ref['origin_title'] ) and isset( $ref['origin_data'] ) ): ?>
-								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $ref['origin_id']; ?>" class="tip hover">
+							<?php if( !$orig and !$source and isset( $ref['origin_id'] ) and $ref['origin_id'] > 0 and isset( $ref['origin_title'] ) and isset( $ref['origin_data'] ) ): $orig = true; ?>
+								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $ref['origin_id']; ?>" class="tip">
 									<span>
 										<strong><?php echo $ref['origin_title']; ?></strong>
 										<small>Original source</small>
@@ -506,7 +513,7 @@
 						<?php
 							if( isset( $item['unread'] ) and $item['unread'] == 1 ):
 								echo
-									'<form action="' . $c_config['root'] . '/process/article-read" method="post" class="hide_form">
+									'<form action="' . $c_config['root'] . '/process/article-hide" method="post" class="hide_form">
 										<input type="hidden" name="article_id" value="' . $item['id'] . '" />
 										<input type="hidden" name="mod_token" value="' . $mod_token . '" />
 										<input type="submit" value="Hide" />

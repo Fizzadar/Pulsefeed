@@ -61,7 +61,7 @@
 			//calculate poptime
 			$time = time() - $article['time'];
 			$time = round( $time / 3600 );
-			$time = $time ^ 2;
+			$time = $time ^ 3;
 
 			//poptime = popularity / hours
 			if( $time <= 1 ) $time = 1;
@@ -79,9 +79,11 @@
 				continue;
 			endif;
 			
-			//now update the source info
-			$sources[$article['source_id']]['articleCount']++;
-			$sources[$article['source_id']]['popTotal'] += $pop_time;
+			//now update the source info (if poptime > 0)
+			if( $pop_time > 0 ):
+				$sources[$article['source_id']]['articleCount']++;
+				$sources[$article['source_id']]['popTotal'] += $pop_time;
+			endif;
 		endforeach;
 
 		//loop sources

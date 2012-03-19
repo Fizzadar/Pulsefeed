@@ -355,12 +355,13 @@ div.item {
 	external frame (article page)
 */
 div.iframeborder {
-	top: 35px;
+	top: 36px;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	background: #000;
 	position: absolute;
+	z-index: 99;
 }
 	div.iframeborder div#loader {
 		position: absolute;
@@ -376,7 +377,7 @@ div.iframeborder {
 			margin-top: -5px;
 		}
 		div.iframeborder div#loader div.wrap {
-			text-indent: 205px;
+			text-indent: 158px;
 		}
 iframe.externalarticle {
 	border: none;

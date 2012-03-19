@@ -10,7 +10,7 @@
 
 	//no cron time set?
 	if( !isset( $argv[1] ) )
-		die();
+		die( 'invalid cron' . PHP_EOL );
 
 	//now switch our time value
 	switch( $argv[1] ):

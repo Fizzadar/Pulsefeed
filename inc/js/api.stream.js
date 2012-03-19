@@ -62,7 +62,7 @@ api.read = function( el ) {
 
 	//make our request
 	this.post(
-		'/process/article-read',
+		'/process/article-hide',
 		{ article_id: article_id },
 		function( data, el ) {
 			var article_id = $( 'input[name=article_id]', el ).attr( 'value' );

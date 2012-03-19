@@ -59,7 +59,7 @@
 			'article-like' => 'article/like',
 			'article-unlike' => 'article/unlike',
 			'article-collect' => 'article/collect', //todo
-			'article-read' => 'article/read',
+			'article-hide' => 'article/hide',
 			'article-tag' => 'article/tag', //todo
 			'article-untag' => 'article/untag', //todo
 			//collection
@@ -128,13 +128,13 @@
 		//how much each type of share/save is worth
 		'popularity' => array(
 			'like' => 20, //internal recommendations
-			'facebook_shares' => 2,
+			'facebook_shares' => 1,
 			'facebook_comments' => 1,
 			'delicious_saves' => 5,
-			'twitter_links' => 3,
+			'twitter_links' => 2.5,
 			'digg_diggs' => 4,
 			'reddit_score' => 0.2,
-			'google_pluses' => 2,
+			'google_pluses' => 4,
 			'linked_shares' => 5,
 		),
 		//no-go tag words (words must be larger than 2 already)
@@ -161,9 +161,6 @@
 		//memcache servers
 		'memcache' => array(
 			'mod' => array(
-				'127.0.0.1' => 11211,
-			),
-			'stream' => array(
 				'127.0.0.1' => 11211,
 			),
 			'query' => array(

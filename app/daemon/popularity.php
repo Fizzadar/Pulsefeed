@@ -204,7 +204,7 @@
 		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
 		$mod_db->connect();
 
-		//min 30 min between source checks
+		//min 30 min between pop checks
 		$update_time = time() - 1800;
 
 		//select articles to update
