@@ -85,7 +85,101 @@
 
 		//build features
 		private function build_features() {
-			return array();
+			//list of topics (big words)
+			$topics = array();
+			//the actual features
+			$features = array();
+			//return array
+			$return = array();
+
+			//build list of topics and ids
+			foreach( $this->data as $key => $item ):
+				$words = explode( ' ', $item['title'] );
+				foreach( $words as $word ):
+					if( strlen( $word ) >= 5 ):
+						if( !isset( $topics[$word] ) ):
+							$topics[$word] = array(
+								'count' => 1,
+								'ids' => array(
+									$key
+								)
+							);
+						else:
+							$topics[$word]['count']++;
+							$topics[$word]['ids'][] = $key;
+						endif;
+					endif;
+				endforeach;
+			endforeach;
+
+			//remove all shit topics (min 3)
+			foreach( $topics as $key => $topic )
+				if( $topic['count'] < 3 )
+					unset( $topics[$key] );
+
+			//match common topics
+			foreach( $topics as $word1 => $topic1 ):
+				foreach( $topics as $word2 => $topic2 ):
+					//ignore same/reverse words
+					if( $word1 == $word2 or isset( $features[$word2 . '_' . $word1] ) )
+						continue;
+
+					//loop ids from each topic
+					foreach( $topic1['ids'] as $id1 ):
+						foreach( $topic2['ids'] as $id2 ):
+							//matching id's!
+							if( $id1 == $id2 ):
+								if( !isset( $features[$word1 . '_' . $word2] ) ):
+									$features[$word1 . '_' . $word2] = array(
+										$id1
+									);
+								else:
+									$features[$word1 . '_' . $word2][] = $id1;
+								endif;
+							endif;
+						endforeach;
+					endforeach;
+				endforeach;
+			endforeach;
+
+			//finally, build them features
+			foreach( $features as $words => $ids ):
+				//min 3 topics
+				if( count( $ids ) < 3 )
+					continue;
+
+				//build the feature
+				$tmp = array(
+					'topics' => explode( '_', $words ),
+					'articles' => array()
+				);
+				foreach( $ids as $id ):
+					$tmp['articles'][] = $this->data[$id];
+					unset( $this->data[$id] );
+				endforeach;
+				
+				//sort the articles
+				usort( $tmp['articles'], array( 'mod_stream', 'sortPopscore' ) );
+
+				//make sure first item has an image (well, try)
+				if( empty( $tmp['articles'][0]['image_half'] ) and empty( $tmp['articles'][0]['image_quarter'] ) ):
+					foreach( $tmp['articles'] as $article ):
+						if( !empty( $article['image_half'] ) ):
+							$tmp['articles'][0]['image_half'] = $article['image_half'];
+							break;
+						elseif( !empty( $article['image_quarter'] ) ):
+							$tmp['articles'][0]['image_quarter'] = $article['image_quarter'];
+							break;
+						endif;
+					endforeach;
+				endif;
+
+				//add to return
+				$return[] = $tmp;
+			endforeach;
+
+			//return
+			return $return;
 		}
 	}
 ?>
