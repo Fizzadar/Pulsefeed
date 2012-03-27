@@ -35,14 +35,7 @@
 			'user_id' => $mod_user->get_userid()
 		)
 	) );
-
-	//delete from user articles
-	$mod_db->query( '
-		DELETE FROM mod_user_articles
-		WHERE user_id = ' . $mod_user->get_userid() . '
-		AND source_id = ' . $_POST['source_id']
-	);
-
+	
 	//affected?
 	if( $mod_db->affected_rows() > 0 ):
 		$mod_db->query( '

@@ -68,11 +68,15 @@
 		endif;
 
 		//message, redirect
-		$mod_message->add( 'SourceSubscribed' );
-		header( 'Location: ' . $redir );
+		if( !isset( $_POST['noredirect'] ) ):
+			$mod_message->add( 'SourceSubscribed' );
+			header( 'Location: ' . $redir );
+		endif;
 	else:
 		//still here?
-		$mod_message->add( 'UnknownError' );
-		header( 'Location: ' . $redir );
+		if( !isset( $_POST['noredirect'] ) ):
+			$mod_message->add( 'UnknownError' );
+			header( 'Location: ' . $redir );
+		endif;
 	endif;
 ?>

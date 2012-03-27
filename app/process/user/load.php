@@ -25,15 +25,16 @@
 		
 			$mod_db->query( '
 				INSERT INTO mod_source
-				( site_title, feed_url, site_url, owner_id, private, subscribers, type )
+				( site_title, feed_url, site_url, owner_id, private, subscribers, type, time )
 				VALUES (
 					"User #' . $mod_user->get_userid() . ' on ' . $auth['provider'] . '",
-					"http://' . $auth['provider'] . '.com/' . $mod_user->get_userid() . '",
+					"' . $auth['provider'] . '/' . $mod_user->get_userid() . '/' . $auth['o_id'] . '",
 					\'' . $urldata. '\',
 					' . $mod_user->get_userid() . ',
 					1,
 					1,
-					"' . $auth['provider'] . '"
+					"' . $auth['provider'] . '",
+					' . time() . '
 				) ON DUPLICATE KEY UPDATE
 				site_url = \'' . $urldata . '\'
 			' );
