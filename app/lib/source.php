@@ -86,8 +86,12 @@
 			//set the url
 			$this->pie->set_feed_url( $this->url );
 			$this->pie->set_item_class( 'mod_feed' );
-			$this->pie->init();
+			$init = @$this->pie->init();
 			
+			//no init?
+			if( !$init )
+				return false;
+
 			//get the items
 			$items = $this->pie->get_items();
 
