@@ -48,6 +48,20 @@
 		endif;
 		$items = $mod_source->load();
 
+		//false items? baw
+		if( !$items ):
+			//update failcount
+			$mod_db->query( '
+				UPDATE mod_source
+				SET fail_count = fail_count + 1
+				WHERE id = ' . $source['id'] . '
+				LIMIT 1
+			' );
+			//and we're done
+			echo 'source loading failed' . PHP_EOL;
+			exit( 0 );
+		endif;
+
 		//clean the items for mysql
 		$items = $mod_db->clean( $items );
 
@@ -76,6 +90,7 @@
 			if( $item['time'] < $source['update_time'] ):
 				unset( $items[$key] );
 				echo 'old article, skipping ' . $item['end_url'] . PHP_EOL;
+				continue; //we're done
 			endif;
 
 			//work out source, locate/insert where needed
@@ -127,7 +142,7 @@
 
 			//work out id, insert where needed (now we have source_id)
 			if( !isset( $item['id'] ) ):
-				//insert the article (update time = now + 3600, give articles an hour to update)
+				//insert the article (update time = now + 1800, give articles an 30min to update)
 				$insert = $mod_db->query( '
 					INSERT INTO mod_article
 					( title, url, end_url, description, time, image_quarter, image_third, image_half, update_time )
@@ -140,7 +155,7 @@
 						"' . $item['image_quarter'] . '",
 						"' . $item['image_third'] . '",
 						"' . $item['image_half'] . '",
-						' . ( time() + 3600 ) . '
+						' . ( time() + 1800 ) . '
 					)
 				' );
 				//all good?

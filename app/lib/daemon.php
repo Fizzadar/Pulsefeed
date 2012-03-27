@@ -61,8 +61,10 @@
 					foreach( $j as $job ):
 						$this->jobs[] = $job;
 					endforeach;
-					//reset db timer
-					$dbtime = 0;
+					//reset db timer (if we have no jobs, otherwise keep going)
+					if( count( $j ) <= 0 ):
+						$dbtime = 0;
+					endif;
 				elseif( count( $this->jobs ) <= 0 and count( $this->threads ) <= 0 ):
 					echo 'waiting for dbtimer... ' . ( $this->dbupdate - $dbtime ) . PHP_EOL;
 				endif;
