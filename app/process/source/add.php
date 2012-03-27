@@ -7,28 +7,31 @@
 	//modules
 	global $mod_db, $mod_user, $mod_session, $mod_message, $mod_app;
 
+	//redirect
+	$redir = $c_config['root'] . '/sources/add';
+
 	//token?
 	if( !isset( $_POST['mod_token'] ) or !$mod_session->validate( $_POST['mod_token'] ) ):
 		$mod_message->add( 'InvalidToken' );
-		die( header( 'Location: ' . $c_config['root'] ) );
+		die( header( 'Location: ' . $redir ) );
 	endif;
 
 	//check post data
 	if( !isset( $_POST['source_url'] ) or empty( $_POST['source_url'] ) ):
 		$mod_message->add( 'InvalidPost' );
-		die( header( 'Location: ' . $c_config['root'] . '/sources/add' ) );
+		die( header( 'Location: ' . $redir ) );
 	endif;
 
 	//are we logged in?
 	if( !$mod_user->check_login() ):
 		$mod_message->add( 'MustLogin' );
-		die( header( 'Location: ' . $c_config['root'] . '/sources/add' ) );
+		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
 	//permission
 	if( !$mod_user->check_permission( 'AddSource' ) ):
 		$mod_message->add( 'NoPermission' );
-		die( header( 'Location: ' . $c_config['root'] . '/sources/add' ) );
+		die( header( 'Location: ' . $redir ) );
 	endif;
 	
 	//try to find the feed
