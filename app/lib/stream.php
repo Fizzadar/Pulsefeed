@@ -94,12 +94,12 @@
 		}
 
 		//sort by time function
-		private function sortTime( $a, $b ) {
+		protected function sortTime( $a, $b ) {
 			return $a['article_time'] < $b['article_time'];
 		}
 
 		//sort by popularity function
-		private function sortPopscore( $a, $b ) {
+		protected function sortPopscore( $a, $b ) {
 			return $a['popscore'] < $b['popscore'];
 		}
 
@@ -144,12 +144,15 @@
 					//prepare articledata refs
 					foreach( $articledata as $k => $v ):
 						$articledata[$k]['refs'] = array();
+						$articledata[$k]['popscore'] = 0;
 					endforeach;
 
 					//add references
 					foreach( $articles as $article ):
-						//set popscore, time & unread (overwrites, no matter)
-						$articledata[$article['article_id']]['popscore'] = $article['popscore'];
+						//set popscore, time & unread (overwrites time, popscore if larger)
+						if( $articledata[$article['article_id']]['popscore'] < $article['popscore'] ):
+							$articledata[$article['article_id']]['popscore'] = $article['popscore'];
+						endif;
 						$articledata[$article['article_id']]['article_time'] = $article['article_time'];
 
 						//add ref
