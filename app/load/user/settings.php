@@ -23,10 +23,23 @@
 
 	//get oauths
 	$oauths = $mod_user->get_oauths();
-	//remove unwanted data
+	//loop each auth
 	foreach( $oauths as $key => $oauth ):
+		//remove token & secret
 		unset( $oauths[$key]['token'] );
 		unset( $oauths[$key]['secret'] );
+
+		//search to see if syncing
+		$sync = $mod_db->query( '
+			SELECT disabled
+			FROM mod_source
+			WHERE feed_url = "' . $oauth['provider'] . '/' . $mod_user->get_userid() . '/' . $oauth['o_id'] . '"
+			LIMIT 1
+		' );
+
+		if( $sync and is_array( $sync ) ):
+			$oauths[$key]['nosync'] = $sync[0]['disabled'];
+		endif;
 	endforeach;
 	$mod_template->add( 'oauths', $oauths );
 
