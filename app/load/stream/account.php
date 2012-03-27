@@ -31,11 +31,16 @@
 	if( !$mod_config['api'] and $mod_user->check_login() ):
 		//load the users sources
 		$accounts = array();
+		$tmp = array();
 		$sources = $mod_load->load_sources( $mod_user->get_userid() );
 		foreach( $sources as $key => $s ):
 			if( $s['type'] != 'source' ):
 				unset( $sources[$key] );
-				$accounts[] = $s;
+				//only want unique array values
+				if( !in_array( $s['type'], $tmp ) ):
+					$accounts[] = $s;
+					$tmp[] = $s['type'];
+				endif;
 			endif;
 		endforeach;
 		$mod_template->add( 'accounts', $accounts );
