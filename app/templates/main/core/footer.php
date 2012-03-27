@@ -5,11 +5,11 @@
 			<div class="inner">
 				<div class="bottom">
 					<div class="left">
-						A <a href="#">Fanatical Dev</a> production<br /><a href="#">Copyright Info</a> - <a href="#">Stats</a> - <a href="#">Contact</a> - v<?php echo PULSEFEED_VERSION; ?>
+						A <a href="http://fanaticaldev.com/" title="Fanatical Dev">Fanatical Dev</a> production<br /><a href="#"><strike>Copyright Info</strike></a> - <a href="#"><strike>Stats</strike></a> - <a href="#"><strike>Contact</strike></a> - v<?php echo PULSEFEED_VERSION; ?>
 					</div><!--end left-->
 					<div class="right">
-						Icons: <a href="#">PC.DE</a> - Colors: <a href="#">ColorLovers</a><br />
-						PHP: <a href="#">SimplePie</a>, <a href="#">Resize</a> - JS: <a href="#">jQuery</a>, <a href="#">full list &rarr;</a>
+						Icons: <a href="http://pc.de">PC.DE</a> - Colors: <a href="http://www.colourlovers.com/">ColorLovers</a><br />
+						PHP: <a href="http://simplepie.org/">SimplePie</a>, <a href="http://net.tutsplus.com/tutorials/php/image-resizing-made-easy-with-php/">Resize</a> - JS: <a href="http://jquery.com/">jQuery</a>, <a href="#"><strike>full list &rarr;</strike></a>
 					</div><!--end right-->
 				</div><!--end bottom-->
 			</div><!--end inner-->

@@ -268,3 +268,24 @@ div.wrap {
 	font-family: PT Sans;
 	font-weight: bold;
 }
+
+a.greenbutton {
+	margin: 0;
+	font-size: 15px;
+	padding: 5px;
+	font-weight: normal;
+	min-width: 140px;
+	width: auto;
+	text-align: center;
+	color: #FFF;
+	line-height: normal;
+	text-decoration: none;
+}
+a.greenbutton:hover {
+	border: 1px solid #000;
+	background: rgba( 65, 127, 38, 1 );
+}
+span.greenor {
+	margin: 5px 5px 0 5px;
+	display: inline-block;
+}

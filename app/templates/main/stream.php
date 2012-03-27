@@ -17,10 +17,12 @@
 	pulsefeed.streamOffset = <?php echo $this->get( 'nextOffset' ); ?>;
 <?php if( $this->get( 'title' ) == 'source' ): ?>
 	pulsefeed.streamSource = <?php echo $this->get( 'source_id' ); ?>;
+	pulsefeed.streamSubscribed = <?php echo $this->get( 'subscribed' ) ? 'true' : 'false'; ?>;
 <?php elseif( $this->get( 'title' ) == 'account' ): ?>
 	pulsefeed.streamAccount = '<?php echo $this->get( 'account_type' ); ?>';
 <?php else: ?>
 	pulsefeed.streamUser = <?php echo $this->get( 'userid' ) ? $this->get( 'userid' ) : -1; ?>;
+	pulsefeed.streamUsername = '<?php echo $this->get( 'username' ); ?>';
 <?php endif; ?>
 </script> 
 
@@ -67,13 +69,41 @@
 				<?php endif; ?>
 			</div>
 
-			<h1><?php echo $this->get( 'pageTitle' ); ?></h1>
+			<h1><?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? 'This is Pulsefeed' : $this->get( 'pageTitle' ); ?></h1>
 		</div><!--end wrap-->
 	</div><!--end header-->
 <?php endif; ?>
 
 	<div class="wrap" id="content">
 		<div class="main<?php echo $evencols ? ' evencol' : ''; ?>" id="stream">
+			<?php if( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ): ?>
+				<div id="welcome">
+					<h2>A personalized magazine which learns what you like</h2>
+					<p>
+						Available on your computer, laptop, <strike>tablet &amp; phone</strike> - coming soon!
+					</p>
+					<div class="third">
+						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/combine.png" alt="" />
+						<h3>Combine</h3>
+						<p>All your news in one easy to navigate stream. Follow topics you love, link your facebook &amp; twitter, subscribe to websites &amp; feeds you read</p>
+					</div>
+					<div class="third">
+						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/recommend.png" alt="" />
+						<h3>Recommend</h3>
+						<p>Pulsefeed recommends you articles based on what you read &amp; like. The more you read, the better the recommendations.</p>
+					</div>
+					<div class="third">
+						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/collect.png" alt="" />
+						<h3>Collect</h3>
+						<p>Group articles into collections and store them forever. Share articles you love on Pulsefeed, Facebook, Twitter, Google+ &amp; more</p>
+					</div>
+
+					<div>
+						<a class="greenbutton" href="<?php echo $c_config['root']; ?>/login">Get Started with Pulsefeed &#187;</a><span class="greenor"> or <a href="<?php echo $c_config['root']; ?>/login">login</a></span>
+					</div>
+				</div><!--end welcome-->
+			<?php endif; ?>
+
 			<?php if( $mod_cookie->get( 'ChangeUsernameMessage' ) == '1' ): ?>
 				<div class="block">
 					<p>We noticed you haven't yet changed your username! <a class="button" href="<?php echo $c_config['root']; ?>/settings">Change username &#187;</a></p>
@@ -86,6 +116,10 @@
 					<h2>To fill your stream, you need to add some (more) sources!</h2>
 					<p>There's currently no articles in your stream, subscribe to more sources to increase the number of articles in your stream. We'll pick out the best ones for you.</p>
 					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/sources">Add Sources &#187;</a>
+					<span class="greenor">or</span>
+					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/settings">Add Accounts &#187;</a>
+					<!--<span class="greenor">or</span>
+					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/sources">Add Topics &#187;</a>-->
 				</div>
 				<?php elseif( !$mod_user->session_permission( 'Subscribe' ) ): ?>
 				<div class="block">
@@ -124,41 +158,49 @@
 				<?php endif; ?>
 				<?php
 					foreach( $this->content['stream']['col3'] as $k => $item ):
-						item_template( $item, $this->get( 'userid' ) );
+						item_template( $this, $item, $this->get( 'userid' ) );
 					endforeach;
 				?>
 			</div><!--end col3-->
 
+			<?php
+				if( $this->get( 'features' ) ):
+					foreach( $this->get( 'features' ) as $key => $feature ):
+			?>
+				<div class="feature">
+					<span class="edit">trending topic</span>
+					<h1 class="topics">
+						<?php
+							foreach( $feature['topics'] as $count => $topic ):
+								echo $topic . ( $count + 1 == count( $feature['topics'] ) ? '' : ' + ' );
+							endforeach;
+						?>
+					</h1>
+					<div class="left">
+						<?php
+							item_template( $this, $feature['articles'][0], $this->get( 'userid' ), 'h1', true );
+							if( count( $feature['articles'] ) > 3 ):
+								item_template( $this, $feature['articles'][1], $this->get( 'userid' ), 'h1', true, true );
+							endif;
+						?>
+					</div><!--end left-->
+					<div class="right half">
+						<?php
+							foreach( $feature['articles'] as $count => $article ):
+								if( $count == 0 )
+									continue;
+								if( $count == 1 and count( $feature['articles'] ) > 3 )
+									continue;
 
-			<div class="feature" style="display:none;">
-				<span class="edit">trending topics</span>
-				<h1><a href="#">Facebook</a> + <a href="#">Timeline</a></h1>
-				<div class="left">
-					<img class="thumb" src="http://pulsefeed.com/data/thumbs/half/7b074145a56ec3ff9108159636a8fd219f2d3dab.jpg" />
-					<h2><a href="#">Facebook timeline roll out to all users</a></h2>
-					<p>Image via Wikipedia Forget the Marlboro Reds and whiskey, what you’re developing the biggest dependency on might not be chemical at all: it’s social media. According to a study from Chicago University, texting and checking Facebook and Twitter come in just below sex and sleep on impossible to resist urges. Subjects 18-85 were given blackberries and sent out into the...</p>
-					<div class="meta">
-						<a href="#"><img src="http://www.google.com/s2/favicons?domain=fastcompany.com" /> Fast Company</a> &rarr; 2 hours ago
-					</div>
-				</div>
-				<ul>
-					<li>
-						<span class="title"><a href="#">Facebook timeline roll out to all users</a></span>
-						<span class="desc">Image via Wikipedia Forget the Marlboro Reds and whiskey</span>
-						<span class="meta"><a href="#"><img src="http://www.google.com/s2/favicons?domain=fastcompany.com" /> Fast Company</a> &rarr; 1 hour ago</span>
-					</li>
-					<li>
-						<span class="title"><a href="#">Facebook timeline roll out to all users</a></span>
-						<span class="desc">Image via Wikipedia Forget the Marlboro Reds and whiskey, what you’re</span>
-						<span class="meta"><a href="#"><img src="http://www.google.com/s2/favicons?domain=google.com" /> Fast Company</a> &rarr; 24 seconds ago</span>
-					</li>
-					<li>
-						<span class="title"><a href="#">Facebook timeline roll out to all users, riot ensues</a></span>
-						<span class="desc">Image via Wikipedia Forget the Marlboro Reds and whiskey, what you’re</span>
-						<span class="meta"><a href="#"><img src="http://www.google.com/s2/favicons?domain=techcrunch.com" /> Fast Company</a> &rarr; 2 days ago</span>
-					</li>
-				</ul>
-			</div>
+								item_template( $this, $article, $this->get( 'userid' ), 'h3', false, true );
+							endforeach;
+						?>
+					</div><!--end right-->
+				</div><!--end feature-->
+			<?php 
+					endforeach;
+				endif;
+			?>
 
 
 			<div class="feature edit"><span class="edit">
@@ -188,13 +230,13 @@
 				<?php
 					foreach( $this->content['stream']['col1'] as $k => $item ):
 						if( $evencols )
-							item_template( $item, $this->get( 'userid' ) );
+							item_template( $this, $item, $this->get( 'userid' ) );
 						elseif( $k < 2 )
-							item_template( $item, $this->get( 'userid' ), 'h1' );
+							item_template( $this, $item, $this->get( 'userid' ), 'h1' );
 						elseif( $k < 5 )
-							item_template( $item, $this->get( 'userid' ), 'h2' );
+							item_template( $this, $item, $this->get( 'userid' ), 'h2' );
 						else
-							item_template( $item, $this->get( 'userid' ) );
+							item_template( $this, $item, $this->get( 'userid' ) );
 					endforeach;
 				?>
 			</div><!--end col1-->
@@ -204,13 +246,13 @@
 				<?php
 					foreach( $this->content['stream']['col2'] as $k => $item ):
 						if( $evencols )
-							item_template( $item, $this->get( 'userid' ) );
+							item_template( $this, $item, $this->get( 'userid' ) );
 						elseif( $k < 1 )
-							item_template( $item, $this->get( 'userid' ), 'h1' );
+							item_template( $this, $item, $this->get( 'userid' ), 'h1' );
 						elseif( $k < 4 )
-							item_template( $item, $this->get( 'userid' ), 'h2' );
+							item_template( $this, $item, $this->get( 'userid' ), 'h2' );
 						else
-							item_template( $item, $this->get( 'userid' ) );
+							item_template( $this, $item, $this->get( 'userid' ) );
 					endforeach;
 				?>
 			</div><!--end col2-->
@@ -252,7 +294,6 @@
 							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/unread">Unread</a>
 							<?php endif; ?>
 						</li>
-						<li>Discover <span class="type">coming soon</span></li>
 						<li>
 							<?php if( $this->content['title'] == 'popular' ): ?>
 							Popular &rarr;
@@ -267,6 +308,7 @@
 							<a href="<?php echo $c_config['root']; ?>/user/<?php echo $this->get( 'userid' ); ?>/newest">Newest</a>
 							<?php endif; ?>
 						</li>
+						<li>Likes <span class="type">coming soon</span></li>
 					<?php endif; ?>
 
 					<li>
@@ -312,7 +354,10 @@
 								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $source['id']; ?>" class="tip">
 									<span>
 										<strong><?php echo $source['source_title']; ?></strong>
-										<small>You are subscribed</small><span></span>
+										<small>
+											<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? 'Your are subscribed' : $this->get( 'username' ) . ' is subscribed'; ?>
+										</small>
+										<span></span>
 									</span>
 									<img src="http://www.google.com/s2/favicons?domain=<?php echo $source['source_domain']; ?>" />
 								</a>
@@ -333,7 +378,9 @@
 								<a href="<?php echo $c_config['root']; ?>/user/<?php echo $follow['id']; ?>" class="tip">
 									<span>
 										<strong><?php echo $follow['name']; ?></strong>
-										<small>You follow them</small>
+										<small>
+											<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? 'You follow them' : $this->get( 'username' ) . ' follows them'; ?>
+										</small>
 										<span></span>
 									</span>
 									<img src="<?php echo !empty( $follow['avatar_url'] ) ? $follow['avatar_url'] : $c_config['root'] . '/inc/img/icons/user.png'; ?>" alt="<?php echo $follow['name']; ?>" />
@@ -360,10 +407,14 @@
 						</a>
 					<?php endif; ?>
 
-					<a href="<?php echo $c_config['root']; ?>/settings" class="biglink">
-						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/settings.png" alt="" /> Your Pulsefeed Settings</span>
-						customize your pulsefeed setup
-					</a>
+					<?php if( $mod_user->session_login() ): ?>
+						<a href="<?php echo $c_config['root']; ?>/settings" class="biglink">
+							<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/settings.png" alt="" /> Your Pulsefeed Settings</span>
+							customize your pulsefeed setup
+						</a>
+					<?php endif; ?>
+
+					<!--
 					<a href="#" class="biglink">
 						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/phone.png" alt="" /> Pulsefeed on your Mobile</span>
 						stay updated while on the move
@@ -380,6 +431,7 @@
 						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/api.png" alt="" /> Pulsefeed API</span>
 						develop services using our api
 					</a>
+					-->
 				</div><!--end biglinks-->
 			</div><!--end right-->
 
@@ -417,7 +469,7 @@
 
 
 <?php
-	function item_template( $item, $uid, $header = 'h3' ) {
+	function item_template( $that, $item, $uid, $header = 'h3', $force_long = false, $no_image = false ) {
 		global $mod_user, $mod_token, $c_config;
 
 		//work out if we have the source ref
@@ -427,20 +479,20 @@
 			if( $ref['source_type'] == 'source' )
 				$source = true;
 
-		$long = true;
+		$long = $no_image ? false : true;
 ?>
 				<div class="item" id="article_<?php echo $item['id']; ?>">
 					<<?php echo $header; ?>><a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link"><?php echo $item['title']; ?></a></<?php echo $header; ?>>
-					<?php if( !empty( $item['image_half'] ) ): $long = false; ?>
+					<?php if( !empty( $item['image_half'] ) and !$no_image ): $long = false; ?>
 						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">
 							<img class="thumb" src="<?php echo $c_config['root'] . '/' . $item['image_half']; ?>" alt="<?php echo $item['title']; ?>" />
 						</a>
-					<?php elseif( !empty( $item['image_third'] ) ): $long = false; ?>
+					<?php elseif( !empty( $item['image_third'] ) and !$no_image ): $long = false; ?>
 						<a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">
 							<img class="thumb" src="<?php echo $c_config['root'] . '/' . $item['image_third']; ?>" alt="<?php echo $item['title']; ?>" />
 						</a>
 					<?php endif; ?>
-					<p><?php echo $long ? $item['short_description'] : $item['shorter_description']; ?> <a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">read article &rarr;</a></p>
+					<p><?php echo ( $long or $force_long ) ? $item['short_description'] : $item['shorter_description']; ?> <a href="<?php echo $c_config['root'] . '/article/' . $item['id']; ?>" class="article_link">read article &rarr;</a></p>
 					<div class="meta">
 						<?php foreach( $item['refs'] as $ref ): ?>
 							<a href="<?php echo $c_config['root']; ?>/<?php
@@ -467,14 +519,16 @@
 												echo 'Public source';
 												break;
 											case 'source':
-												echo 'You are subscribed';
-												break;
-											case 'twitter':
-												echo 'You follow them';
+												if( $that->get( 'title' ) == 'source' ):
+													echo ( $that->get( 'subscribed' ) ? 'You are' : 'Not' ) . ' subscribed';
+												else:
+													echo ( $that->get( 'userid' ) == $mod_user->session_userid() ? 'You are' : $that->get( 'username' ) . ' is' ) . ' subscribed';
+												endif;
 												break;
 											case 'facebook':
 												echo 'You are subscribed';
 												break;
+											case 'twitter':
 											case 'like':
 												echo 'You follow them';
 												break;

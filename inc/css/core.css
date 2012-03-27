@@ -10,7 +10,6 @@ div#top {
 	background: #A40802;
 	border-bottom: 1px solid #000;
 	box-shadow: 0px -23px 50px #000;
-	//opacity: 0.8;
 }
 	div#top h3 {
 		margin: 0;
@@ -87,6 +86,42 @@ div#top {
 			padding: 0;
 			border: none;
 		}
+		div#top ul#search_results {
+			position: absolute;
+			margin: 23px 0 0 -1px;
+			background: #D7D7D7;
+			border: 1px solid #000;
+			border-top: none;
+			width: 329px;
+			padding: 5px 0 0 0;
+			display: none;
+		}
+			div#top ul#search_results li {
+				list-style: none;
+				padding: 0;
+			}
+				div#top ul#search_results li a {
+					padding: 13px 5px 5px 5px;
+					float: left;
+					width: 319px;
+					border-bottom: 1px solid #D7D7D7;
+					text-decoration: none;
+					background: #FFF;
+				}
+				div#top ul#search_results li:last-child a {
+					border-bottom: none;
+				}
+				div#top ul#search_results li span.title {
+					font-weight: bold;
+					display: block;
+					line-height: 8px;
+				}
+				div#top ul#search_results li span.type {
+					color: #666;
+					font-size: 11px;
+					font-family: Verdana;
+					line-height: 0;
+				}
 	div#top ul#external {
 		float: left;
 		margin: 0 0 0 38px;
@@ -263,7 +298,7 @@ div#top {
 	messages
 */
 div#messages {
-	top: 35px;
+	top: 36px;
 	position: absolute;
 	width: 100%;
 	margin-bottom: 50px;
@@ -388,7 +423,7 @@ div#sidebars {
 		width: 130px;
 		margin-right: 0px;
 		border-right: 1px solid #D7D7D7;
-		padding: 46px 0;
+		padding: 46px 0 0 0;
 		background: #FFF;
 		position: relative;
 		z-index: 3;
@@ -620,6 +655,7 @@ div#footer {
 	float: left;
 	width: 100%;
 	margin-bottom: 20px;
+	margin-top: 15px;
 }
 	div#footer div.wrap {
 		position: relative;

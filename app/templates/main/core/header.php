@@ -93,9 +93,16 @@
 					<a href="<?php echo $c_config['root']; ?>">Pulsefeed</a>
 				</h3>
 
-				<form id="search">
-					<input type="text" id="s" name="s" value="Search is not currently finished!" onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" disabled="disabled" />
-					<input type="submit" id="submit" value="Search &rarr;" class="disabled" disabled="disabled" />
+				<form id="search" action="<?php echo $c_config['root']; ?>/search" method="GET">
+					<input type="text" id="q" name="q" value="Search Pulsefeed..." onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" />
+					<input type="submit" id="submit" value="Search &rarr;" />
+
+					<ul id="search_results">
+						<li><a href="#">
+							<span class="title">Title of blog post</span>
+							<span class="type">Article</span>
+						</a></li>
+					</ul><!--end search_results-->
 				</form>
 			<?php endif; ?>
 

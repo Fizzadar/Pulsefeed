@@ -120,6 +120,12 @@
 					<li class="title">Tags</li>
 				</ul>
 			</div><!--end left-->
+
+			<div class="fix">
+				<a href="#" class="top_link">
+					&uarr; top
+				</a>
+			</div>
 		</div><!--end wrap-->
 	</div><!--end sidebars-->
 <?php endif; ?>

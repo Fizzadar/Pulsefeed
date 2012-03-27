@@ -5,7 +5,8 @@ body#body_login {
 div#login {
 	width: 500px;
 	height: 300px;
-	margin: 150px auto 0 auto;
+	margin: 0 auto;
+	margin-top: 150px;
 }
 	div#login h1 {
 		background: #A40802;
@@ -13,7 +14,7 @@ div#login {
 		font-family: 'PT Sans', Arial;
 		font-style: italic;
 		font-weight: normal;
-		padding: 10px;
+		padding: 13px 0 7px 10px;
 		border-radius: 5px 5px 0 0;
 		margin: 0;
 	}

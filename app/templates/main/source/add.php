@@ -26,8 +26,8 @@
 
 			<div class="midor">or</div>
 
-			<form action="<?php echo $c_config['root']; ?>/process/source-add" method="post" class="half">
-				<p>Upload an OPML file, which contains a list of all your feeds. These can be exported from many RSS readers <a href="#">Read more &rarr;</a></p>
+			<form action="<?php echo $c_config['root']; ?>/process/source-opml" method="post" enctype="multipart/form-data" class="half">
+				<p>Upload an OPML file, which contains a list of all your feeds. These can be exported from many RSS readers. <a target="_blank" href="http://en.wikipedia.org/wiki/OPML">Read more &rarr;</a></p>
 
 				<label for="opml_file">An OPML File:</label>
 				<input type="file" name="opml_file" id="opml_file" />

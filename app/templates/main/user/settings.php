@@ -39,19 +39,39 @@
 				<?php foreach( $this->get( 'oauths' ) as $oauth ): ?>
 					<strong><?php echo $oauth['provider']; ?></strong> &rarr; <?php echo $oauth['o_id']; ?>
 					 <span class="edit inline"> - 
-					 	<form action="" method="post" class="inline"><input type="submit" class="edit" value="stop sync" /></form> or 
-					 	<form action="" method="post" class="inline"><input type="submit" class="edit" value="delete" /></form>
+					 	<form action="<?php echo $c_config['root']; ?>/process/account-sync" method="post" class="inline">
+					 		<input type="submit" class="edit" value="<?php echo $oauth['nosync'] ? 'start' : 'stop'; ?> sync" />
+					 		<input type="hidden" name="o_id" value="<?php echo $oauth['o_id']; ?>" />
+					 		<input type="hidden" name="provider" value="<?php echo $oauth['provider']; ?>" />
+					 		<input type="hidden" name="mod_token" value="<?php echo $this->get( 'mod_token' ); ?>" />
+					 		<input type="hidden" name="sync" value="<?php echo $oauth['nosync']; ?>" />
+					 	</form> or 
+					 	<form action="<?php echo $c_config['root']; ?>/process/account-delete" method="post" class="inline">
+					 		<input type="submit" class="edit" value="delete" />
+					 		<input type="hidden" name="type" value="oauth" />
+					 		<input type="hidden" name="o_id" value="<?php echo $oauth['o_id']; ?>" />
+					 		<input type="hidden" name="provider" value="<?php echo $oauth['provider']; ?>" />
+					 		<input type="hidden" name="mod_token" value="<?php echo $this->get( 'mod_token' ); ?>" />
+					 	</form>
 					 </span>
 					<br />
-				<?php endforeach; ?>
+				<?php endforeach; if( count( $this->get( 'oids' ) ) > 0 ): ?>
 
-				<br />
-				OpenID's:<br />
-				<?php foreach( $this->get( 'oids' ) as $oid ): $bits = parse_url( $oid['open_id'] ); ?>
-					<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?> 
-					<span class="edit inline">- <form action="" method="post" class="inline"><input type="submit" class="edit" value="delete" /></form></span>
 					<br />
-				<?php endforeach; ?>
+					OpenID's:<br />
+					<?php foreach( $this->get( 'oids' ) as $oid ): $bits = parse_url( $oid['open_id'] ); ?>
+						<strong><?php echo $bits['host']; ?></strong> &rarr; <?php echo $bits['path']; ?> 
+						<span class="edit inline">- 
+							<form action="<?php echo $c_config['root']; ?>/process/account-delete" method="post" class="inline">
+								<input type="submit" class="edit" value="delete" />
+								<input type="hidden" name="type" value="openid" />
+								<input type="hidden" name="open_id" value="<?php echo $oid['open_id']; ?>" />
+								<input type="hidden" name="mod_token" value="<?php echo $this->get( 'mod_token' ); ?>" />
+							</form>
+						</span>
+						<br />
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</div>
 		</div><!--end main-->
 	</div><!--end wrap-->
