@@ -71,16 +71,26 @@ template.item = function( item ) {
 				r += 'Public source';
 				break;
 			case 'source':
-				r += 'You are subscribed';
-				break;
-			case 'twitter':
-				r += 'You follow them';
+				if( pulsefeed.streamType == 'source' ) {
+					if( pulsefeed.streamSubscribed ) {
+						r += 'You are subscribed';
+					} else {
+						r += 'Not subscribed';
+					}
+				} else {
+					if( pulsefeed.streamUser == mod_userid ) {
+						r += 'You are subscribed';
+					} else {
+						r += pulsefeed.streamUsername + ' is subscribed';
+					}
+				}
 				break;
 			case 'facebook':
 				r += 'You are subscribed';
 				break;
+			case 'twitter':
 			case 'like':
-				r += 'You follow them';
+				r += 'You follow themm';
 				break;
 			default:
 				r += 'Unknown';
