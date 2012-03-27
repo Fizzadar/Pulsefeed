@@ -4,7 +4,7 @@
 		desc: configuration for pulsefeed app
 	*/
 	
-	define( 'PULSEFEED_VERSION', '0.9.0' );
+	define( 'PULSEFEED_VERSION', '0.9.1' );
 
 	//config array
 	$mod_config = array(
@@ -49,19 +49,22 @@
 			'follow' => 'user/follow',
 			'unfollow' => 'user/unfollow',
 			'settings' => 'user/settings',
+			'account-sync' => 'user/account/sync',
+			'account-delete' => 'user/account/delete',
 			//source
 			'source-add' => 'source/add',
+			'source-opml' => 'source/opml',
 			'subscribe' => 'source/subscribe',
 			'unsubscribe' => 'source/unsubscribe',
-			'source-tag' => 'source/tag', //todo
-			'source-untag' => 'source/untag', //todo
+			'source-tag' => 'source/tag', //todo - can hide
+			'source-untag' => 'source/untag', //todo - can hide
 			//article
 			'article-like' => 'article/like',
 			'article-unlike' => 'article/unlike',
 			'article-collect' => 'article/collect', //todo
 			'article-hide' => 'article/hide',
-			'article-tag' => 'article/tag', //todo
-			'article-untag' => 'article/untag', //todo
+			'article-tag' => 'article/tag', //todo - can hide
+			'article-untag' => 'article/untag', //todo - can hide
 			//collection
 			'collection-add' => 'collection/add', //todo
 			'collection-delete' => 'collection/delete', //todo
@@ -93,7 +96,7 @@
 			'NewUser' => array( 'Welcome to Pulsefeed', 'success' ),
 			'LoginServerError' => array( 'There was a problem contacting the account provider', 'warning' ),
 			'FailedLogin' => array( 'We could not validate your login', 'warning' ),
-			'AccountAdded' => array( 'External Account Added', 'success' ),
+			'AccountAdded' => array( 'External account added', 'success' ),
 			'LoggedIn' => array( 'Sucessfully logged in', 'success' ),
 			'ReLoggedIn' => array( 'Sucessfully logged in (again)', 'success' ),
 			'LoggedOut' => array( 'You have logged out of Pulsefeed, come back soon!', 'success' ),
@@ -104,7 +107,11 @@
 			'AlreadyInvited' => array( 'You are already invited to Pulsefeed!', 'success' ),
 			'InvalidInviteCode' => array( 'Invalid invite code', 'warning' ),
 			'InviteCodeAdded' => array( 'Welcome to the Pulsefeed Alpha!', 'success' ),
-			'SettingsUpdated' => array( 'Settings Updated', 'success' ),
+			'SettingsUpdated' => array( 'Settings updated', 'success' ),
+			'AccountSyncOn' => array( 'Account sync enabled', 'success' ),
+			'AccountSyncOff' => array( 'Account sync disabled', 'success' ),
+			'AccountDeleted' => array( 'External account removed', 'success' ),
+			'LastAccount' => array( 'You cannot remove all accounts, because you won\'t be able to login!', 'warning' ),
 			//posting & requests
 			'InvalidToken' => array( 'Invalid session token, please retry your last action', 'warning' ),
 			'InvalidPost' => array( 'Incorrect info was sent during the last action, please try again', 'warning' ),
@@ -116,6 +123,7 @@
 			'NoSource' => array( 'The source you are trying to subscribe to doesn\'t exist!', 'warning' ),
 			'SourceSubscribed' => array( 'Successfully subscribed to that source', 'success' ),
 			'SourceUnsubscribed' => array( 'Successfully unsubscribed to that source', 'success' ),
+			'SourcesSubscribed' => array( 'Successfully subscribed to those sources', 'success' ),
 			//general errors
 			'DatabaseError' => array( 'Unfortunately there was some kind of database error!', 'warning' ),
 			'UnknownError' => array( 'An unknown error (eek!) occurred, please try again', 'warning' ),
@@ -137,16 +145,6 @@
 			'google_pluses' => 4,
 			'linked_shares' => 5,
 		),
-		//no-go tag words (words must be larger than 2 already)
-		'no_tag' => array(
-			'the',
-			'what',
-			'you',
-			'and',
-			'when',
-			'any',
-			'into',
-		),
 		//app info
 		'apps' => array(
 			'facebook' => array(
@@ -167,7 +165,7 @@
 				'127.0.0.1' => 11211,
 			)
 		),
-		//database layout
+		//database layout for mod_memcache
 		'dblayout' => array(
 			'mod_user_reads' => array( //user read an article?
 				'user_id',
