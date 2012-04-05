@@ -1,6 +1,6 @@
 /*
 	file: inc/js/frame.js
-	desc: frame functions
+	desc: frame functions (aka buster - debatably 'evil' but we're not doing anything bad, X-Frame-Origin is for true busters)
 */
 
 //bust the frame busters (evil?)
@@ -17,6 +17,13 @@ setInterval( function() {
 
 //free our links from the grips of the buster!
 $( document ).ready( function() {
+	//add iframe
+	$( '.iframeborder' ).append( '<iframe class="externalarticle" src="' + pf_frameurl + '"></iframe>' );
+
+	//set loader open
+	$( '.iframeborder #loader' ).slideDown();
+
+	//bind links to allow local stuff
 	$( '#top a' ).bind( 'click', function( el ) {
 		prevent_bust = -10;
 	});
@@ -27,7 +34,7 @@ $( document ).ready( function() {
 	//hide loader div
 	$( 'iframe.externalarticle' ).bind( 'load', function( el ) {
 		$( '.iframeborder #loader' ).slideUp();
-		console.log( $( '.iframeborder #loader' ).css( 'display' ) );
+		$( '.iframeborder #loader' ).css( 'display' );
 	});
 	//loading too long?
 	setTimeout( function() {

@@ -11,10 +11,6 @@ api.start = function( full ) {
 		ev.preventDefault();
 		api.like( ev.target );
 	});
-	$( '.like_form_external' ).unbind().bind( 'submit', function( ev ) {
-		ev.preventDefault();
-		api.likeExternal( ev.target );
-	});
 	//bind hide buttons
 	$( '.hide_form' ).unbind().bind( 'submit', function( ev ) {
 		ev.preventDefault();
@@ -62,6 +58,16 @@ api.start = function( full ) {
 		$( 'form#search input' ).bind( 'blur', function( ev ) {
 			api.searchActive = 0;
 			setTimeout( 'api.hideSearch()', 150 ); //done in case searchActive swiched back immediately #hacky!
+		});
+		//external like
+		$( '.like_form_external' ).unbind().bind( 'submit', function( ev ) {
+			ev.preventDefault();
+			api.likeExternal( ev.target );
+		});
+		//external collect button
+		$( '.collect_button_external' ).unbind().bind( 'click', function( ev ) {
+			ev.preventDefault();
+			api.collectExternal( ev.target );
 		});
 	}
 }

@@ -194,17 +194,22 @@ api.subscribe = function( el ) {
 	}
 }
 
-//collect articles
+//collect articles (show list of collections)
 api.collect = function( el ) {
 	//return here if re-clicking the active one
-	if( $( '.collections', $( el ).parent() ).length > 0 )
+	if( $( '.collections', $( el ).parent() ).length > 0 ) {
+		$( '.item .meta .collect_button' ).removeClass( 'active' );
 		return $( '.item .meta ul.collections' ).remove();
+	}
 
-	//remove any open uls
+	//remove any open uls & active buttons
 	$( '.item .meta ul.collections' ).remove();
+	$( '.item .meta .collect_button' ).removeClass( 'active' );
 
 	//get id
 	var id = $( el ).attr( 'articleID' );
+	//save it
+	this.collectionArticleId = id;
 
 	//do we need to get our collections?
 	if( this.collections.length <= 0 ) {
@@ -226,12 +231,15 @@ api.collect = function( el ) {
 				api.collect( el );
 			},
 			function( data, el ) {
-				window.location = mod_root + '/article/' + id + '/collect';
+				window.location = mod_root + '/article/' + this.collectionArticleId + '/collect';
 			},
 			el
 		);
 		return;
 	}
+
+	//set active to el
+	$( el ).addClass( 'active' );
 
 	//open collect ul
 	$( el ).parent().append( '<ul class="collections"><span class="tip"></span></ul>' );
@@ -241,7 +249,7 @@ api.collect = function( el ) {
 
 	//add each collection
 	for( var i = 0; i < this.collections.length; i++ ) {
-		ul.append( '<li><a href="#" collectionID="' + this.collections[i].id + '" articleID="' + id + '" class="submit_collect">' + this.collections[i].name + '</a> <span class="edit inline">' + this.collections[i].articles + ' articles</span>' );
+		ul.append( '<li><a href="' + mod_root +'/article/' + id + '/collect" collectionID="' + this.collections[i].id + '" articleID="' + id + '" class="submit_collect">' + this.collections[i].name + '</a> <span class="edit inline">' + this.collections[i].articles + ' articles</span>' );
 	}
 
 	//add new collection id
@@ -291,8 +299,12 @@ api.collectArticle = function( el ) {
 			article_id: art_id
 		},
 		function( data, el ) {
-			//remove the divs
+			//remove the divs on stream
 			$( '.item .meta ul.collections' ).remove();
+			$( '.item .meta a.collect_button' ).removeClass( 'active' );
+			//remove the div on external
+			$( 'ul#external ul.collections' ).remove();
+			$( 'ul#external a.collect_button_external' ).removeClass( 'active' );
 
 			//if collection id was 0, force reload of list
 			if( api.collectionId == 0 ) {

@@ -40,7 +40,7 @@
 					<a href="#" class="button" onclick="$( '#tour' ).fadeIn( 500 ); return false;">Pulsefeed Guide &rarr;</a>
 				<?php endif; ?>
 
-				<?php if( $this->content['title'] == 'source' and $mod_user->session_login() and $mod_user->session_permission( 'Subscribe' ) ): ?>
+				<?php if( $this->get( 'title' ) == 'source' and $mod_user->session_login() and $mod_user->session_permission( 'Subscribe' ) ): ?>
 					<?php if( $this->get( 'subscribed' ) ): ?>
 						<form action="<?php echo $c_config['root']; ?>/process/unsubscribe" method="post" id="subunsub" class="source_subscribe">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
@@ -54,7 +54,7 @@
 							<input type="submit" value="+ Subscribe" class="button green" />
 						</form>
 					<?php endif; ?>
-				<?php elseif( $this->get( 'userid' ) != $mod_user->session_userid() and $mod_user->session_permission( 'Follow' ) ): ?>
+				<?php elseif( $this->get( 'title' ) != 'collection' and $this->get( 'userid' ) != $mod_user->session_userid() and $mod_user->session_permission( 'Follow' ) ): ?>
 					<?php if( $this->get( 'following' ) ): ?>
 						<form action="<?php echo $c_config['root']; ?>/process/unfollow" method="post" id="subunsub" class="user_follow">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
@@ -412,6 +412,7 @@
 				<img src="<?php echo $c_config['root']; ?>/inc/img/ads/234x60.gif" alt="" />
 
 				<div class="biglinks">
+					<!--page specific-->
 					<?php if( $this->get( 'title' ) == 'source' ): ?>
 						<a href="<?php echo $this->content['source']['site_url']; ?>" target="_blank" class="biglink">
 							<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/original.png" alt="" /> View source &rarr;</span>
@@ -419,12 +420,24 @@
 						</a>
 					<?php endif; ?>
 
+					<!--user related-->
 					<?php if( $mod_user->session_login() ): ?>
 						<a href="<?php echo $c_config['root']; ?>/settings" class="biglink">
 							<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/settings.png" alt="" /> Your Pulsefeed Settings</span>
 							customize your pulsefeed setup
 						</a>
+					<?php else: ?>
+						<a href="<?php echo $c_config['root']; ?>/login" class="biglink">
+							<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/login.png" alt="" /> Login to Pulsefeed</span>
+							no need to regsiter, just login!
+						</a>
 					<?php endif; ?>
+
+					<!--and the rest-->
+					<a href="http://blog.pulsefeed.com/" class="biglink">
+						<span><img src="<?php echo $c_config['root']; ?>/inc/img/icons/sidebar/blog.png" alt="" /> View our Blog</span>
+						get the latest updates on pulsefeed
+					</a>
 
 					<!--
 					<a href="#" class="biglink">

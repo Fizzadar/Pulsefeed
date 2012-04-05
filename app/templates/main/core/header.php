@@ -49,6 +49,8 @@
 	<div id="top">
 		<div class="wrap">
 			<?php if( $this->get( 'externalHeader' ) ): ?>
+				<!--specific css & js -->
+				<link rel="stylesheet" type="text/css" href="<?php echo $c_config['root']; ?>/inc/css/external.css" media="all" />
 				<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/frame.js"></script>
 				<h3 class="external">
 					<span><small>&#171;</small> Pulsefeed</span>
@@ -57,7 +59,7 @@
 
 				<?php if( $mod_user->session_login() ): ?>
 					<ul id="external">
-						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
+						<!--like-->
 						<li>
 							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>" method="post" class="like_form_external">
 								<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
@@ -68,16 +70,17 @@
 								</button>
 							</form>
 						</li>
-						<?php endif; ?>
-						<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
+
+						<!--collect-->
 						<li>
-							<a href="#">
+							<a href="#<?php echo $c_config['root']; ?>/article/<?php echo $this->content['article']['id']; ?>/collect" class="collect_button_external" articleID="<?php echo $this->content['article']['id']; ?>">
 								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
 								Collect
 							</a>
 						</li>
-						<?php endif; ?>
+
 						<?php if( $mod_user->session_permission( 'AddTag' ) ): ?>
+						<!--tag-->
 						<li>
 							<a href="#">
 								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/tag.png" alt="" />
@@ -85,6 +88,8 @@
 							</a>
 						</li>
 						<?php endif; ?>
+
+						<!--original-->
 						<li>
 							<a target="_blank" href="<?php echo $this->content['article']['end_url']; ?>">
 								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/original.png" alt="" />
