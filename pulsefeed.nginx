@@ -18,6 +18,14 @@ server {
 	root /home/pulsefeed/www;
 	index index.php;
 
+
+	#Error Docs
+	#Document Code											#File
+
+	error_page 404										/inc/error/404.html;
+	error_page 500										/inc/error/500.html;
+
+
 	#Rewrites											#Location
 
 	#Article

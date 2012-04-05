@@ -74,7 +74,7 @@
 
 						<!--collect-->
 						<li>
-							<a href="#<?php echo $c_config['root']; ?>/article/<?php echo $this->content['article']['id']; ?>/collect" class="collect_button_external" articleID="<?php echo $this->content['article']['id']; ?>">
+							<a href="<?php echo $c_config['root']; ?>/article/<?php echo $this->content['article']['id']; ?>/collect" class="collect_button_external" articleID="<?php echo $this->content['article']['id']; ?>">
 								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
 								Collect
 							</a>
