@@ -42,6 +42,9 @@
 	function popularity( $article ) {
 		global $mod_config;
 
+		//get memcache
+		$mod_mcache = get_memcache();
+
 		//child db conn
 		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
 		$mod_db->connect();
@@ -64,27 +67,33 @@
 			$fb_shares = isset( $fb->shares ) ? $fb->shares : 0;
 			$fb_comments = isset( $fb->comments ) ? $fb->comments : 0;
 		else:
-			$fb_shares = 0;
-			$fb_comments = 0;
+			$fb_shares = $article['facebook_shares'];
+			$fb_comments = $article['facebook_comments'];
 			echo 'fb failed on #' . $article['id'] . "\n";
 		endif;
 
 		//get twitter data, stop if over api, and only deal with articles in 24 hours (tweets after that lost)
-		$tw = get_data( 'http://api.tweetmeme.com/url_info.json?url=' . $url );
-		if( $tw ):
-			$tw2 = json_decode( $tw );
-			if( isset( $tw2->story->url_count ) ):
-				$tw_links = $tw2->story->url_count;
-			elseif( $tw == '[]' or ( isset( $tw2->status ) and $tw2->status == 'failure' ) ):
-				echo '#######TWITTER OVERLOAD#######' . PHP_EOL;
-				$tw_links = 0;
+		if( !@$mod_mcache->get( 'twitter_overload' ) ):
+			$tw = get_data( 'http://api.tweetmeme.com/url_info.json?url=' . $url );
+			if( $tw ):
+				$tw2 = json_decode( $tw );
+				if( isset( $tw2->story->url_count ) ):
+					$tw_links = $tw2->story->url_count;
+				elseif( isset( $tw2->status ) and isset( $tw2->comment ) and $tw2->status == 'failure' and $tw2->comment == 'exceeded rate limit' ):
+					echo '#######TWITTER OVERLOAD#######' . PHP_EOL;
+					@$mod_mcache->set( 'twitter_overload', true, 0, 1800 );
+					$tw_links = $article['twitter_links'];
+				else:
+					$tw_links = $article['twitter_links'];
+					echo 'tw failed on #' . $article['id'] . ' : ' . $article['end_url'] . PHP_EOL;
+				endif;
 			else:
-				$tw_links = 0;
+				$tw_links = $article['twitter_links'];
 				echo 'tw failed on #' . $article['id'] . ' : ' . $article['end_url'] . PHP_EOL;
 			endif;
 		else:
-			$tw_links = 0;
-			echo 'tw failed on #' . $article['id'] . ' : ' . $article['end_url'] . PHP_EOL;
+			$tw_links = $article['twitter_links'];
+			echo 'twitter skipped, overload set' . PHP_EOL;
 		endif;
 
 		//get delicious data
@@ -92,7 +101,7 @@
 			$dl = json_decode( $dl );
 			$dl_saves = ( is_array( $dl ) and isset( $dl[0] ) ) ? $dl[0]->total_posts : 0;
 		else:
-			$dl_saves = 0;
+			$dl_saves = $article['delicious_saves'];
 			echo 'delicious failed on #' . $article['id'] . PHP_EOL;
 		endif;
 
@@ -101,7 +110,7 @@
 			$dg = json_decode( $dg );
 			$dg_diggs = ( is_array( $dg->stories ) and isset( $dg->stories[0] ) ) ? $dg->stories[0]->diggs : 0;
 		else:
-			$dg_diggs = 0;
+			$dg_diggs = $article['digg_diggs'];
 			echo 'digg failed on #' . $article['id'] . PHP_EOL;
 		endif;
 
@@ -111,7 +120,7 @@
 			$ln = json_decode( $ln );
 			$ln_shares = isset( $ln->count ) ? $ln->count : 0;
 		else:
-			$ln_shares = 0;
+			$ln_shares = $article['linkedin_shares'];
 			echo 'linkedin failed on #' . $article['id'] . PHP_EOL;
 		endif;
 
@@ -122,11 +131,11 @@
 			if( isset( $gl[0]->result->metadata->globalCounts->count ) ):
 				$gl_pluses = $gl[0]->result->metadata->globalCounts->count;
 			else:
-				$gl_pluses = 0;
+				$gl_pluses = $article['google_shares'];
 				echo 'google failed on #' . $article['id'] . PHP_EOL;
 			endif;
 		else:
-			$gl_pluses = 0;
+			$gl_pluses = $article['google_shares'];
 			echo 'google failed on #' . $article['id'] . PHP_EOL;
 		endif;
 
@@ -139,10 +148,10 @@
 			if( isset( $rd->data->children[0] ) ):
 				$rd_score = $rd->data->children[0]->data->score;
 			else:
-				$rd_score = 0;
+				$rd_score = $article['reddit_score'];
 			endif;
 		else:
-			$rd_score = 0;
+			$rd_score = $article['reddit_score'];
 			echo 'reddit failed on #' . $article['id'] . PHP_EOL;
 		endif;
 
@@ -209,12 +218,12 @@
 
 		//select articles to update
 		$articles = $mod_db->query( '
-			SELECT id, url, end_url, time, likes
+			SELECT id, url, end_url, time, likes, facebook_shares, facebook_comments, twitter_links, delicious_saves, digg_diggs, reddit_score, linkedin_shares, google_shares
 			FROM mod_article
 			WHERE expired = 0
 			AND update_time < ' . $update_time . '
 			ORDER BY update_time ASC
-			LIMIT 200
+			LIMIT 500
 		' );
 
 		//update the same set of articles update time
@@ -224,7 +233,7 @@
 			WHERE expired = 0
 			AND update_time < ' . $update_time . '
 			ORDER BY update_time ASC
-			LIMIT 200
+			LIMIT 500
 		' );
 
 		//remove db

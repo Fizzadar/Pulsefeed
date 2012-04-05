@@ -29,7 +29,7 @@
 	endif;
 
 	//permission
-	if( !$mod_user->check_permission( 'Recommend' ) ):
+	if( !$mod_user->check_permission( 'Like' ) ):
 		$mod_message->add( 'NoPermission' );
 		die( header( 'Location: ' . $redir ) );
 	endif;
@@ -70,24 +70,35 @@
 			)
 		) );
 
-		//get users following us
-		$users = $mod_db->query( '
-			SELECT user_id AS id
-			FROM mod_user_follows
-			WHERE following_id = ' . $mod_user->get_userid()
-		);
-		$sql = '
-			REPLACE INTO mod_user_articles
-			( user_id, article_id, source_type, source_title, source_id, article_time ) VALUES';
-		foreach( $users as $user ):
-			$sql .= ' ( ' . $user['id'] . ', ' . $_POST['article_id'] . ', "like", "' . $mod_user->session_username() . '", ' . $mod_user->get_userid() . ', ' . $article[0]['time'] . ' ), ';
-		endforeach;
-		$sql = rtrim( $sql, ', ' );
+		if( !$article[0]['expired'] ):
+			//get users following us
+			$users = $mod_db->query( '
+				SELECT user_id AS id
+				FROM mod_user_follows
+				WHERE following_id = ' . $mod_user->get_userid()
+			);
+			$sql = '
+				REPLACE INTO mod_user_articles
+				( user_id, article_id, source_type, source_title, source_id, article_time ) VALUES';
+			foreach( $users as $user ):
+				//skip if they have hidden the article
+				if( count( $mod_memcache->get( 'mod_user_hides', array(
+					array(
+						'user_id' => $user['id'],
+						'article_id' => $_POST['article_id']
+					)
+				) ) ) == 1 )
+					continue;
 
-		$mod_db->query( $sql );
+				$sql .= ' ( ' . $user['id'] . ', ' . $_POST['article_id'] . ', "like", "' . $mod_user->session_username() . '", ' . $mod_user->get_userid() . ', ' . $article[0]['time'] . ' ), ';
+			endforeach;
+			$sql = rtrim( $sql, ', ' );
+
+			$mod_db->query( $sql );
+		endif;
 	endif;
 
 	//& finally, redirect
-	$mod_message->add( 'ArticleRecommended' );
+	$mod_message->add( 'ArticleLiked' );
 	header( 'Location: ' . $redir );
 ?>

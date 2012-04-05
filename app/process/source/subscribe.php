@@ -50,7 +50,8 @@
 	$insert = $mod_memcache->set( 'mod_user_sources', array(
 		array(
 			'source_id' => $_POST['source_id'],
-			'user_id' => $mod_user->get_userid()
+			'user_id' => $mod_user->get_userid(),
+			'time' => time()
 		)
 	) );
 	$insert_rows = $mod_db->affected_rows();

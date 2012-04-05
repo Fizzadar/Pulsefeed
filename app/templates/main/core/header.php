@@ -15,23 +15,26 @@
 	-->
 
 	<!--meta-->
-	<title>Pulsefeed <?php echo $this->get( 'pageTitle' ) ? ' &rarr; ' . $this->get( 'pageTitle' ) : ''; ?></title>
+	<title><?php echo $this->get( 'pageTitle' ) ? $this->get( 'pageTitle' ) . ' / Pulsefeed' : 'Pulsefeed'; ?></title>
 	<meta charset="UTF-8" />
 	
 	<!--favicon-->
 	<link rel="icon" href="<?php echo $c_config['root']; ?>/inc/img/favicon.png" />
 
 	<!--style-->
-	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>?load=css&type=basics,core,main" media="all" />
+	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/basics.css" media="all" />
+	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/core.css" media="all" />
+	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/main.css" media="all" />
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 	
 	<!--scripts-->
-	<script type="text/javascript" src="<?php echo $c_config['root']; ?>?load=js"></script>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>?load=js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/pulsefeed.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/message.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.stream.js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.search.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.frame.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.page.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/template.js"></script>
@@ -39,13 +42,17 @@
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/queue.js"></script>
 </head>
 <body>
+	<?php if( $mod_user->session_permission( 'Debug' ) ): ?>
+		<a style="position:fixed;bottom:-1px;right:-1px;background:#FFF;border:1px solid #D7D7D7;z-index:9999;color:#1A1B1B;padding:5px" href="?debug"><?php echo isset( $_GET['debug'] ) ? 'look up &uarr;' : 'debug'; ?></a>
+	<?php endif; ?>
+
 	<div id="top">
 		<div class="wrap">
 			<?php if( $this->get( 'externalHeader' ) ): ?>
 				<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/frame.js"></script>
 				<h3 class="external">
-					<span><small>&larr;</small> Pulsefeed</span>
-					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&larr;</small> Pulsefeed</a>
+					<span><small>&#171;</small> Pulsefeed</span>
+					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&#171;</small> Pulsefeed</a>
 				</h3>
 
 				<?php if( $mod_user->session_login() ): ?>
@@ -89,19 +96,15 @@
 
 			<?php else: ?>
 				<h3>
-					<span>Pulsefeed</span>
-					<a href="<?php echo $c_config['root']; ?>">Pulsefeed</a>
+					<span><?php echo !$this->get( 'stream' ) ? '<small>&#171;</small> ' : ''; ?>Pulsefeed</span>
+					<a href="<?php echo $c_config['root']; ?>"><?php echo !$this->get( 'stream' ) ? '<small>&#171;</small> ' : ''; ?>Pulsefeed</a>
 				</h3>
 
 				<form id="search" action="<?php echo $c_config['root']; ?>/search" method="GET">
-					<input type="text" id="q" name="q" value="Search Pulsefeed..." onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" />
+					<input type="text" id="q" name="q" value="<?php echo ( isset( $_GET['q'] ) and !empty( $_GET['q'] ) ) ? $_GET['q'] : 'Search Pulsefeed...'; ?>" onclick="if( this.value == 'Search Pulsefeed...' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Search Pulsefeed...'; }" />
 					<input type="submit" id="submit" value="Search &rarr;" />
 
 					<ul id="search_results">
-						<li><a href="#">
-							<span class="title">Title of blog post</span>
-							<span class="type">Article</span>
-						</a></li>
 					</ul><!--end search_results-->
 				</form>
 			<?php endif; ?>

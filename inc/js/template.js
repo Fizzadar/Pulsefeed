@@ -5,7 +5,7 @@
 var template = {};
 
 //stream item template
-template.item = function( item ) {
+template.item = function( item, no_image ) {
 	var long = true;
 
 	//source or origin ref
@@ -22,12 +22,12 @@ template.item = function( item ) {
 	r += '<h3><a href="' + mod_root + '/article/' + item.id + '" class="article_link">' + item.title + '</a></h3>';
 
 	//image?
-	if( item.image_half != '' ) {
+	if( item.image_half != '' && !no_image ) {
 		long = false;
 		r += '<a href="' + mod_root + '/article/' + item.id + '" class="article_link">';
 		r += '<img class="thumb" src="' + mod_root + '/' + item.image_half + '" alt="' + item.title + '" />';
 		r += '</a>';
-	} else if( item.image_third != '' ) {
+	} else if( item.image_third != '' && !no_image ) {
 		long = false;
 		r += '<a href="' + mod_root + '/article/' + item.id + '" class="article_link">';
 		r += '<img class="thumb" src="' + mod_root + '/' + item.image_third + '" alt="' + item.title + '" />';
@@ -65,7 +65,11 @@ template.item = function( item ) {
 				r += '#';
 		}
 		r += '" class="tip">';
-		r += '<span><strong>' + item.refs[i].source_title + '</strong><small>';
+		r += '<span><strong>';
+		if( item.refs[i].source_type == 'twitter' ) {
+			r += '@';
+		}
+		r += item.refs[i].source_title + '</strong><small>';
 		switch( item.refs[i].source_type ) {
 			case 'public':
 				r += 'Public source';
@@ -100,7 +104,7 @@ template.item = function( item ) {
 		switch( item.refs[i].source_type ) {
 			case 'public':
 			case 'source':
-				r += 'http://www.google.com/s2/favicons?domain=' + item.refs[i].source_data.domain;
+				r += 'http://f.fdev.in/?d=' + item.refs[i].source_data.domain;
 				break;
 			case 'twitter':
 			case 'facebook':
@@ -115,20 +119,23 @@ template.item = function( item ) {
 			orig = true;
 			r += '<a href="' + mod_root + '/source/' + item.refs[i].origin_id + '" class="tip">';
 			r += '<span><strong>' + item.refs[i].origin_title + '</strong><small>Original source</small><span></span></span>';
-			r += '<img src="http://www.google.com/s2/favicons?domain=' + item.refs[i].origin_data.domain + '" alt="" /></a>';
+			r += '<img src="http://f.fdev.in/?d=' + item.refs[i].origin_data.domain + '" alt="" /></a>';
 		}
 	}//end refs
 
 	//logged in?
 	if( mod_userid > 0 ) {
 		//hide button
-		if( item.unread && item.unread == 1 ) {
+		if( item.unread && item.unread == 1 && mod_userid == pulsefeed.streamUser ) {
 			r += '<form action="' + mod_root + '/process/article-hide" method="post" class="hide_form">';
 			r += '<input type="hidden" name="article_id" value="' + item.id + '" />';
 			r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
 			r += '<input type="submit" value="Hide" />';
 			r += '</form> - ';
 		}
+
+		//collect
+		r += '<span class="collect"><a class="collect_button" href="' + mod_root + '/article/' + item.id + '/collect" articleID="' + item.id + '">Collect</a></span> - ';
 
 		//like button
 		r += '<form action="' + mod_root + '/process/article-' + ( item.liked ? 'unrecommend' : 'recommend' ) + '" method="post" class="like_form">';
@@ -151,18 +158,37 @@ template.item = function( item ) {
 template.source = function( source ) {
 	//build string
 	var r = '<div class="source" id="source_' + source.id + '" style="opacity:0;">';
-	r += '<a href="' + mod_root + '/source/' + source.id + '">';
-	r += '<img src="http://screenshots.fanaticaldev.com/?u=' + source.site_url + '&w=110&h=75" alt="" />';
-	r += '</a><h2><a href="' + mod_root + '/source/' + source.id + '">' + source.site_title + '</a></h2>';
-	r += '<span class="url"><a target="_blank" href="' + source.site_url + '">' + source.site_url_trim + '</a></span>';
+
+	//header
+	r += '<h2><img src="http://www.google.com/s2/favicons?domain=' + source.site_domain + '" alt="" />';
+	r += '<a href="' + mod_root + '/source/' + source.id + '">' + source.site_title + '</a>';
+	r += '<span class="url"><a target="_blank" href="' + source.site_url + '">' + source.site_url_trim + '</a></span></h2>';
+
+	//meta
+	r += '<div class="meta">';
+		//thumbnail
+		r += '<a href="' + mod_root + '/source/' + source.id + '">';
+		r += '<img src="http://screenshots.fanaticaldev.com/?u=' + source.site_url + '" alt="" />';
+		r += '</a>';
 	r += '<span class="meta">Subscribers: <strong>' + source.subscribers + '</strong></span>';
+	r += '</div>';
+
+	//articles
+	r += '<ul class="articles">';
+		for( var i = 0; i < source.articles.length; i++ ) {
+			r += '<li><a href="' + mod_root + '/article/' + source.articles[i].id + '">' + source.articles[i].title + ' &rarr;</a></li>';
+		}
+		if( source.articles.length <= 0 ) {
+			r += '<li>This source has no articles!</li>';
+		}
+	r += '</ul><!--end articles-->';
 	
 	//logged in?
 	if( mod_userid > 0 ) {
 		r += '<form action="' + mod_root + '/process/' + ( source.subscribed ? 'unsubscribe' : 'subscribe' ) + '" method="post" class="source_subscribe">';
 		r += '<input type="hidden" name="source_id" value="' + source.id + '" />';
 		r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
-		r += '<input type="submit" value="' + ( source.subscribed ? 'UnSubscribe" class="unsubscribe"' : 'Subscribe"' ) + ' />';
+		r += '<input type="submit" value="' + ( source.subscribed ? 'UnSubscribe" class="button"' : '+ Subscribe" class="green button"' ) + ' />';
 		r += '</form>';
 	}
 

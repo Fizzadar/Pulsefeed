@@ -36,7 +36,7 @@
 					if( count( $this->data ) > 2 ):
 						//get 1/3 length
 						$length = count( $this->data );
-						$third = round( $length / 3 );
+						$third = round( $length / 2.9 );
 
 						//get col3, items from length - third to length
 						for( $i = $length - $third; $i < $length; $i++ ):
@@ -61,11 +61,7 @@
 					endif;
 
 				//3 col even
-				case 'unread':
-				case 'newest':
-				case 'discover':
-				case 'source':
-				case 'account':
+				default:
 					$col = 1;
 
 					//add each item, increment col (back to 1 if on 3)
@@ -83,8 +79,10 @@
 			);
 		}
 
-		//build features
+		//build features <=== needs COMPLETE re-work (only balances 2 words currently)
 		private function build_features() {
+			return array();
+			
 			//list of topics (big words)
 			$topics = array();
 			//the actual features
@@ -112,9 +110,9 @@
 				endforeach;
 			endforeach;
 
-			//remove all shit topics (min 3)
+			//remove all shit topics (min 2)
 			foreach( $topics as $key => $topic )
-				if( $topic['count'] < 3 )
+				if( $topic['count'] < 2 )
 					unset( $topics[$key] );
 
 			//match common topics
@@ -133,7 +131,7 @@
 									$features[$word1 . '_' . $word2] = array(
 										$id1
 									);
-								else:
+								elseif( !in_array( $id1, $features[$word1 . '_' . $word2] ) ):
 									$features[$word1 . '_' . $word2][] = $id1;
 								endif;
 							endif;
@@ -145,7 +143,7 @@
 			//finally, build them features
 			foreach( $features as $words => $ids ):
 				//min 3 topics
-				if( count( $ids ) < 3 )
+				if( count( $ids ) < 2 )
 					continue;
 
 				//build the feature
@@ -155,7 +153,6 @@
 				);
 				foreach( $ids as $id ):
 					$tmp['articles'][] = $this->data[$id];
-					unset( $this->data[$id] );
 				endforeach;
 				
 				//sort the articles
@@ -177,6 +174,11 @@
 				//add to return
 				$return[] = $tmp;
 			endforeach;
+
+			//remove used articles
+			foreach( $features as $ids )
+				foreach( $ids as $id )
+					unset( $this->data[$id] );
 
 			//return
 			return $return;

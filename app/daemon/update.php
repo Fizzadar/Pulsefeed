@@ -33,30 +33,37 @@
 	function update( $source ) {
 		global $mod_config;
 
-		//new db
+		//new db w/memcache
 		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
 		$mod_db->connect();
 
 		//memcache
 		$mod_memcache = new mod_memcache( $mod_db );
 
+		//get mcache
+		$mod_mcache = get_memcache();
+
 		//load our items
 		if( $source['type'] == 'source' ):
 			$mod_source = new mod_source( $source['feed_url'], $source['type'] );
 		else:
-			$mod_source = new mod_source( $source['site_url'], $source['type'] );
+			$mod_source = new mod_source( $source['auth_data'], $source['type'] );
 		endif;
 		$items = $mod_source->load();
 
 		//false items? baw
 		if( !$items ):
-			//update failcount
-			$mod_db->query( '
-				UPDATE mod_source
-				SET fail_count = fail_count + 1
-				WHERE id = ' . $source['id'] . '
-				LIMIT 1
-			' );
+			//only sources (feeds) fail
+			if( $source['type'] == 'source' ):
+				//update failcount
+				$mod_db->query( '
+					UPDATE mod_source
+					SET fail_count = fail_count + 1
+					WHERE id = ' . $source['id'] . '
+					LIMIT 1
+				' );
+			endif;
+
 			//and we're done
 			echo 'source loading failed' . PHP_EOL;
 			exit( 0 );
@@ -79,7 +86,7 @@
 		else:
 			$subscribers = array(
 				array(
-					'user_id' => $source['owner_id']
+					'user_id' => $source['user_id']
 				)
 			);
 		endif;
@@ -142,7 +149,7 @@
 
 			//work out id, insert where needed (now we have source_id)
 			if( !isset( $item['id'] ) ):
-				//insert the article (update time = now + 1800, give articles an 30min to update)
+				//insert the article (update time = article_time + 1800, give articles an 30min to update (in sync with their original post time, NOT our time))
 				$insert = $mod_db->query( '
 					INSERT INTO mod_article
 					( title, url, end_url, description, time, image_quarter, image_third, image_half, update_time )
@@ -155,7 +162,7 @@
 						"' . $item['image_quarter'] . '",
 						"' . $item['image_third'] . '",
 						"' . $item['image_half'] . '",
-						' . ( time() + 1800 ) . '
+						' . ( $item['time'] + 1800 ) . '
 					)
 				' );
 				//all good?
@@ -167,6 +174,11 @@
 					echo 'insert failed on: ' . $item['end_url'] . ' : ' . mysql_error() . PHP_EOL;
 					continue;
 				endif;
+
+				//for mod_source when checking for articles
+				@$mod_mcache->set( md5( $item['end_url'] ), $item['id'] );
+				@$mod_mcache->set( md5( $item['url'] ), $item['id'] );
+				@$mod_mcache->set( md5( $item['title'] ), $item['id'] );
 			else:
 				echo 'article already has id: ' . $item['id'] . PHP_EOL;
 			endif;
@@ -208,12 +220,12 @@
 					$domain = $domain['host'];
 					$tmp['source_data'] = json_encode( array( 'domain' => $domain ) );
 				else:
-					$tmp['source_id'] = $source['id']; //do NOT use articles source_id, thats for origin ;)
+					$tmp['source_id'] = 0; //source ignored
 					$tmp['source_title'] = $item['ex_username'];
 					$tmp['source_data'] = json_encode( array( 'user_id' => $item['ex_userid'] ) );
 
 					//origin? source_id > 0 and not the fb/tw source
-					if( $item['source_id'] > 0 and $item['source_id'] != $source['id'] ):
+					if( $item['source_id'] > 0 ):
 						//get the source
 						$sdata = $mod_memcache->get( 'mod_source', array(
 							array(
@@ -300,7 +312,7 @@
 		endif;
 
 		//complete
-		echo 'source update complete #' . $source['id'] . PHP_EOL;
+		echo 'source update complete #' . ( $source['id'] > 0 ? $source['id'] : $source['type'] ) . PHP_EOL;
 
 		//remove db
 		$mod_db->__destruct();

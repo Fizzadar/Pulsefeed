@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_db, $mod_user, $mod_message;
+	global $mod_db, $mod_user, $mod_message, $mod_data, $mod_memcache;
 
 	//offset
 	$offset = 0;
@@ -37,14 +37,55 @@
 		AND mod_source.type = "source"
 		' . ( ( isset( $_GET['me'] ) and $mod_user->check_login() ) ?
 			'AND mod_source.id = mod_user_sources.source_id AND mod_user_sources.user_id = ' . $mod_user->get_userid() : 
-			'AND mod_user_sources.user_id IS NULL'
+			( $mod_user->check_login() ? 'AND mod_user_sources.user_id IS NULL' : '' )
 		) . '
 		ORDER BY ' . $order . ' DESC
-		LIMIT ' . ( $offset * 15 ) . ', 15
+		LIMIT ' . ( $offset * 16 ) . ', 16
 	' );
-	//manage bits
+
+	//loop sources, add stuff
 	foreach( $sources as $key => $source ):
 		$sources[$key]['site_url_trim'] = substr( $source['site_url'], 0, 20 ) . ( strlen( $source['site_url'] ) > 20 ? '...' : '' );
+		$sources[$key]['site_domain'] = $mod_data->domain_url( $source['site_url'] );
+
+		//get recent articles <= cached like fuck!
+		$arts = $mod_db->query( '
+			SELECT article_id
+			FROM mod_source_articles
+			WHERE source_id = ' . $source['id'] . '
+			ORDER BY article_time DESC
+			LIMIT 3
+		', true, 43200 ); //12 hours
+		if( $arts and count( $arts ) > 0 ):
+			//build memcache list
+			$list = array();
+			foreach( $arts as $article )
+				$list[] = array(
+					'id' => $article['article_id']
+				);
+
+			//get articles from memcache
+			$data = $mod_memcache->get( 'mod_article', $list );
+			//reverse id them
+			$tmp = array();
+			foreach( $data as $d )
+				$tmp[$d['id']] = $d;
+			$data = $tmp;
+
+			//build list
+			$articles = array();
+			foreach( $arts as $article ):
+				if( !isset( $data[$article['article_id']] ) )
+					continue;
+
+				$articles[] = $data[$article['article_id']];
+			endforeach;
+		else:
+			$articles = array();
+		endif;
+
+		//add
+		$sources[$key]['articles'] = $articles;
 	endforeach;
 	$mod_template->add( 'sources', $sources );
 

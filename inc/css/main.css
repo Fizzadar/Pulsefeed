@@ -232,7 +232,7 @@ div.item {
 			div.item div.meta ul.collections span.tip {
 				width: 22px;
 				height: 10px;
-				background: url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip_top.png' ) center top no-repeat;
+				background: url( '../img/backgrounds/tooltip_top.png' ) center top no-repeat;
 				position: absolute;
 				margin-top: -15px;
 			}
@@ -422,23 +422,22 @@ div#sources {
 }
 div.source {
 	float: left;
-	width: 33%;
-	margin-bottom: 20px;
+	width: 50%;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-bottom: 0px;
+	border-bottom: 1px solid #F7F7F7;
 	word-wrap: break-word;
 }
-	div.source img {
-		float: left;
-		width: 30%;
-		margin-right: 10px;
-		margin-top: 10px;
-	}
 	div.source h2 {
 		margin: 0;
 		font-weight: normal;
 		font-family: PT Sans, Arial;
 		font-size: 17px;
-		height: 28px;
 		overflow: hidden;
+		float: left;
+		width: 100%;
+		line-height: 15px;
 	}
 		div.source h2 a {
 			color: #1A1B1B;
@@ -447,8 +446,31 @@ div.source {
 			text-decoration: none;
 			color: #A40802;
 		}
+		div.source h2 span {
+			display: block;
+			float: none;
+			line-height: 22px;
+		}
+		div.source h2 img {
+			width: 14px;
+			height: 14px;
+			border-radius: 3px;
+		}
+	div.source div.meta {
+		float: left;
+		width: 20%;
+		margin-right: 10px;
+		margin-top: 10px;
+	}
+	div.source div.meta img {
+		float: left;
+		width: 100%;
+		margin-right: 10px;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
 	div.source span {
-		display: block;
+		float: left;
 		font-size: 11px;
 		font-family: Verdana;
 		color: #666;
@@ -457,33 +479,39 @@ div.source {
 			color: #888;
 		}
 	div.source span.url {
-		margin-top: -3px;
+		margin-top: 0px;
 		margin-bottom: -5px;
 	}
 	div.source form {
-		display: inline;
+		display: block;
+		padding-left: 20%;
+		margin: 0;
+		margin-left: 10px;
+		float:left;
 	}
-		div#sources form input {
-			width: auto;
-			min-width: 0;
-			padding: 3px 5px;
-			border: 1px solid #d7d7d7;
-			border-radius: 0px;
-			background: #FAFAFA;
-			color: #1a1b1b;
-			text-decoration: none;
-			font-size: 13px;
-			text-shadow: none;
-			font-weight: normal;
+	div.source ul.articles {
+		margin: 10px 0 0 0;
+		float: left;
+		width: 70%;
+		padding: 0;
+		font-size: 13px;
+		height: 100px;
+	}
+		div.source ul.articles li {
+			list-style: none;
+			padding: 3px 8px;
+			background: #F7F7F7;
+			float: left;
+			clear: both;
+			overflow: hidden;
+			height: 24px;
 		}
-		div#sources form input:hover {
-			background: #efefef;
+		div.source ul.articles li:first-child {
+			font-weight: bold;
+			background: #E7E7E7;
 		}
-		div#sources form input.unsubscribe {
-			background: transparent;
-			border: 1px solid transparent;
-			padding-left: 0;
-			color: #666;
+		div.source ul.articles li:last-child {
+			background: #FFF;
 		}
 
 
@@ -587,10 +615,24 @@ div#welcome {
 	}
 	div#welcome div {
 		float: left;
+		width: 100%;
 	}
-	div#welcome div.third {
+	div#welcome div div.third {
 		width: 32%;
-		margin: 15px 1% 20px 0;
+		margin: 15px 0 20px -10px;
+		padding: 20px 0;
+		padding-right: 1%;
+		background: #FFF;
+		border-top: 1px solid #D7D7D7;
+		border-bottom: 1px solid #D7D7D7;
+	}
+	div#welcome div div.third:first-child {
+		padding-left: 13px;
+	}
+	div#welcome div div.third:last-child {
+		padding-right: 4%;
+		margin-right: -10px;
+		float: right;
 	}
 		div#welcome div.third img {
 			float: left;

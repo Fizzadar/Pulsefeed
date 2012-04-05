@@ -5,7 +5,7 @@
 
 	<div id="header">
 		<div class="wrap">
-			<div class="left">
+			<div class="left noborder">
 			</div>
 
 			<h1>Your Settings</h1>
@@ -72,13 +72,27 @@
 						<br />
 					<?php endforeach; ?>
 				<?php endif; ?>
+
+				<br />
+				<h2>Collections</h2>
+				<?php foreach( $this->get( 'collections' ) as $collection ): ?>
+					<?php echo $collection['name']; ?>
+					<span class="edit inline"> <?php echo $collection['articles']; ?> articles - 
+						<form action="<?php echo $c_config['root']; ?>/process/collection-delete" method="post" class="inline">
+					 		<input type="submit" class="edit" value="delete" />
+					 		<input type="hidden" name="collection_id" value="<?php echo $collection['id']; ?>" />
+					 		<input type="hidden" name="mod_token" value="<?php echo $this->get( 'mod_token' ); ?>" />
+					 	</form>
+					 </span>
+				 	<br />
+				<?php endforeach; ?>
 			</div>
 		</div><!--end main-->
 	</div><!--end wrap-->
 
 	<div id="sidebars">
 		<div class="wrap">
-			<div class="left">
+			<div class="left noborder">
 			</div><!--end left-->
 		</div><!--end wrap-->
 	</div><!--end sidebars-->

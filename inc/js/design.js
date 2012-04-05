@@ -28,5 +28,9 @@ design.start = function() {
 
 //scroll to function
 design.scrollTo = function( px ) {
+	//firefox likes this
+	$( 'html' ).animate( { scrollTop: px }, 300 );
+
+	//everything else likes this
 	$( 'body' ).animate( { scrollTop: px }, 300 );
 }

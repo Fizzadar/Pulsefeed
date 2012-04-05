@@ -26,14 +26,8 @@
 
 	//work out stream type
 	$stream_type = 'hybrid';
-	if( isset( $_GET['stream'] ) )
+	if( isset( $_GET['stream'] ) and in_array( $_GET['stream'], array( 'hybrid', 'unread', 'popular', 'newest', 'likes' ) ) )
 		$stream_type = $_GET['stream'];
-
-	//public stream on user? no,no
-	if( $stream_type == 'public' ):
-		header( 'HTTP/1.1 301 Moved Permanently' );
-		die( header( 'Location: ' . $c_config['root'] . '/public' ) );
-	endif;
 
 	//get user, check if exists
 	$user = $mod_db->query( '
@@ -54,8 +48,8 @@
 	$mod_template = new mod_template();
 
 	//set our username
-	if( $user_id == $mod_user->get_userid() and $mod_user->check_login() )
-		$name = 'Your';
+	if( $user_id == $mod_user->get_userid() )
+		$name = '';
 	else
 		$name = $user[0]['name'] . '\'s';
 
@@ -65,25 +59,22 @@
 		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
 	
 		//load the users sources
-		$accounts = array();
-		$tmp = array();
-		$sources = $mod_load->load_sources( $user_id, $mod_user->get_userid() == $user_id ? false : 'source' );
-		foreach( $sources as $key => $s ):
-			if( $s['type'] != 'source' ):
-				unset( $sources[$key] );
-				//only want unique array values
-				if( !in_array( $s['type'], $tmp ) ):
-					$accounts[] = $s;
-					$tmp[] = $s['type'];
-				endif;
-			endif;
-		endforeach;
-		$mod_template->add( 'accounts', $accounts );
+		$sources = $mod_load->load_sources( $user_id );
 		$mod_template->add( 'sources', $sources );
+
+		//load accounts if current user
+		if( $mod_user->get_userid() == $user_id ):
+			$accounts = $mod_load->load_accounts( $mod_user->get_userid() );
+			$mod_template->add( 'accounts', $accounts );
+		endif;
 
 		//load the users followings
 		$followings = $mod_load->load_users( $user_id );
 		$mod_template->add( 'followings', $followings );
+
+		//load users collections
+		$collections = $mod_load->load_collections( $user_id );
+		$mod_template->add( 'collections', $collections );
 	endif;
 
 	//start our stream

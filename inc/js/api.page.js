@@ -30,8 +30,8 @@ api.loadSource = function( el ) {
 						$( '#sources' ).append( template.source( data.sources[i] ) );
 						//fade in
 						queue.add( function( args ) {
-							$( '#source_' + args.id ).animate( { opacity: 1 }, 300 );
-						}, 200, { id: data.sources[i].id } );
+							$( '#source_' + args.id ).animate( { opacity: 1 }, 250 );
+						}, 150, { id: data.sources[i].id } );
 					}
 				}
 
@@ -62,6 +62,8 @@ api.linkStream = function() {
 			return '/source/' + pulsefeed.streamSource;
 		case 'account':
 			return '/account/' + pulsefeed.streamAccount;
+		case 'collection':
+			return '/collection/' + pulsefeed.streamCollection;
 		default:
 			return '/user/' + pulsefeed.streamUser + '/' + pulsefeed.streamType;
 	}
@@ -148,24 +150,24 @@ api.renderStream = function( stream, recommends ) {
 			$( '.col1' ).append( template.item( stream.col1[i] ) );
 			//fade in
 			queue.add( function( args ) {
-				$( '#article_' + args.id ).animate( { opacity: 1 }, 300 );
-			}, 200, { id: stream.col1[i].id } );
+				$( '#article_' + args.id ).animate( { opacity: 1 }, 250 );
+			}, 100, { id: stream.col1[i].id } );
 		}
 		//col 2
 		if( stream.col2[i] != undefined ) {
 			$( '.col2' ).append( template.item( stream.col2[i] ) );
 			//fade in
 			queue.add( function( args ) {
-				$( '#article_' + args.id ).animate( { opacity: 1 }, 300 );
-			}, 50, { id: stream.col2[i].id } );
+				$( '#article_' + args.id ).animate( { opacity: 1 }, 250 );
+			}, 100, { id: stream.col2[i].id } );
 		}
 		//col 3
 		if( stream.col3[i] != undefined ) {
 			$( '.col3' ).append( template.item( stream.col3[i] ) );
 			//fade in
 			queue.add( function( args ) {
-				$( '#article_' + args.id ).animate( { opacity: 1 }, 200 );
-			}, 200, { id: stream.col3[i].id } );
+				$( '#article_' + args.id ).animate( { opacity: 1 }, 250 );
+			}, 100, { id: stream.col3[i].id } );
 		}
 	}
 }
@@ -210,11 +212,7 @@ api.buildStream = function( items ) {
 			}
 
 		//3 col even
-		case 'unread':
-		case 'newest':
-		case 'discover':
-		case 'source':
-		case 'account':
+		default:
 			var col = 1;
 
 			//add each item

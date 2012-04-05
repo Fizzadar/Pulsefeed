@@ -1,3 +1,7 @@
+/*
+	main site
+*/
+
 #devmessage {
 	color: #9F6000;
 	font-weight: bold;
@@ -88,7 +92,7 @@ form#subunsub {
 		form label small {
 			text-transform: lowercase;
 		}
-	form input {
+	form input, form select {
 		display: block;
 		width: 300px;
 		border: 1px solid #D7D7D7;
@@ -185,6 +189,17 @@ form input.edit:hover {
 	border: 1px solid #d7d7d7;
 	text-decoration: none;
 }
+.button.green, form input.button.green {
+	color: #FFF;
+	background: rgba( 85, 147, 58, 1 );
+	border: 1px solid rgba( 44, 81, 21, 1 );
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, 0.2 );
+	text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+}
+.button.green:hover, form input.button.green:hover {
+	border: 1px solid #000;
+	background: rgba( 65, 127, 38, 1 );
+}
 
 .left {
 	float: left;
@@ -232,7 +247,7 @@ div.wrap {
 		box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
 	}
 	.tip span span {
-		background: transparent url( 'PULSEFEED_ROOT_DIR/img/backgrounds/tooltip_bottom.png' ) left 9px no-repeat;
+		background: transparent url( '../img/backgrounds/tooltip_bottom.png' ) left 9px no-repeat;
 		border: none;
 		width: 20px;
 		height: 9px;

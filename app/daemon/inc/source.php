@@ -23,11 +23,10 @@
 
 		//select articles to update (last article_expire hours, 60 max, lowest update time first)
 		$sources = $mod_db->query( '
-			SELECT id, feed_url, type, update_time, owner_id, site_title, site_url
+			SELECT id, feed_url, update_time, owner_id, site_title, site_url, "source" AS type
 			FROM mod_source
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
-			AND type = "source"
 			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
@@ -38,7 +37,6 @@
 			SET update_time = ' . time() . '
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
-			AND type = "source"
 			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200

@@ -20,8 +20,6 @@
 		die( header( 'Location: ' . $redir ) );
 	endif;
 
-	//hmtl ents on username
-	$_POST['username'] = filter_var( $_POST['username'], FILTER_SANITIZE_URL );
 	//make username 30 chars long
 	$_POST['username'] = substr( $_POST['username'], 0, 30 );
 

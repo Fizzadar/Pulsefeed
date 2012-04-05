@@ -29,7 +29,7 @@
 	endif;
 
 	//permission
-	if( !$mod_user->check_permission( 'Recommend' ) ):
+	if( !$mod_user->check_permission( 'Like' ) ):
 		$mod_message->add( 'NoPermission' );
 		die( header( 'Location: ' . $redir ) );
 	endif;
@@ -80,6 +80,6 @@
 	endif;
 
 	//& finally, redirect
-	$mod_message->add( 'ArticleUnRecommended' );
+	$mod_message->add( 'ArticleUnLiked' );
 	header( 'Location: ' . $redir );
 ?>

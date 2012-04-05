@@ -19,7 +19,8 @@
 		$ids = $mod_db->query( '
 			SELECT article_id AS id, source_id, source_type, origin_id
 			FROM mod_user_articles
-			WHERE user_id = ' . $user['id'] . '
+			WHERE expired = 0
+			AND user_id = ' . $user['id'] . '
 		' );
 		if( !$ids or count( $ids ) <= 0 )
 			continue;
@@ -61,7 +62,7 @@
 			//calculate poptime
 			$time = time() - $article['time'];
 			$time = round( $time / 3600 );
-			$time = $time ^ 3;
+			$time = $time ^ 2.3; //still very-much a guessing game
 
 			//poptime = popularity / hours
 			if( $time <= 1 ) $time = 1;

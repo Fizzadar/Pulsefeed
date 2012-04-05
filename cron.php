@@ -8,6 +8,20 @@
 	//get index, which returns early
 	require( 'index.php' );
 
+	//special cron func
+	function get_memcache() {
+		global $mod_config;
+		
+		//start maintenance memcache
+		$mod_mcache = new Memcache;
+		//add servers
+		foreach( $mod_config['memcache']['maintenance'] as $host => $port )
+			$mod_mcache->addServer( $host, $port );
+
+		//return the object
+		return $mod_mcache;
+	}
+
 	//no cron time set?
 	if( !isset( $argv[1] ) )
 		die( 'invalid cron' . PHP_EOL );

@@ -30,9 +30,11 @@
 
 	//enable the source
 	$update = $mod_db->query( '
-		UPDATE mod_source
+		UPDATE mod_account
 		SET disabled = ' . ( $_POST['sync'] ? 0 : 1 ) . '
-		WHERE feed_url = "' . $_POST['provider'] . '/' . $mod_user->get_userid() . '/' . $_POST['o_id'] . '"
+		WHERE user_id = ' . $mod_user->get_userid() . '
+		AND type = "' . $_POST['provider'] . '"
+		AND o_id = ' . $_POST['o_id'] . '
 		LIMIT 1
 	' );
 

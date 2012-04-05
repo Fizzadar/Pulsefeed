@@ -2,9 +2,6 @@
 	//modules
 	global $mod_token, $c_debug, $mod_user;
 
-	//disable debug output
-	$c_debug->disable();
-
 	//uid
 	$uid = $mod_user->session_userid();
 	

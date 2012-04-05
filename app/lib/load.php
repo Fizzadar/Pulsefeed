@@ -8,9 +8,10 @@
 		//setup
 		private $db;
 		private $data;
+		private $memcache;
 
 		//construct
-		public function __construct( $db, $data ) {
+		public function __construct( $db, $data, $memcache ) {
 			//check our db
 			if( !method_exists( $db, 'query' ) )
 				return false;
@@ -19,16 +20,17 @@
 			$this->db = $db;
 			//data
 			$this->data = $data;
+			//set our memcache class
+			$this->memcache = $memcache;
 		}
 
 		//load a users sources the follow
-		public function load_sources( $user_id, $type = false ) {
+		public function load_sources( $user_id ) {
 			//load the users sources
 			$sources = $this->db->query( '
 				SELECT id, type, site_title AS source_title, site_url AS source_url
 				FROM mod_source, mod_user_sources
 				WHERE mod_source.id = mod_user_sources.source_id
-				' . ( $type ? ' AND mod_source.type = "' . $type . '"' : '' ) . '
 				AND mod_user_sources.user_id = ' . $user_id . '
 			' );
 
@@ -39,6 +41,20 @@
 
 			//return
 			return $sources;
+		}
+
+		//load a users accounts (unique - basically a list of names)
+		public function load_accounts( $user_id ) {
+			//load accounts
+			$accounts = $this->db->query( '
+				SELECT type
+				FROM mod_account
+				WHERE user_id = ' . $user_id . '
+				GROUP BY type
+			' );
+
+			//return
+			return $accounts;
 		}
 
 		//load a users users they follow
@@ -58,6 +74,18 @@
 
 			//return
 			return $followings;
+		}
+
+		//load a users collections
+		public function load_collections( $user_id ) {
+			$collections = $this->db->query( '
+				SELECT id, name, articles
+				FROM mod_collection
+				WHERE user_id = ' . $user_id . '
+			' );
+
+			//return
+			return $collections;
 		}
 	}
 ?>

@@ -11,17 +11,24 @@
 			'unread', //unread, sorted by pop + time
 			'popular', //24 hour popular, recommendations, sorted by pop
 			'newest', //all, recommendations, sorted by time
+			'likes', //a users likes
+
 			'public', //24 hour all articles, sorted by pop + time
-			'discover', //non-subscribed + popular recommendations listed as articles + popular unsubscribed articles, sorted by pop + time
+
 			'source', //stream from an individual source, sorted by time
+
 			'tag', //tag streams
+
 			'account', //account streams
+
+			'collection', //collection stream
 		);
 		private $db;
 		protected $stream_type; //stream type
 		protected $data = false; //stores the stream data
 		private $source_id;
 		private $stream_id;
+		private $collection_id;
 		private $user_id;
 		public $valid = false;
 		private $offset = 0;
@@ -64,6 +71,12 @@
 		public function set_userid( $id ) {
 			if( !is_numeric( $id ) ) return false;
 			$this->user_id = $id;
+		}
+
+		//set collectionid
+		public function set_collectionid( $id ) {
+			if( !is_numeric( $id ) ) return false;
+			$this->collection_id = $id;
 		}
 
 		//set sourceid
@@ -132,6 +145,12 @@
 				$tmp[$article['id']] = $article;
 			$articledata = $tmp;
 
+			//prepare articledata refs
+			foreach( $articledata as $k => $v ):
+				$articledata[$k]['refs'] = array();
+				$articledata[$k]['popscore'] = 0;
+			endforeach;
+
 			//switch stream type
 			switch( $this->stream_type ):
 				//user streams
@@ -141,14 +160,12 @@
 				case 'newest':
 				case 'discover':
 				case 'account':
-					//prepare articledata refs
-					foreach( $articledata as $k => $v ):
-						$articledata[$k]['refs'] = array();
-						$articledata[$k]['popscore'] = 0;
-					endforeach;
-
 					//add references
 					foreach( $articles as $article ):
+						//no article found?
+						if( !isset( $articledata[$article['article_id']] ) )
+							continue;
+
 						//set popscore, time & unread (overwrites time, popscore if larger)
 						if( $articledata[$article['article_id']]['popscore'] < $article['popscore'] ):
 							$articledata[$article['article_id']]['popscore'] = $article['popscore'];
@@ -187,6 +204,10 @@
 
 					//loop each article
 					foreach( $articles as $k => $article ):
+						//no article found?
+						if( !isset( $articledata[$article['article_id']] ) )
+							continue;
+
 						$id = $article['article_id'];
 
 						//increment popscore
@@ -228,6 +249,10 @@
 
 					//loop each article
 					foreach( $articles as $k => $article ):
+						//no article found?
+						if( !isset( $articledata[$article['article_id']] ) )
+							continue;
+
 						$id = $article['article_id'];
 
 						//set data
@@ -249,6 +274,18 @@
 
 				//tag
 				case 'tag':
+					break;
+
+				//collection
+				case 'collection':
+					foreach( $articles as $k => $article ):
+						//no article found?
+						if( !isset( $articledata[$article['article_id']] ) )
+							continue;
+						
+						//set data
+						$articledata[$article['article_id']]['article_time'] = $article['article_time'];
+					endforeach;
 					break;
 			endswitch;
 
@@ -373,6 +410,14 @@
 						WHERE source_id = ' . $this->source_id;
 					$order = 'article_time';
 					break;
+
+				//colelction stream
+				case 'collection':
+					$sql .= '
+						SELECT article_id, time AS article_time
+						FROM mod_collection_articles
+						WHERE collection_id = ' . $this->collection_id;
+					$order = 'article_time';
 			endswitch;
 
 			//end of query
@@ -407,6 +452,9 @@
 				case 'account':
 					if( !isset( $this->account_type ) ) return false;
 					break;
+				case 'collection':
+					if( !isset( $this->collection_id ) ) return false;
+					break;
 			endswitch;
 
 			//load our articles & recommendations
@@ -422,10 +470,7 @@
 					usort( $this->data, array( 'mod_stream', 'sortPopscore' ) );
 					break;
 				//time sorted
-				case 'unread':
-				case 'newest':
-				case 'account':
-				case 'source':
+				default:
 					usort( $this->data, array( 'mod_stream', 'sortTime' ) );
 					break;
 			endswitch;

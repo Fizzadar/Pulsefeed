@@ -4,7 +4,7 @@
 		desc: configuration for pulsefeed app
 	*/
 	
-	define( 'PULSEFEED_VERSION', '0.9.1' );
+	define( 'PULSEFEED_VERSION', '0.9.5' );
 
 	//config array
 	$mod_config = array(
@@ -16,22 +16,23 @@
 			'204' => '204',
 			//js & css
 			'js' => 'inc/js',
-			'css' => 'inc/css',
 			//default
 			'default' => 'home',
 			//article
-			'article' => 'article',
+			'article' => 'article/load',
+			'article-collect' => 'article/collect',
 			//streams
 			'user' => 'stream/user',
 			'public' => 'stream/public',
 			'source' => 'stream/source',
 			'account' => 'stream/account',
+			'collection' => 'stream/collection',
 			'tag' => 'stream/tag', //todo - can hide
 			//sources
 			'source-browse' => 'source/browse',
 			'source-add' => 'source/add',
 			//search
-			'search' => 'search', //todo - must do
+			'search' => 'search',
 			//users
 			'login' => 'user/login',
 			'settings' => 'user/settings',
@@ -45,6 +46,7 @@
 			'login-facebook' => 'user/login',
 			'login-twitter' => 'user/login',
 			'login-openid' => 'user/login',
+			'login-relogin' => 'user/login',
 			'load' => 'user/load',
 			'follow' => 'user/follow',
 			'unfollow' => 'user/unfollow',
@@ -61,13 +63,12 @@
 			//article
 			'article-like' => 'article/like',
 			'article-unlike' => 'article/unlike',
-			'article-collect' => 'article/collect', //todo
+			'article-collect' => 'article/collect',
 			'article-hide' => 'article/hide',
 			'article-tag' => 'article/tag', //todo - can hide
 			'article-untag' => 'article/untag', //todo - can hide
 			//collection
-			'collection-add' => 'collection/add', //todo
-			'collection-delete' => 'collection/delete', //todo
+			'collection-delete' => 'collection/delete',
 		),
 		'libs' => array(
 			//internal libs
@@ -130,16 +131,20 @@
 			'NotFound' => array( 'The page you requested could not be found!', 'warning' ),
 			//article
 			'ArticleRead' => array( 'Article hidden', 'success' ),
-			'ArticleRecommended' => array( 'Article liked', 'success' ),
-			'ArticleUnRecommended' => array( 'Article unliked', 'success' ),
+			'ArticleLiked' => array( 'Article liked', 'success' ),
+			'ArticleUnLiked' => array( 'Article unliked', 'success' ),
+			'ArticleCollected' => array( 'Article collected', 'success' ),
+			'ArticleCollectedNew' => array( 'Article collected in new collection', 'success' ),
+			//collection
+			'CollectionDeleted' => array( 'Collection deleted', 'success' ),
 		),
 		//how much each type of share/save is worth
 		'popularity' => array(
 			'like' => 20, //internal recommendations
-			'facebook_shares' => 1,
+			'facebook_shares' => 0.5,
 			'facebook_comments' => 1,
 			'delicious_saves' => 5,
-			'twitter_links' => 2.5,
+			'twitter_links' => 2,
 			'digg_diggs' => 4,
 			'reddit_score' => 0.2,
 			'google_pluses' => 4,
@@ -158,12 +163,18 @@
 		),
 		//memcache servers
 		'memcache' => array(
+			//mod_memcache servers
 			'mod' => array(
 				'127.0.0.1' => 11211,
 			),
+			//raw query servers
 			'query' => array(
 				'127.0.0.1' => 11211,
-			)
+			),
+			//maintenance server (only tiny)
+			'maintenance' => array(
+				'127.0.0.1' => 11211,
+			),
 		),
 		//database layout for mod_memcache
 		'dblayout' => array(
@@ -197,6 +208,9 @@
 				'id'
 			),
 			'mod_tag' => array( //tags
+				'id'
+			),
+			'core_user' => array( //user
 				'id'
 			),
 		),

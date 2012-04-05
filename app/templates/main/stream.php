@@ -7,8 +7,8 @@
 	global $mod_data, $mod_user, $mod_cookie, $mod_token;
 
 	//work out if even cols or not
-	$evencols = false;
-	if( in_array( $this->get( 'title' ), array( 'unread', 'source', 'newest', 'account' ) ) )	$evencols = true;
+	$evencols = true;
+	if( in_array( $this->get( 'title' ), array( 'hybrid', 'popular', 'public' ) ) )	$evencols = false;
 ?>
 
 <script type="text/javascript">
@@ -20,6 +20,8 @@
 	pulsefeed.streamSubscribed = <?php echo $this->get( 'subscribed' ) ? 'true' : 'false'; ?>;
 <?php elseif( $this->get( 'title' ) == 'account' ): ?>
 	pulsefeed.streamAccount = '<?php echo $this->get( 'account_type' ); ?>';
+<?php elseif( $this->get( 'title' ) == 'collection' ): ?>
+	pulsefeed.streamCollection = '<?php echo $this->get( 'collection_id' ); ?>';
 <?php else: ?>
 	pulsefeed.streamUser = <?php echo $this->get( 'userid' ) ? $this->get( 'userid' ) : -1; ?>;
 	pulsefeed.streamUsername = '<?php echo $this->get( 'username' ); ?>';
@@ -31,7 +33,7 @@
 		<div class="wrap">
 			<div class="left">
 				<?php if( in_array( $this->get( 'title' ), array( 'hybrid', 'unread', 'popular', 'newest' ) ) and $mod_user->session_login() and $mod_user->session_userid() == $this->get( 'userid' ) ): ?>
-					<a href="<?php echo $c_config['root']; ?>/sources" class="button" onclick="$( '#add_source' ).slideToggle( 150 ); return false;">+ add sources</a>
+					<a href="<?php echo $c_config['root']; ?>/sources" class="button green" onclick="$( '#add_source' ).slideToggle( 150 ); return false;">+ add sources</a>
 				<?php endif; ?>
 
 				<?php if( $this->get( 'title' ) == 'public' and !$mod_user->session_login() ): ?>
@@ -49,7 +51,7 @@
 						<form action="<?php echo $c_config['root']; ?>/process/subscribe" method="post" id="subunsub" class="source_subscribe">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="source_id" value="<?php echo $this->get( 'source_id' ); ?>" />
-							<input type="submit" value="+ Subscribe" class="button" />
+							<input type="submit" value="+ Subscribe" class="button green" />
 						</form>
 					<?php endif; ?>
 				<?php elseif( $this->get( 'userid' ) != $mod_user->session_userid() and $mod_user->session_permission( 'Follow' ) ): ?>
@@ -63,7 +65,7 @@
 						<form action="<?php echo $c_config['root']; ?>/process/follow" method="post" id="subunsub" class="user_follow">
 							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
 							<input type="hidden" name="user_id" value="<?php echo $this->get( 'userid' ); ?>" />
-							<input type="submit" value="+ Follow" class="button" />
+							<input type="submit" value="+ Follow" class="button green" />
 						</form>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -82,6 +84,8 @@
 					<p>
 						Available on your computer, laptop, <strike>tablet &amp; phone</strike> - coming soon!
 					</p>
+					
+					<div><!--start thirds-->
 					<div class="third">
 						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/combine.png" alt="" />
 						<h3>Combine</h3>
@@ -97,6 +101,7 @@
 						<h3>Collect</h3>
 						<p>Group articles into collections and store them forever. Share articles you love on Pulsefeed, Facebook, Twitter, Google+ &amp; more</p>
 					</div>
+					</div><!--end thirds-->
 
 					<div>
 						<a class="greenbutton" href="<?php echo $c_config['root']; ?>/login">Get Started with Pulsefeed &#187;</a><span class="greenor"> or <a href="<?php echo $c_config['root']; ?>/login">login</a></span>
@@ -113,19 +118,16 @@
 			<?php if( $this->get( 'userid' ) == $mod_user->session_userid() and $this->get( 'title' ) != 'public' and $this->get( 'title' ) != 'source' ): ?>
 				<?php if( $mod_user->session_permission( 'Subscribe' ) and count( $this->content['stream']['col1'] ) == 0 ): ?>
 				<div class="block">
-					<h2>To fill your stream, you need to add some (more) sources!</h2>
-					<p>There's currently no articles in your stream, subscribe to more sources to increase the number of articles in your stream. We'll pick out the best ones for you.</p>
+					<h2>Your stream is empty!</h2>
+					<p>
+						There's currently no articles in your stream. <strong>If you've already got some sources/accounts</strong>, it can take up to 30 minutes for the stream to update.<br />
+						<strong>If not</strong>, you'll need to add some sources and/or accounts before articles start appearing:
+					</p>
 					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/sources">Add Sources &#187;</a>
 					<span class="greenor">or</span>
 					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/settings">Add Accounts &#187;</a>
 					<!--<span class="greenor">or</span>
 					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/sources">Add Topics &#187;</a>-->
-				</div>
-				<?php elseif( !$mod_user->session_permission( 'Subscribe' ) ): ?>
-				<div class="block">
-					<h2>You need to be in the Alpha to start filling your stream!</h2>
-					<a class="greenbutton" href="<?php echo $c_config['root']; ?>/invite">Enter Invite Code &#187;</a><br />
-					<p>In the meantime, check out the <a href="<?php echo $c_config['root']; ?>/public">public stream</a>.</p>
 				</div>
 				<?php endif; ?>
 			<?php elseif( count( $this->content['stream']['col1'] ) == 0 ): ?>
@@ -144,7 +146,7 @@
 				</a>
 				<a href="<?php echo $c_config['root']; ?>/sources/add" class="linkthird middle">
 					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/add.png" alt="" />Add Directly
-					<span>Enter websites / feed urls</span>
+					<span>By websites, feeds or an opml file</span>
 				</a>
 				<a href="<?php echo $c_config['root']; ?>/sources/me" class="linkthird">
 					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/manage.png" alt="" />Manage Sources
@@ -158,7 +160,7 @@
 				<?php endif; ?>
 				<?php
 					foreach( $this->content['stream']['col3'] as $k => $item ):
-						item_template( $this, $item, $this->get( 'userid' ) );
+						item_template( $this, $item, $this->get( 'userid' ), 'h3' );
 					endforeach;
 				?>
 			</div><!--end col3-->
@@ -168,7 +170,7 @@
 					foreach( $this->get( 'features' ) as $key => $feature ):
 			?>
 				<div class="feature">
-					<span class="edit">trending topic</span>
+					<span class="edit <?php echo $this->get( 'title' ) == 'hybrid' ? 'trending_topic' : ''; ?>">trending topic</span>
 					<h1 class="topics">
 						<?php
 							foreach( $feature['topics'] as $count => $topic ):
@@ -192,7 +194,11 @@
 								if( $count == 1 and count( $feature['articles'] ) > 3 )
 									continue;
 
-								item_template( $this, $article, $this->get( 'userid' ), 'h3', false, true );
+								if( count( $feature['articles'] ) == 2 ):
+									item_template( $this, $article, $this->get( 'userid' ), 'h1', true, true );
+								else:
+									item_template( $this, $article, $this->get( 'userid' ), 'h3', false, true );
+								endif;
 							endforeach;
 						?>
 					</div><!--end right-->
@@ -278,7 +284,7 @@
 				<?php endif; ?>
 
 				<ul>
-					<li class="title">Streams <a href="#" class="edit">&larr; what?</a></li>
+					<li class="title">Streams <a href="#" class="edit"><strike>&larr; what?</strike></a></li>
 					<?php if( is_numeric( $this->get( 'userid' ) ) ): ?>
 						<li>
 							<?php if( $this->content['title'] == 'hybrid' ): ?>
@@ -320,16 +326,6 @@
 					</li>
 				</ul>
 
-				<?php if( false and $mod_user->session_login() ): ?>
-					<ul>
-						<li class="title">Collections <a href="#" class="edit">edit</a></li>
-						<li>
-							<a href="#">Queenstown</a> <span class="type">1 article</span>
-						</li>
-						<li><a href="#">Web Design</a> <span class="type">5 articles</span></li>
-					</ul>
-				<?php endif; ?>
-
 				<?php if( isset( $this->content['accounts'] ) and $mod_user->session_userid() == $this->get( 'userid' ) ): ?>
 					<ul>
 						<li class="title">Accounts <a href="<?php echo $c_config['root']; ?>/settings" class="edit">edit</a></li>
@@ -342,6 +338,22 @@
 						<?php endforeach; if( count( $this->get( 'accounts' ) ) <= 0 ): ?>
 							<li><a href="<?php echo $c_config['root']; ?>/settings">Add accounts &rarr;</a></li>
 						<?php endif; ?>
+					</ul>
+				<?php endif; ?>
+				
+				<?php if( isset( $this->content['collections'] ) and count( $this->get( 'collections' ) ) > 0 ): ?>
+					<ul>
+						<li class="title">Collections <a href="<?php echo $c_config['root']; ?>/settings" class="edit">edit</a></li>
+						<?php foreach( $this->get( 'collections' ) as $collection ): ?>
+							<li>
+								<?php if( $collection['id'] == $this->get( 'collection_id' ) ): ?>
+									<?php echo $collection['name']; ?> &rarr;
+								<?php else: ?>
+									<a href="<?php echo $c_config['root']; ?>/collection/<?php echo $collection['id']; ?>"><?php echo $collection['name']; ?></a> 
+									<span class="type"><?php echo $collection['articles']; ?> article<?php echo $collection['articles'] == 1 ? '' : 's'; ?></span>
+								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
 					</ul>
 				<?php endif; ?>
 
@@ -359,7 +371,7 @@
 										</small>
 										<span></span>
 									</span>
-									<img src="http://www.google.com/s2/favicons?domain=<?php echo $source['source_domain']; ?>" />
+									<img src="http://f.fdev.in/?d=<?php echo $source['source_domain']; ?>" />
 								</a>
 							</li>
 						<?php endforeach; ?>
@@ -371,7 +383,7 @@
 					</ul>
 
 					<ul>
-						<li class="title">Users<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? ' <a href="#" class="edit">edit</a>' : ''; ?></li>
+						<li class="title">Users<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? ' <a href="#" class="edit"><strike>edit</strike></a>' : ''; ?></li>
 						<?php if( $this->get( 'followings' ) ): ?>
 						<?php foreach( $this->get( 'followings' ) as $follow ): ?>
 							<li class="source">
@@ -512,7 +524,7 @@
 								endswitch;
 								?>" class="tip">
 								<span>
-									<strong><?php echo $ref['source_title']; ?></strong>
+									<strong><?php echo ( $ref['source_type'] == 'twitter' ? '@' : '' ) . $ref['source_title']; ?></strong>
 									<small><?php
 										switch( $ref['source_type'] ):
 											case 'public':
@@ -542,7 +554,7 @@
 									switch( $ref['source_type'] ):
 										case 'source':
 										case 'public':
-											echo 'http://www.google.com/s2/favicons?domain=' . $ref['source_data']['domain'];
+											echo 'http://f.fdev.in/?d=' . $ref['source_data']['domain'];
 											break;
 										case 'like':
 										case 'facebook':
@@ -561,13 +573,14 @@
 										<small>Original source</small>
 										<span></span>
 									</span>
-									<img src="http://www.google.com/s2/favicons?domain=<?php echo $ref['origin_data']['domain']; ?>" />
+									<img src="http://f.fdev.in/?d=<?php echo $ref['origin_data']['domain']; ?>" />
 								</a>
 							<?php endif; ?>
 						<?php endforeach; ?>
 					<?php if( $mod_user->session_login() ): ?>
+						<!--hide-->
 						<?php
-							if( isset( $item['unread'] ) and $item['unread'] == 1 ):
+							if( isset( $item['unread'] ) and $item['unread'] == 1 and $that->get( 'userid' ) == $mod_user->session_userid() ):
 								echo
 									'<form action="' . $c_config['root'] . '/process/article-hide" method="post" class="hide_form">
 										<input type="hidden" name="article_id" value="' . $item['id'] . '" />
@@ -576,16 +589,16 @@
 									</form> - ';
 							endif;
 						?>
-						<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
-							<span class="collect"><a href="#">Collect</a><!--<ul class="collections"><span class="tip"></span><li><a href="#">Collection 1</a></li><li><a href="#">Collection 2</a></li><li><form><input type="text" value="new collection..." /></form></li></ul>--></span> - 
-						<?php endif; ?>
-						<?php if( $mod_user->session_permission( 'Recommend' ) ): ?>
-							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['liked'] ? 'unlike' : 'like'; ?>" method="post" class="like_form">
-								<input type="hidden" name="article_id" value="<?php echo $item['id']; ?>" />
-								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-								<input type="submit" value="<?php echo $item['liked'] ? 'Unlike' : 'Like'; ?>" /> <span class="likes">(<span><?php echo $item['likes']; ?></span>)</span>
-							</form>
-						<?php endif; ?>
+						
+						<!--collect-->
+						<span class="collect"><a class="collect_button" href="<?php echo $c_config['root']; ?>/article/<?php echo $item['id']; ?>/collect" articleID="<?php echo $item['id']; ?>">Collect</a></span> - 
+
+						<!--like button-->
+						<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['liked'] ? 'unlike' : 'like'; ?>" method="post" class="like_form">
+							<input type="hidden" name="article_id" value="<?php echo $item['id']; ?>" />
+							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+							<input type="submit" value="<?php echo $item['liked'] ? 'Unlike' : 'Like'; ?>" /> <span class="likes">(<span><?php echo $item['likes']; ?></span>)</span>
+						</form>
 					<?php endif; ?>
 					<span class="time"> - <?php echo $item['time_ago']; ?></span>
 					</div>

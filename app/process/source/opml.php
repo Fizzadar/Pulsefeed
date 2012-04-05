@@ -93,10 +93,10 @@
 	endforeach;
 
 	//re-loop, subscribe to each
+	$_POST['noredirect'] = true;
 	foreach( $feeds as $feed ):
 		if( isset( $feed['id'] ) and is_numeric( $feed['id'] ) ):
 			$_POST['source_id'] = $feed['id'];
-			$_POST['noredirect'] = true;
 			$mod_app->load( 'process/source/subscribe' );
 		endif;
 	endforeach;

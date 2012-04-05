@@ -35,25 +35,20 @@
 	//api & logged in?
 	if( !$mod_config['api'] and $mod_user->check_login() ):
 		//load the users sources
-		$accounts = array();
-		$tmp = array();
 		$sources = $mod_load->load_sources( $mod_user->get_userid() );
-		foreach( $sources as $key => $s ):
-			if( $s['type'] != 'source' ):
-				unset( $sources[$key] );
-				//only want unique array values
-				if( !in_array( $s['type'], $tmp ) ):
-					$accounts[] = $s;
-					$tmp[] = $s['type'];
-				endif;
-			endif;
-		endforeach;
-		$mod_template->add( 'accounts', $accounts );
 		$mod_template->add( 'sources', $sources );
 
+		//accounts
+		$accounts = $mod_load->load_accounts( $mod_user->get_userid() );
+		$mod_template->add( 'accounts', $accounts );
+		
 		//load the users followings
 		$followings = $mod_load->load_users( $mod_user->get_userid() );
 		$mod_template->add( 'followings', $followings );
+
+		//load users collections
+		$collections = $mod_load->load_collections( $mod_user->get_userid() );
+		$mod_template->add( 'collections', $collections );
 	endif;
 	
 	//prepare, ok to go after this

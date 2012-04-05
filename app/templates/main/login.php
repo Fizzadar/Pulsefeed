@@ -1,7 +1,8 @@
 <html>
 <head>
 	<title>Login to Pulsefeed</title>
-	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>?load=css&type=basics,login" />
+	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/basics.css" media="all" />
+	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/login.css" media="all" />
 </head>
 <body id="body_login">
 	<div id="login">

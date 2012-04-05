@@ -290,9 +290,9 @@
 				endif;
 
 				//youtube link? NO THANKS
-				if( preg_match( '/youtube.com/', $article['end_url'] ) ):
-					unset( $articles[$key] );
-				endif;
+				//if( preg_match( '/youtube.com/', $article['end_url'] ) ):
+				//	unset( $articles[$key] );
+				//endif;
 			endforeach;
 
 			return $articles;
@@ -300,34 +300,47 @@
 
 		//check articles
 		private function checkArticle( $end_url, $url, $title ) {
-			global $mod_db;
+			global $mod_db, $mod_memcache;
 
-			//check for article
-			$check = $mod_db->query( '
-				SELECT id, time, title, url, end_url
-				FROM mod_article
-				WHERE end_url = "' . $end_url . '"
-				OR url = "' . $url . '"
-				OR title = "' . $title . '"
-				LIMIT 1
-			' );
-			if( $check and count( $check ) == 1 ):
+			//get mcache
+			$mod_mcache = get_memcache();
+
+			$id = 0;
+			//check for article in memcache! (should always have the recent day or two's articles - sql is too heavy) (md5 only weak needed)
+			if( $tmp = @$mod_mcache->get( md5( $end_url ) ) )
+				$id = $tmp;
+			if( $tmp = @$mod_mcache->get( md5( $url ) ) )
+				$id = $tmp;
+			if( $tmp = @$mod_mcache->get( md5( $title ) ) )
+				$id = $tmp;
+
+			//get article via memcache
+			$article = $mod_memcache->get( 'mod_article', array(
+				array(
+					'id' => $id
+				)
+			) );
+
+			if( count( $article ) == 1 ):
+				$article = $article[0];
+			
 				//source matching
 				$domain = parse_url( $end_url );
-				$domain2 = parse_url( $check[0]['end_url'] );
+				$domain2 = parse_url( $article['end_url'] );
 
-				//either url or end url matches, or both from the same domain
-				if( $check[0]['end_url'] == $end_url or $check[0]['url'] == $url or $domain['host'] == $domain2['host'] ):
+				//must both originate on one domain
+				if( $domain['host'] == $domain2['host'] ):
 					$article = array(
-						'id' => $check[0]['id'],
-						'title' => $check[0]['title'],
-						'url' => $check[0]['url'],
-						'end_url' => $check[0]['end_url'],
-						'time' => $check[0]['time']
+						'id' => $article['id'],
+						'title' => $article['title'],
+						'url' => $article['url'],
+						'end_url' => $article['end_url'],
+						'time' => $article['time']
 					);
 					return $article;
 				endif;
 			endif;
+
 
 			return false;
 		}

@@ -76,8 +76,9 @@
 
 			//get memcache objects
 			$data = @$this->memcache->get( $keys['memcache'] );
-			foreach( $data as $d )
-				$return[] = $d;
+			if( $data )
+				foreach( $data as $d )
+					$return[] = $d;
 
 			if( !$skipsql ):
 				//remove sql where not needed

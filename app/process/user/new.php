@@ -9,16 +9,23 @@
 
 	//insert following
 	$mod_db->query( '
-		INSERT INTO mod_user_follows
+		INSERT IGNORE INTO mod_user_follows
 		( user_id, following_id )
 		VALUES ( ' . $mod_user->get_userid() . ', 1 )
 	' );
 
 	//insert source
 	$mod_db->query( '
-		INSERT INTO mod_user_sources
+		INSERT IGNORE INTO mod_user_sources
 		( user_id, source_id )
 		VALUES ( ' . $mod_user->get_userid() . ', 1 )
+	' );
+
+	//insert 'read later' collection
+	$mod_db->query( '
+		INSERT IGNORE INTO mod_collection
+		( user_id, name, time )
+		VALUES ( ' . $mod_user->get_userid() . ', "Read later", ' . time() . ' )
 	' );
 
 	//temp - promote to alpha user
