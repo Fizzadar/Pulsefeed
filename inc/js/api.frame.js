@@ -50,7 +50,7 @@ api.likeExternal = function( el ) {
 }
 
 //article collect
-api.collectExternal = function( el ) {
+api.collectExternal = function( el, noloop ) {
 	//return here if re-clicking the active one
 	if( $( '.collections', $( el ).parent() ).length > 0 ) {
 		$( el ).removeClass( 'active' );
@@ -63,7 +63,7 @@ api.collectExternal = function( el ) {
 	this.collectionArticleId = id;
 
 	//do we need to get our collections?
-	if( this.collections.length <= 0 ) {
+	if( this.collections.length <= 0 && !noloop ) {
 		//disable button
 		$( el ).addClass( 'disabled' );
 
@@ -79,7 +79,7 @@ api.collectExternal = function( el ) {
 				api.collections = data.collections;
 
 				//and reload this function
-				api.collectExternal( el );
+				api.collectExternal( el, true );
 			},
 			function( data, el ) {
 				window.location = mod_root + '/article/' + this.collectionArticleId + '/collect';

@@ -195,7 +195,7 @@ api.subscribe = function( el ) {
 }
 
 //collect articles (show list of collections)
-api.collect = function( el ) {
+api.collect = function( el, noloop ) {
 	//return here if re-clicking the active one
 	if( $( '.collections', $( el ).parent() ).length > 0 ) {
 		$( '.item .meta .collect_button' ).removeClass( 'active' );
@@ -212,7 +212,7 @@ api.collect = function( el ) {
 	this.collectionArticleId = id;
 
 	//do we need to get our collections?
-	if( this.collections.length <= 0 ) {
+	if( this.collections.length <= 0 && !noloop ) {
 		//disable button
 		$( el ).addClass( 'disabled' );
 
@@ -228,7 +228,7 @@ api.collect = function( el ) {
 				api.collections = data.collections;
 
 				//and reload this function
-				api.collect( el );
+				api.collect( el, true );
 			},
 			function( data, el ) {
 				window.location = mod_root + '/article/' + this.collectionArticleId + '/collect';
