@@ -10,7 +10,8 @@
 		 |  ___/| | | | / __|/ _ \  _/ _ \/ _ \/ _` |
 		 | |    | |_| | \__ \  __/ ||  __/  __/ (_| |
 		 |_|     \__,_|_|___/\___|_| \___|\___|\__,_|
-
+		 
+		 version: <?php echo PULSEFEED_VERSION . PHP_EOL; ?>
 		 hello there! welcome to the source ^^
 	-->
 

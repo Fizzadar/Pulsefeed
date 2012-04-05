@@ -4,7 +4,7 @@
 		desc: configuration for pulsefeed app
 	*/
 	
-	define( 'PULSEFEED_VERSION', '0.9.5' );
+	define( 'PULSEFEED_VERSION', '0.9.5a' );
 
 	//config array
 	$mod_config = array(

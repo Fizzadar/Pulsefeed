@@ -42,7 +42,7 @@ server {
 	rewrite ^/user/([0-9]+)/([a-z0-9]+)$ 				/index.php?load=user&id=$1&stream=$2 last;			#user streams (unread, popular, newest, discover?)
 
 	#Collection Stream
-	RewriteRule ^/collection/([0-9]+)$					/index.php?load=collection&id=$1 last;				#collection stream
+	rewrite ^/collection/([0-9]+)$						/index.php?load=collection&id=$1 last;				#collection stream
 
 	#User settings
 	rewrite ^/settings$									/index.php?load=settings last;						#user settings

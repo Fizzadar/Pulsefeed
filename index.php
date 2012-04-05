@@ -74,8 +74,14 @@
 
 	//make sure user is on right pf version
 	if( $mod_cookie->get( 'PULSEFEED_VERSION' ) != PULSEFEED_VERSION and $mod_user->check_login() ):
-		$mod_cookie->set( 'PULSEFEED_VERSION', PULSEFEED_VERSION );
+		//permissions
 		$mod_user->relogin();
+
+		//accounts
+		$mod_app->load( 'process/user/load' );
+
+		//set cookie
+		$mod_cookie->set( 'PULSEFEED_VERSION', PULSEFEED_VERSION );
 	endif;
 
 

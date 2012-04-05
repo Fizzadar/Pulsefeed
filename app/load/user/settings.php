@@ -42,7 +42,7 @@
 		if( $sync and is_array( $sync ) ):
 			$oauths[$key]['nosync'] = $sync[0]['disabled'];
 		else:
-			$oauths[$key]['nosync'] = false;
+			$oauths[$key]['nosync'] = true;
 		endif;
 	endforeach;
 	$mod_template->add( 'oauths', $oauths );
