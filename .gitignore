@@ -7,5 +7,3 @@ core/
 tmp/
 *.sql
 *.log
-*.nginx
-*.htaccess
