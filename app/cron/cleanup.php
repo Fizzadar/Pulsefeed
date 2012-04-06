@@ -7,8 +7,8 @@
 	//load modules
 	global $mod_db, $mod_config, $mod_memcache;
 
-	//remove images older than 48 hour
-	$oldtime = time() - ( 3600 * 48 );
+	//remove images older than 24 hour - was 48
+	$oldtime = time() - ( 3600 * 24 );
 	$images = glob( $c_config['core_dir'] . '/../data/images/*' );
 	foreach( $images as $img ):
 		if( filemtime( $img ) < $oldtime ):
@@ -17,8 +17,8 @@
 		endif;
 	endforeach;
 
-	//48 hours ago
-	$expire_stream = time() - ( 3600 * 48 );
+	//24 hours ago - was 48
+	$expire_stream = time() - ( 3600 * 24 );
 
 	//expire articles
 	$mod_db->query( '
