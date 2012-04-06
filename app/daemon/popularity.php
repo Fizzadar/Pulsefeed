@@ -64,8 +64,8 @@
 		//get facebook data
 		if( $fb = get_data( 'http://graph.facebook.com/' . $url ) ):
 			$fb = json_decode( $fb );
-			$fb_shares = isset( $fb->shares ) ? $fb->shares : 0;
-			$fb_comments = isset( $fb->comments ) ? $fb->comments : 0;
+			$fb_shares = isset( $fb->shares ) ? $fb->shares : $article['facebook_shares'];
+			$fb_comments = isset( $fb->comments ) ? $fb->comments : $article['facebook_comments'];
 		else:
 			$fb_shares = $article['facebook_shares'];
 			$fb_comments = $article['facebook_comments'];
@@ -99,7 +99,7 @@
 		//get delicious data
 		if( $dl = get_data( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) ) ):
 			$dl = json_decode( $dl );
-			$dl_saves = ( is_array( $dl ) and isset( $dl[0] ) ) ? $dl[0]->total_posts : 0;
+			$dl_saves = ( is_array( $dl ) and isset( $dl[0] ) ) ? $dl[0]->total_posts : $article['delicious_saves'];
 		else:
 			$dl_saves = $article['delicious_saves'];
 			echo 'delicious failed on #' . $article['id'] . PHP_EOL;
@@ -108,7 +108,7 @@
 		//get digg data
 		if( $dg = get_data( 'http://services.digg.com/2.0/story.getInfo?links=' . $url ) ):
 			$dg = json_decode( $dg );
-			$dg_diggs = ( is_array( $dg->stories ) and isset( $dg->stories[0] ) ) ? $dg->stories[0]->diggs : 0;
+			$dg_diggs = ( isset( $dg->stories ) and is_array( $dg->stories ) and isset( $dg->stories[0] ) ) ? $dg->stories[0]->diggs : $article['digg_diggs'];
 		else:
 			$dg_diggs = $article['digg_diggs'];
 			echo 'digg failed on #' . $article['id'] . PHP_EOL;
@@ -118,7 +118,7 @@
 		if( $ln = get_data( 'http://www.linkedin.com/cws/share-count?url=' . $url ) ):
 			$ln = str_replace( 'IN.Tags.Share.handleCount(', '', $ln );
 			$ln = json_decode( $ln );
-			$ln_shares = isset( $ln->count ) ? $ln->count : 0;
+			$ln_shares = isset( $ln->count ) ? $ln->count : $article['linkedin_shares'];
 		else:
 			$ln_shares = $article['linkedin_shares'];
 			echo 'linkedin failed on #' . $article['id'] . PHP_EOL;
