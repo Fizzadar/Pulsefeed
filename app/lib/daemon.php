@@ -53,8 +53,8 @@
 
 			//loop time
 			while( true ):
-				//get new jobs
-				if( count( $this->jobs ) <= 0 and count( $this->threads ) <= 0 and $dbtime >= $this->dbupdate ):
+				//get new jobs (if current queue less than maxthreads, and threads less than max, and db time)
+				if( count( $this->jobs ) < $this->maxthreads and count( $this->threads ) < $this->maxthreads and $dbtime >= $this->dbupdate ):
 					//get jobs
 					$j = call_user_func( $this->dbfunc );
 					echo 'daemon has ' . count( $j ) . ' jobs' . PHP_EOL;

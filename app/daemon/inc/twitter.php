@@ -6,7 +6,7 @@
 	global $threads, $threadtime, $dbtime;
 
 	//setup update data
-	$threads = 20;
+	$threads = 15;
 	$threadtime = 600;
 	$dbtime = 60;
 

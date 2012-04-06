@@ -6,9 +6,9 @@
 	global $threads, $threadtime, $dbtime;
 
 	//setup update data
-	$threads = 20;
+	$threads = 15;
 	$threadtime = 300;
-	$dbtime = 300;
+	$dbtime = 60;
 
 	//function used by deamon to get 'jobs'
 	function dbupdate() {

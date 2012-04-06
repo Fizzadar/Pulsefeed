@@ -16,7 +16,7 @@
 	//data
 	$threads = 10;
 	$threadtime = 300;
-	$dbtime = 300;
+	$dbtime = 60;
 
 	//load inc bit
 	$mod_app->load( 'daemon/inc/' . $argv[2] );
