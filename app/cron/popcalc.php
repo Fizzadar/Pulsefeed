@@ -62,7 +62,7 @@
 			//calculate poptime
 			$time = time() - $article['time'];
 			$time = round( $time / 3600 );
-			$time = $time ^ 2.3; //still very-much a guessing game
+			$time = $time ^ 3; //still very-much a guessing game
 
 			//poptime = popularity / hours
 			if( $time <= 1 ) $time = 1;
