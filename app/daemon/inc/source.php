@@ -27,6 +27,7 @@
 			FROM mod_source
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
+			AND subscribers > 0
 			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
@@ -37,6 +38,7 @@
 			SET update_time = ' . time() . '
 			WHERE update_time < ' . $update_time . '
 			AND id > 0
+			AND subscribers > 0
 			AND disabled = 0
 			ORDER BY update_time ASC
 			LIMIT 200
