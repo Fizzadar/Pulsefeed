@@ -220,28 +220,9 @@
 					$domain = $domain['host'];
 					$tmp['source_data'] = json_encode( array( 'domain' => $domain ) );
 				else:
-					$tmp['source_id'] = 0; //source ignored
+					$tmp['source_id'] = $item['ex_userid']; //source ignored
 					$tmp['source_title'] = $item['ex_username'];
 					$tmp['source_data'] = json_encode( array( 'user_id' => $item['ex_userid'] ) );
-
-					//origin? source_id > 0 and not the fb/tw source
-					if( $item['source_id'] > 0 ):
-						//get the source
-						$sdata = $mod_memcache->get( 'mod_source', array(
-							array(
-								'id' => $item['source_id']
-							)
-						) );
-						if( count( $sdata ) == 1 ):
-							$sdata = $sdata[0];
-							$domain = parse_url( $sdata['site_url'] );
-							$domain = $domain['host'];
-
-							$tmp['origin_id'] = $item['source_id'];
-							$tmp['origin_title'] = $sdata['site_title'];
-							$tmp['origin_data'] = json_encode( array( 'domain' => $domain ) );
-						endif;
-					endif;
 				endif;
 
 				//add to user_article
