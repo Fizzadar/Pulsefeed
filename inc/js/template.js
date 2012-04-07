@@ -52,6 +52,7 @@ template.item = function( item, no_image ) {
 		r += '<a href="' + mod_root + '/';
 		switch( item.refs[i].source_type ) {
 			case 'source':
+			case 'public':
 				r += 'source/' + item.refs[i].source_id;
 				break;
 			case 'like':

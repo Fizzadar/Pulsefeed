@@ -548,6 +548,7 @@
 							<a href="<?php echo $c_config['root']; ?>/<?php
 								switch( $ref['source_type'] ):
 									case 'source':
+									case 'public':
 										echo 'source' . '/' . $ref['source_id'];
 										break;
 									case 'like':
