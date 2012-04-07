@@ -28,7 +28,7 @@
 <?php endif; ?>
 </script> 
 
-<?php if( !$this->get( 'mainOnly' ) ): ?>
+<?php if( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ): else: ?>
 	<div id="header">
 		<div class="wrap">
 			<div class="left">
@@ -71,48 +71,42 @@
 				<?php endif; ?>
 			</div>
 
-			<h1><?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? 'This is Pulsefeed' : $this->get( 'pageTitle' ); ?></h1>
+			<h1><?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? 'This is Pulsefeed' : $this->get( 'pageTitle' ); ?> 
+			<?php if( ( isset( $_GET['userid'] ) and count( $this->content['stream']['col1'] ) > 0 ) ):
+				echo 'user: @' . $this->content['stream']['col1'][0]['refs'][0]['source_title'];
+			endif; ?>
+			</h1>
 		</div><!--end wrap-->
 	</div><!--end header-->
 <?php endif; ?>
 
 	<div class="wrap" id="content">
-		<div class="main<?php echo $evencols ? ' evencol' : ''; ?>" id="stream">
-			<?php if( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ): ?>
+		<div class="main<?php echo $evencols ? ' evencol' : ''; echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? ' notop' : ''; ?>" id="stream">
+			<?php if( !$mod_user->session_login() ): ?>
 				<div id="welcome">
-					<h2>A personalized magazine which learns what you like</h2>
-					<p>
-						Available on your computer, laptop, <strike>tablet &amp; phone</strike> - coming soon!
+					<p class="welcome">
+						Pulsefeed is a personalized magazine curated by your Twitter, Facebook &amp; favorite websites/feeds
+						<a class="greenbutton big" href="<?php echo $c_config['root']; ?>/login">Start Now &#187;<span>it only takes 10 seconds!</span></a>
 					</p>
 					
-					<div><!--start thirds-->
-					<div class="third">
-						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/combine.png" alt="" />
-						<h3>Combine</h3>
-						<p>All your news in one easy to navigate stream. Follow topics you love, link your facebook &amp; twitter, subscribe to websites &amp; feeds you read</p>
-					</div>
-					<div class="third">
-						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/recommend.png" alt="" />
-						<h3>Recommend</h3>
-						<p>Pulsefeed recommends you articles based on what you read &amp; like. The more you read, the better the recommendations.</p>
-					</div>
-					<div class="third">
-						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/collect.png" alt="" />
-						<h3>Collect</h3>
-						<p>Group articles into collections and store them forever. Share articles you love on Pulsefeed, Facebook, Twitter, Google+ &amp; more</p>
-					</div>
-					</div><!--end thirds-->
-
-					<div>
-						<a class="greenbutton" href="<?php echo $c_config['root']; ?>/login">Get Started with Pulsefeed &#187;</a><span class="greenor"> or <a href="<?php echo $c_config['root']; ?>/login">login</a></span>
-					</div>
+					<div class="right"><!--start right-->
+						<div>
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/combine.png" alt="" />
+							<h3>Combine</h3>
+							<p>All your news in one easy to navigate stream. Follow topics you love, link your facebook &amp; twitter, subscribe to websites &amp; feeds you read</p>
+						</div>
+						<div>
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/recommend.png" alt="" />
+							<h3>Recommend</h3>
+							<p>Pulsefeed recommends you articles based on what you read &amp; like. The more you read, the better the recommendations.</p>
+						</div>
+						<div>
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/collect.png" alt="" />
+							<h3>Collect</h3>
+							<p>Group articles into collections and store them forever. Share articles you love on Pulsefeed, Facebook, Twitter, Google+ &amp; more</p>
+						</div>
+					</div><!--end right-->
 				</div><!--end welcome-->
-			<?php endif; ?>
-
-			<?php if( $mod_cookie->get( 'ChangeUsernameMessage' ) == '1' ): ?>
-				<div class="block">
-					<p>We noticed you haven't yet changed your username! <a class="button" href="<?php echo $c_config['root']; ?>/settings">Change username &#187;</a></p>
-				</div>
 			<?php endif; ?>
 
 			<?php if( $this->get( 'userid' ) == $mod_user->session_userid() and $this->get( 'title' ) != 'public' and $this->get( 'title' ) != 'source' ): ?>
@@ -226,6 +220,9 @@
 						case 'unread':
 							echo 'latest articles';
 							break;
+						case 'account':
+							echo 'latest articles' . ( ( isset( $_GET['userid'] ) and count( $this->content['stream']['col1'] ) > 0 ) ? ' from @' . $this->content['stream']['col1'][0]['refs'][0]['source_title'] . ', <a href="' . $c_config['root'] . '/account/' . $this->get( 'account_type' ) . '">view all</a>' : '' );
+							break;
 					endswitch;
 					echo ( $this->get( 'nextOffset' ) > 1 ) ? ', page ' . ( $this->get( 'nextOffset' ) ) : '';
 				endif;
@@ -274,7 +271,7 @@
 	</div><!--end content-->
 
 <?php if( !$this->get( 'mainOnly' ) ): ?>
-	<div id="sidebars">
+	<div id="sidebars" class="<?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? ' notop' : ''; ?>">
 		<div class="wrap">
 			<div class="left" id="leftbar">
 				<?php if( $mod_user->session_login() and $this->get( 'userid' ) != $mod_user->session_userid() ): ?>
@@ -330,7 +327,7 @@
 					<ul>
 						<li class="title">Accounts <a href="<?php echo $c_config['root']; ?>/settings" class="edit">edit</a></li>
 						<?php foreach( $this->content['accounts'] as $account ): ?>
-							<?php if( $this->get( 'account_type' ) == $account['type'] ): ?>
+							<?php if( $this->get( 'account_type' ) == $account['type'] and !isset( $_GET['userid'] ) ): ?>
 								<li><?php echo ucfirst( $account['type'] ); ?> &rarr;</li>
 							<?php else: ?>
 								<li><a href="<?php echo $c_config['root']; ?>/account/<?php echo $account['type']; ?>"><?php echo ucfirst( $account['type'] ); ?></a></li>
@@ -352,6 +349,26 @@
 									<a href="<?php echo $c_config['root']; ?>/collection/<?php echo $collection['id']; ?>"><?php echo $collection['name']; ?></a> 
 									<span class="type"><?php echo $collection['articles']; ?> article<?php echo $collection['articles'] == 1 ? '' : 's'; ?></span>
 								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
+
+				<?php if( !$mod_user->session_login() and $this->get( 'title' ) == 'public' and $this->get( 'sources' ) ): ?>
+					<ul class="sources">
+						<li class="title">Popular Sources</li>
+						<?php foreach( $this->get( 'sources' ) as $source ): ?>
+							<li class="source<?php echo $source['id'] == $this->get( 'source_id' ) ? ' active': ''; ?>">
+								<a href="<?php echo $c_config['root']; ?>/source/<?php echo $source['id']; ?>" class="tip">
+									<span>
+										<strong><?php echo $source['source_title']; ?></strong>
+										<small>
+											<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? 'Your are subscribed' : $this->get( 'username' ) . ' is subscribed'; ?>
+										</small>
+										<span></span>
+									</span>
+									<img src="http://f.fdev.in/?d=<?php echo $source['source_domain']; ?>" />
+								</a>
 							</li>
 						<?php endforeach; ?>
 					</ul>
@@ -409,7 +426,15 @@
 			</div><!--end left-->
 
 			<div class="right">
-				<img src="<?php echo $c_config['root']; ?>/inc/img/ads/234x60.gif" alt="" />
+				<?php if( $mod_cookie->get( 'ChangeUsernameMessage' ) == '1' ): ?>
+					<div class="infobox info">
+						<p>We noticed you haven't yet changed your username! <a class="button" href="<?php echo $c_config['root']; ?>/settings">Change username &#187;</a></p>
+					</div>
+				<?php endif; ?>
+
+				<?php if( $mod_user->session_login() ): ?>
+					<img src="<?php echo $c_config['root']; ?>/inc/img/ads/234x60.gif" alt="" />
+				<?php endif; ?>
 
 				<div class="biglinks">
 					<!--page specific-->
@@ -485,9 +510,9 @@
 		</div>
 		<div class="right block">
 			<h2>3: Right Bar</h2>
-			&rarr; articles recommended by other users appear here, as well as useful links around the site
+			&rarr; recommended sources &amp; topics are listed here, along with useful links around the site
 		</div>
-		<a href="#" class="button" onclick="$( '#tour' ).fadeOut( 500 ); return false;">Continue to Pulsefeed &rarr;</a>
+		<a href="<?php echo $c_config['root']; ?>" class="button" onclick="$( '#tour' ).fadeOut( 500 ); return false;">Continue to Pulsefeed &rarr;</a>
 	</div><!--end wrap-->
 </div><!--end tour-->
 
@@ -530,7 +555,7 @@
 										break;
 									case 'facebook':
 									case 'twitter':
-										echo 'account/' . $ref['source_type'];
+										echo 'account/' . $ref['source_type'] . '/' . $ref['source_id'];
 										break;
 									default:
 										echo '#';

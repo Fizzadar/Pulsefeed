@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_config, $mod_memcache;
+	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_config, $mod_memcache, $mod_data;
 
 	//redirect dir
 	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/sources';
@@ -36,7 +36,7 @@
 	
 	//locate our source
 	$source = $mod_db->query( '
-		SELECT id
+		SELECT id, site_url, site_title
 		FROM mod_source
 		WHERE id = ' . $_POST['source_id'] . '
 		LIMIT 1
@@ -66,6 +66,31 @@
 				WHERE id = ' . $_POST['source_id'] . '
 				LIMIT 1
 			' );
+
+			//add last 10 articles to mod_user_sources
+			$articles = $mod_db->query( '
+				SELECT article_id
+				FROM mod_source_articles
+				WHERE source_id = ' . $_POST['source_id'] . '
+				ORDER BY article_time DESC
+				LIMIT 10
+			' );
+			//now get the articles
+			$list = array();
+			foreach( $articles as $article )
+				$list[] = array(
+					'id' => $article['article_id']
+				);
+			$articles = $mod_memcache->get( 'mod_article', $list );
+			//and build insert
+			$sql = '
+				INSERT IGNORE INTO mod_user_articles
+				( user_id, article_id, source_type, source_id, source_title, source_data, article_time ) VALUES';
+			foreach( $articles as $article ):
+				$sql .= '( ' . $mod_user->get_userid() . ', ' . $article['id'] . ', "source", ' . $_POST['source_id'] . ', "' . $source[0]['site_title'] . '", \'' . json_encode( array( 'domain' => $mod_data->domain_url( $source[0]['site_url'] ) ), true ) . '\', ' . $article['time'] . ' ),';
+			endforeach;
+			$sql = rtrim( $sql, ',' );
+			$mod_db->query( $sql );
 		endif;
 
 		//message, redirect

@@ -59,7 +59,7 @@ template.item = function( item, no_image ) {
 				break;
 			case 'facebook':
 			case 'twitter':
-				r += 'account/' + item.refs[i].source_type;
+				r += 'account/' + item.refs[i].source_type + '/' + item.refs[i].source_id;
 				break;
 			default:
 				r += '#';

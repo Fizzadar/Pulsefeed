@@ -32,11 +32,11 @@ RewriteRule ^tag/([0-9]+)$								index.php?load=tag&id=$1 [QSA,L]					#tag stre
 RewriteRule ^source/([0-9]+)$							index.php?load=source&id=$1 [QSA,L]					#source stream
 
 #Account Stream
-RewriteRule ^account/([facebook|twitter]+)$				index.php?load=account&type=$1 [QSA,L]				#(via /account) stream
+RewriteRule ^account/([aA-zZ]+)/([0-9]+)$				index.php?load=account&type=$1&userid=$2 [QSA,L]	#account with userid set
+RewriteRule ^account/([aA-zZ]+)$						index.php?load=account&type=$1 [QSA,L]				#account stream
 
 #User Streams
 RewriteRule ^user/([0-9]+)+$							index.php?load=user&id=$1 [QSA,L]					#user streams (hybrid)
-RewriteRule ^user/([0-9]+)/hybrid						/user/$1 [QSA,R=301,L]								#redirect /hybrid to /
 RewriteRule ^user/([0-9]+)/([a-z0-9]+)$ 				index.php?load=user&id=$1&stream=$2 [QSA,L]			#user streams (unread, popular, newest, discover?)
 
 #Collection Stream

@@ -43,7 +43,8 @@ server {
 	rewrite ^/source/([0-9]+)$							/index.php?load=source&id=$1 last;					#source stream
 
 	#Account Stream
-	rewrite ^/account/([facebook|twitter]+)$			/index.php?load=account&type=$1 last;				#source (via /account) stream
+	rewrite ^/account/([aA-zZ]+)/([0-9]+)$				/index.php?load=account&type=$1&userid=$2 last;		#account with userid set
+	rewrite ^/account/([aA-zZ]+)$						/index.php?load=account&type=$1 last;				#source (via /account) stream
 
 	#User Streams
 	rewrite ^/user/([0-9]+)+$							/index.php?load=user&id=$1 last;					#user streams (hybrid)

@@ -15,6 +15,11 @@
 	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
 		$offset = $_GET['offset'];
 
+	//external userid
+	$external_userid = 0;
+	if( isset( $_GET['userid'] ) and is_numeric( $_GET['userid'] ) and $_GET['userid'] > 0 )
+		$external_userid = $_GET['userid'];
+
 	//load our source (and check)
 	if( !isset( $_GET['type'] ) or !$mod_user->check_login() ):
 		$mod_message->add( 'NotFound' );
@@ -60,11 +65,14 @@
 	//set userid
 	$mod_stream->set_userid( $mod_user->get_userid() );
 
+	//specific userid?
+	$mod_stream->set_sourceid( $external_userid );
+
 	//set account type
 	$mod_stream->set_accountType( $_GET['type'] );
 
 	//prepare, ok to go after this
-	if( !$mod_stream->prepare() ):die( 'wtf' );
+	if( !$mod_stream->prepare() ):
 		$mod_message->add( 'DatabaseError' );
 		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;

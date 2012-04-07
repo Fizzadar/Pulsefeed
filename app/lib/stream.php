@@ -33,6 +33,7 @@
 		public $valid = false;
 		private $offset = 0;
 		private $since_id = 0;
+		private $limit = 64;
 		private $account_type;
 
 		//setup
@@ -65,6 +66,12 @@
 		public function set_offset( $count ) {
 			if( !is_numeric( $count ) ) return false;
 			$this->offset = $count;
+		}
+
+		//set limit
+		public function set_limit( $count ) {
+			if( !is_numeric( $count ) ) return false;
+			$this->limit = $count;
 		}
 
 		//set userid
@@ -376,7 +383,8 @@
 							break;
 						case 'account':
 							$sql .='
-								WHERE ( source_type = "' . $this->account_type . '" )';
+								WHERE source_type = "' . $this->account_type . '"';
+							$sql .= $this->source_id ? 'AND source_id = ' . $this->source_id : '';
 							$order = 'article_time';
 							break;
 					endswitch;
@@ -424,7 +432,7 @@
 			$sql .= '
 				AND ' . $article_id . ' > ' . $this->since_id . '
 				ORDER BY ' . $order . ' DESC
-				LIMIT ' . ( $this->offset * 64 ) . ', 64';
+				LIMIT ' . ( $this->offset * $this->limit ) . ', ' . $this->limit;
 
 			//run our query, return the data
 			if( $data = $this->db->query( $sql ) )

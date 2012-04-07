@@ -16,6 +16,7 @@
 		</div><!--end wrap-->
 	</div><!--end footer-->
 
+<?php if( $_SERVER['HTTP_HOST'] == 'pulsefeed.com' ):?>
 <!--google analytics-->
 <script type="text/javascript">
 var _gaq = _gaq || [];
@@ -27,9 +28,11 @@ ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www')
 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 </script>
+<?php endif; ?>
 
-
-<!-- thanks for all the fish -->
+<!--
+	so long, and thanks for all the fish
+-->
 
 </body>
 </html>

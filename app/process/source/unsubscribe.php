@@ -44,6 +44,13 @@
 			WHERE id = ' . $_POST['source_id'] . '
 			LIMIT 1
 		' );
+		//delete user_articles
+		$mod_db->query( '
+			DELETE FROM mod_user_articles
+			WHERE source_type = "source"
+			AND user_id = ' . $mod_user->get_userid() . '
+			AND source_id = ' . $_POST['source_id']
+		);
 	endif;
 
 	//done!

@@ -51,6 +51,27 @@
 		$mod_template->add( 'collections', $collections );
 	endif;
 	
+	//not logged in?
+	if( !$mod_user->session_login() ):
+		//small limit on articles
+		$mod_stream->set_limit( 18 );
+
+		//load popular sources
+		$sources = $mod_db->query( '
+			SELECT id, type, site_title AS source_title, site_url AS source_url
+			FROM mod_source
+			WHERE id > 0
+			AND private = 0
+			ORDER BY subscribers DESC
+			LIMIT 36
+		', true, 86400 ); //24 hours
+		//make/build some data
+		foreach( $sources as $k => $s ):
+			$sources[$k]['source_domain'] = $mod_data->domain_url( $s['source_url'] );
+		endforeach;
+		$mod_template->add( 'sources', $sources );
+	endif;
+
 	//prepare, ok to go after this
 	if( !$mod_stream->prepare() ):
 		$mod_message->add( 'DatabaseError' );

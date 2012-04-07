@@ -394,6 +394,9 @@ div#sidebars {
 	height: 0; /* fix z index related hacks */
 	top: 78px;
 }
+div#sidebars.notop {
+	top: 35px;
+}
 	div#sidebars div.fix {
 		position: fixed;
 		margin-top: -25px;

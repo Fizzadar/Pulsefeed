@@ -18,7 +18,10 @@
 	<!--meta-->
 	<title><?php echo $this->get( 'pageTitle' ) ? $this->get( 'pageTitle' ) . ' / Pulsefeed' : 'Pulsefeed'; ?></title>
 	<meta charset="UTF-8" />
-	
+	<?php if( $this->get( 'canonical' ) ): ?>
+	<link rel="canonical" href="<?php echo $this->get( 'canonical' ); ?>" />
+	<?php endif; ?>
+
 	<!--favicon-->
 	<link rel="icon" href="<?php echo $c_config['root']; ?>/inc/img/favicon.png" />
 
@@ -26,11 +29,11 @@
 	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/basics.css" media="all" />
 	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/core.css" media="all" />
 	<link rel="stylesheet" href="<?php echo $c_config['root']; ?>/inc/css/main.css" media="all" />
-	<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic" media="all" />
 	
 	<!--scripts-->
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript" src="<?php echo $c_config['root']; ?>?load=js"></script>
+	<script type="text/javascript" src="<?php echo $c_config['root']; ?>?load=js&<?php echo time(); //stops caching ?>"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/pulsefeed.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/message.js"></script>
 	<script type="text/javascript" src="<?php echo $c_config['root']; ?>/inc/js/api.js"></script>
@@ -58,47 +61,59 @@
 					<a href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>"><small>&#171;</small> Pulsefeed</a>
 				</h3>
 
-				<?php if( $mod_user->session_login() ): ?>
-					<ul id="external">
-						<!--like-->
-						<li>
-							<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>" method="post" class="like_form_external">
-								<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
-								<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
-								<button type="submit">
-									<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>.png" alt="" />
-									<span><?php echo $this->content['article']['liked'] == NULL ? 'Like' : 'Unlike'; ?></span>
-								</button>
-							</form>
-						</li>
+				<ul id="external">
+					<?php if( $mod_user->session_permission( 'Like' ) ): ?>
+					<!--like-->
+					<li>
+						<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>" method="post" class="like_form_external">
+							<input type="hidden" name="article_id" value="<?php echo $this->content['article']['id']; ?>" />
+							<input type="hidden" name="mod_token" value="<?php echo $mod_token; ?>" />
+							<button type="submit">
+								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/<?php echo $this->content['article']['liked'] == NULL ? 'like' : 'liked'; ?>.png" alt="" />
+								<span><?php echo $this->content['article']['liked'] == NULL ? 'Like' : 'Unlike'; ?></span>
+							</button>
+						</form>
+					</li>
+					<?php endif; ?>
 
-						<!--collect-->
-						<li>
-							<a href="<?php echo $c_config['root']; ?>/article/<?php echo $this->content['article']['id']; ?>/collect" class="collect_button_external" articleID="<?php echo $this->content['article']['id']; ?>">
-								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
-								Collect
-							</a>
-						</li>
+					<?php if( $mod_user->session_permission( 'Collect' ) ): ?>
+					<!--collect-->
+					<li>
+						<a href="<?php echo $c_config['root']; ?>/article/<?php echo $this->content['article']['id']; ?>/collect" class="collect_button_external" articleID="<?php echo $this->content['article']['id']; ?>">
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/collect.png" alt="" />
+							Collect
+						</a>
+					</li>
+					<?php endif; ?>
 
-						<?php if( $mod_user->session_permission( 'AddTag' ) ): ?>
-						<!--tag-->
-						<li>
-							<a href="#">
-								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/tag.png" alt="" />
-								Tag
-							</a>
-						</li>
-						<?php endif; ?>
+					<?php if( $mod_user->session_permission( 'AddTag' ) ): ?>
+					<!--tag-->
+					<li>
+						<a href="#">
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/tag.png" alt="" />
+							Tag
+						</a>
+					</li>
+					<?php endif; ?>
 
-						<!--original-->
-						<li>
-							<a target="_blank" href="<?php echo $this->content['article']['end_url']; ?>">
-								<img src="<?php echo $c_config['root']; ?>/inc/img/icons/original.png" alt="" />
-								Original
-							</a>
-						</li>
-					</ul>
-				<?php endif; ?>
+					<?php if( !$mod_user->session_login() ): ?>
+					<!--login-->
+					<li>
+						<a href="<?php echo $c_config['root']; ?>/login">
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/login.png" alt="" />
+							Login
+						</a>
+					</li>
+					<?php endif; ?>
+
+					<!--original-->
+					<li>
+						<a target="_blank" href="<?php echo $this->content['article']['end_url']; ?>">
+							<img src="<?php echo $c_config['root']; ?>/inc/img/icons/original.png" alt="" />
+							Original &rarr;
+						</a>
+					</li>
+				</ul>
 
 			<?php else: ?>
 				<h3>
@@ -135,7 +150,7 @@
 					<li><a href="<?php echo $c_config['root']; ?>/process/logout">Logout</a></li>
 
 					<?php if( $mod_user->session_permission( 'Admin' ) ): ?>
-						<li class="title">Secret Admin Zone</li>
+						<li class="title">Top Secret Zone</li>
 						<li><a href="#">Home</a></li>
 						<li><a href="#">Permissions</a></li>
 					<?php endif; ?>
