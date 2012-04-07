@@ -73,7 +73,7 @@
 
 			<h1><?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? 'This is Pulsefeed' : $this->get( 'pageTitle' ); ?> 
 			<?php if( ( isset( $_GET['userid'] ) and count( $this->content['stream']['col1'] ) > 0 ) ):
-				echo 'user: @' . $this->content['stream']['col1'][0]['refs'][0]['source_title'];
+				echo 'user: ' . ( $this->get( 'account_type' ) == 'twitter' ? '@' : '' ) . $this->content['stream']['col1'][0]['refs'][0]['source_title'];
 			endif; ?>
 			</h1>
 		</div><!--end wrap-->
@@ -221,7 +221,7 @@
 							echo 'latest articles';
 							break;
 						case 'account':
-							echo 'latest articles' . ( ( isset( $_GET['userid'] ) and count( $this->content['stream']['col1'] ) > 0 ) ? ' from @' . $this->content['stream']['col1'][0]['refs'][0]['source_title'] . ', <a href="' . $c_config['root'] . '/account/' . $this->get( 'account_type' ) . '">view all</a>' : '' );
+							echo 'latest articles' . ( ( isset( $_GET['userid'] ) and count( $this->content['stream']['col1'] ) > 0 ) ? ' from ' . ( $this->get( 'account_type' ) == 'twitter' ? '@' : '' ) . $this->content['stream']['col1'][0]['refs'][0]['source_title'] . ', <a href="' . $c_config['root'] . '/account/' . $this->get( 'account_type' ) . '">view all</a>' : '' );
 							break;
 					endswitch;
 					echo ( $this->get( 'nextOffset' ) > 1 ) ? ', page ' . ( $this->get( 'nextOffset' ) ) : '';
