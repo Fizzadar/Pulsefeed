@@ -271,7 +271,7 @@
 	</div><!--end content-->
 
 <?php if( !$this->get( 'mainOnly' ) ): ?>
-	<div id="sidebars" class="<?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? ' notop' : ''; ?>">
+	<div id="sidebars" class="<?php echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? ' hightop notop' : ''; ?>">
 		<div class="wrap">
 			<div class="left" id="leftbar">
 				<?php if( $mod_user->session_login() and $this->get( 'userid' ) != $mod_user->session_userid() ): ?>

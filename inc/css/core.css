@@ -411,6 +411,9 @@ div#sidebars.notop {
 		position: relative;
 		z-index: 3;
 	}
+	div#sidebars.hightop div.left {
+		padding-top: 400px;
+	}
 	div#sidebars div.left.noborder {
 		border-right: 0;
 	}
@@ -529,6 +532,9 @@ div#sidebars.notop {
 		margin-top: 35px;
 		z-index: 3;
 		position: relative;
+	}
+	div#sidebars.hightop div.right {
+		padding-top: 20px;
 	}
 		div#sidebars div.right button.biglink {
 			text-align: left;
