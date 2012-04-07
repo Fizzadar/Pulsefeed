@@ -1,3 +1,4 @@
+<?php global $mod_user; ?>
 	</div><!--end ajaxbox-->
 	
 	<div id="footer">
@@ -16,7 +17,7 @@
 		</div><!--end wrap-->
 	</div><!--end footer-->
 
-<?php if( $_SERVER['HTTP_HOST'] == 'pulsefeed.com' ):?>
+<?php if( !$mod_user->session_permission( 'Debug' ) ):?>
 <!--google analytics-->
 <script type="text/javascript">
 var _gaq = _gaq || [];
