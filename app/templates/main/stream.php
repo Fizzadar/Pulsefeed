@@ -126,7 +126,7 @@
 				<?php endif; ?>
 			<?php elseif( count( $this->content['stream']['col1'] ) == 0 ): ?>
 				<div class="block">
-					<h2>This stream is empty</h2>
+					<h2>This stream is <em>currently</em> empty <img src="<?php echo $c_config['root']; ?>/inc/img/icons/loader.gif" alt="" /></h2>
 					<p>We're doing our best to fill it right now!</p>
 				</div>
 			<?php endif; ?>
