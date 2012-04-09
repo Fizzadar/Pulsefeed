@@ -40,6 +40,9 @@
 
 		//now add our ref count to each article
 		foreach( $ids as $id ):
+			if( !isset( $articles[$id['id']] ) )
+				continue;
+			
 			//add ref
 			$articles[$id['id']]['refs']++;
 

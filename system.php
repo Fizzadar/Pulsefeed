@@ -1,4 +1,8 @@
 <?php
+	//are we cli?
+	if( !isset( $argv ) )
+		die( 'Naw. <a href="/">Home &rarr;</a>' );
+
 	//set cron
 	$_GET['iscron'] = true;
 
@@ -35,10 +39,12 @@
 			$mod_app->load( 'daemon/update' );
 			break;
 		case 'popcalc':
-			$mod_app->load( 'cron/popcalc' );
+			$mod_app->load( 'daemon/popcalc' );
 			break;
 		case 'cleanup':
-			$mod_app->load( 'cron/cleanup' );
+			$mod_app->load( 'daemon/cleanup' );
 			break;
+		default:
+			die( 'invalid cron' . PHP_EOL );
 	endswitch;
 ?>
