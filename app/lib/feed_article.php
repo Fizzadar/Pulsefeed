@@ -120,6 +120,17 @@
 		public function get_article() {
 			global $c_config;
 
+			//end url
+			$url = $this->get_end_url();
+
+			//url matching? site plugin?
+			$bits = parse_url( $url );
+			$plugin_name = str_replace( 'www.', '', $bits['host'] );
+			if( isset( $bits['host'] ) and file_exists( 'app/plugins/sites/' . $plugin_name . '.php' ) )
+				if( $this->content = include( 'app/plugins/sites/' . $plugin_name . '.php' ) )
+					return $this->content;
+
+			//not ready/content?
 			if( !$this->ready or !$this->content )
 				$this->get_raw_article();
 
@@ -134,7 +145,7 @@
 				$img->height = 'auto';
 
 				//fix img src
-				$urlbits = parse_url( $this->get_end_url() );
+				$urlbits = parse_url( $url );
 				$urlbits2 = parse_url( $img->src );
 				if( substr( $img->src, 0, 1 ) == '/' ):
 					$img->src = ltrim( $img->src, '/' );
