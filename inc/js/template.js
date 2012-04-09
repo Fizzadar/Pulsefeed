@@ -66,7 +66,13 @@ template.item = function( item, no_image ) {
 				r += '#';
 		}
 		r += '" class="tip">';
-		r += '<span><strong>';
+		r += '<span>';
+		switch( item.refs[i].source_type ) {
+			case 'twitter':
+			case 'facebook':
+				r += '<img src="' + mod_root + '/inc/img/icons/share/' + item.refs[i].source_type + '.png" />';
+		}
+		r += '<strong>';
 		if( item.refs[i].source_type == 'twitter' ) {
 			r += '@';
 		}

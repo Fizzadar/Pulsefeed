@@ -85,10 +85,19 @@ server {
 	#Process
 	rewrite ^/process/([aA-zZ-]+)						/index.php?process=$1 last;							#processes?
 
+
+	#Handle PHP
 	location ~ .php$ {
 		fastcgi_pass   127.0.0.1:9000;
 		fastcgi_index  index.php;
 		fastcgi_param  SCRIPT_FILENAME /home/pulsefeed/www$fastcgi_script_name;
 		include fastcgi_params;
+	}
+
+	#Add cache on all static content
+	location ~* \.(ico|gif|jpe?g|png)$ {
+	    expires max;
+	    add_header Pragma public;
+	    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
 	}
 }

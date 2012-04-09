@@ -267,6 +267,10 @@ div.wrap {
 		font-family: Verdana;
 		display: block;
 	}
+	div#content .tip span img {
+		float: left;
+		margin-top: 0px;
+	}
 
 .block {
 	float: left;

@@ -563,7 +563,16 @@
 								endswitch;
 								?>" class="tip">
 								<span>
-									<strong><?php echo ( $ref['source_type'] == 'twitter' ? '@' : '' ) . $ref['source_title']; ?></strong>
+									<?php
+										switch( $ref['source_type'] ):
+											case 'twitter':
+											case 'facebook':
+												echo '<img src="' . $c_config['root'] . '/inc/img/icons/share/' . $ref['source_type'] . '.png" />';
+										endswitch;
+									?>
+									<strong>
+										<?php echo ( $ref['source_type'] == 'twitter' ? '@' : '' ) . $ref['source_title']; ?>
+									</strong>
 									<small><?php
 										switch( $ref['source_type'] ):
 											case 'public':
@@ -596,9 +605,13 @@
 											echo 'http://f.fdev.in/?d=' . $ref['source_data']['domain'];
 											break;
 										case 'like':
-										case 'facebook':
-										case 'twitter':
 											echo $c_config['root'] . '/inc/img/icons/share/' . $ref['source_type'] . '.png';
+											break;
+										case 'twitter':
+											echo $c_config['root'] . '/inc/img/icons/share/' . $ref['source_type'] . '.png" class="twitter_pic" userID="' . $ref['source_id'];
+											break;
+										case 'facebook':
+											echo 'http://graph.facebook.com/' . $ref['source_id'] . '/picture';
 											break;
 										default:
 											echo $c_config['root'] . '/inc/img/icons/sidebar/original.png';
