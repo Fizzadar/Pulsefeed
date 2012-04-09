@@ -165,6 +165,7 @@
 					);
 				endforeach;
 			endforeach;
+			unset( $home );
 
 			//now, get each article
 			$articles = array();
@@ -241,7 +242,8 @@
 					);
 				endif;
 			endforeach;
-
+			unset( $home );
+			
 			//now, get each article
 			$articles = array();
 			foreach( $links as $key => $link ):
