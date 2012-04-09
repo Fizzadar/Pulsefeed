@@ -119,7 +119,7 @@
 
 					//do we have it already?
 					$exist = $mod_db->query( '
-						SELECT id
+						SELECT id, site_title, site_url
 						FROM mod_source
 						WHERE feed_url = "' . $feed['feed_url'] . '"
 						LIMIT 1
@@ -135,11 +135,15 @@
 						//create worked?
 						if( $create ):
 							$items[$key]['source_id'] = $item['source_id'] = $mod_db->insert_id();
+							$items[$key]['source_title'] = $item['source_title'] = $feed['site_title'];
+							$items[$key]['source_url'] = $item['source_url'] = $feed['site_url'];
 							echo 'source inserted: ' . $url . PHP_EOL;
 						endif;
 					//yes!
 					else:
 						$items[$key]['source_id'] = $item['source_id'] = $exist[0]['id'];
+						$items[$key]['source_title'] = $item['source_title'] = $exist[0]['site_title'];
+						$items[$key]['source_url'] = $item['source_url'] = $exist[0]['site_url'];
 					endif;
 				else:
 					$items[$key]['source_id'] = $item['source_id'] = 0;
@@ -223,6 +227,16 @@
 					$tmp['source_id'] = $item['ex_userid']; //source ignored
 					$tmp['source_title'] = $item['ex_username'];
 					$tmp['source_data'] = json_encode( array( 'user_id' => $item['ex_userid'] ) );
+
+					//origin defined? (source 0 by default here)
+					if( $item['source_id'] > 0 ):
+						$tmp['origin_id'] = $item['source_id'];
+						$tmp['origin_title'] = $item['source_title'];
+
+						$domain = parse_url( $item['source_url'] );
+						$domain = $domain['host'];
+						$tmp['origin_data'] = json_encode( array( 'domain' => $domain ) );
+					endif;
 				endif;
 
 				//add to user_article
