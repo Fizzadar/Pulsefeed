@@ -3,7 +3,7 @@ core/
 *.psd
 .DS_Store
 *config.ext.php
-*.sh
 tmp/
 *.sql
 *.log
+.htaccess
