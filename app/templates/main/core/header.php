@@ -50,7 +50,7 @@
 		<a style="position:fixed;bottom:-1px;right:-1px;background:#FFF;border:1px solid #D7D7D7;z-index:9999;color:#1A1B1B;padding:5px" href="?debug"><?php echo isset( $_GET['debug'] ) ? 'look up &uarr;' : 'debug'; ?></a>
 	<?php endif; ?>
 
-	<div id="top">
+	<div id="top" class="<?php echo $this->get( 'externalHeader' ) ? 'external' : ''; ?>">
 		<div class="wrap">
 			<?php if( $this->get( 'externalHeader' ) ): ?>
 				<!--specific css & js -->

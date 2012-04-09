@@ -643,7 +643,7 @@
 						?>
 						
 						<!--collect-->
-						<span class="collect"><a class="collect_button" href="<?php echo $c_config['root']; ?>/article/<?php echo $item['id']; ?>/collect" articleID="<?php echo $item['id']; ?>">Collect</a></span> - 
+						<span class="collect"><a class="collect_button tip mini always" href="<?php echo $c_config['root']; ?>/article/<?php echo $item['id']; ?>/collect" articleID="<?php echo $item['id']; ?>">Collect</a></span> - 
 
 						<!--like button-->
 						<form action="<?php echo $c_config['root']; ?>/process/article-<?php echo $item['liked'] ? 'unlike' : 'like'; ?>" method="post" class="like_form">

@@ -2,6 +2,15 @@
 	file: inc/js/pulsefeed.js
 	desc: pulsefeeds core js file
 */
+
+//ie is shit!
+if( !console ) {
+	console = {
+		log: function( text ) {}
+	}
+}
+
+//pf object (general data store)
 var pulsefeed = {};
 pulsefeed.stream = false;
 

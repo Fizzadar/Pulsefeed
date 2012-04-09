@@ -11,6 +11,9 @@ div#top {
 	border-bottom: 1px solid #000;
 	box-shadow: 0px -23px 50px #000;
 }
+div#top.external {
+	box-shadow: none;
+}
 	div#top h3 {
 		margin: 0;
 		font-family: PT Sans, Arial;
