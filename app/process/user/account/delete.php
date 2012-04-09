@@ -60,8 +60,10 @@
 			$delete = $mod_user->delete_oauth( $_POST['provider'], $_POST['o_id'] );
 			//also delete any source
 			$mod_db->query( '
-				DELETE FROM mod_source
-				WHERE feed_url = "' . $_POST['provider'] . '/' . $mod_user->get_userid() . '/' . $_POST['o_id'] . '"
+				DELETE FROM mod_account
+				WHERE user_id = ' . $mod_user->get_userid() . '
+				AND type = "' . $_POST['provider'] . '"
+				AND o_id = ' . $_POST['o_id'] . '
 				LIMIT 1
 			' );
 			break;
