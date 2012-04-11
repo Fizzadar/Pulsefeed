@@ -167,7 +167,7 @@ template.source = function( source ) {
 	var r = '<div class="source" id="source_' + source.id + '" style="opacity:0;">';
 
 	//header
-	r += '<h2><img src="http://favicon.fdev.in/' + source.site_domain + '" alt="" />';
+	r += '<h2><img src="http://favicon.fdev.in/' + source.site_domain + '" alt="" /> ';
 	r += '<a href="' + mod_root + '/source/' + source.id + '">' + source.site_title + '</a>';
 	r += '<span class="url"><a target="_blank" href="' + source.site_url + '">' + source.site_url_trim + '</a></span></h2>';
 
