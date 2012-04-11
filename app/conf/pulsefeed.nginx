@@ -20,7 +20,7 @@ server {
 
 
 	#Error Docs
-	#Document Code											#File
+	#Document Code										#File
 
 	error_page 404										/inc/error/404.html;
 	error_page 500										/inc/error/500.html;
@@ -86,7 +86,7 @@ server {
 	rewrite ^/process/([aA-zZ-]+)						/index.php?process=$1 last;							#processes?
 
 	#Route .php to index
-	rewrite ^.*\.php$									/index.php
+	rewrite ^/.*\.php$									/index.php last;
 
 
 	#Handle PHP
