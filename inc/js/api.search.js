@@ -29,25 +29,43 @@ api.search = function( el, off ) {
 			offset: off
 		},
 		function( data, el ) {
-			//remove any 'current' results if offset =1
-			if( data.nextOffset == 1 ) {
-				$( '#search_results' ).html( '' );
+			//remove any 'current' results (even if getting 'more', clear the current bunch)
+			$( '#search_results' ).html( '' );
+
+			//loop each type (if have results)
+			if( data.sources.length > 0 ) {
+				$( '#search_results' ).append( '<li class="title">Sources</li>' );
+
+				for( var i = 0; i < data.sources.length; i++ ) {
+					$( '#search_results' ).append( '<li class="search_source"><a href="' + mod_root + '/source/' + data.sources[i].id + '"><span class="title"><img src="http://favicon.fdev.in/' + data.sources[i].domain + '"/> ' + data.sources[i].title + '</span><span class="type">source / ' + data.sources[i].url + '</span></a></li>' );
+				}
 			}
 
-			//build results
-			for( var i = 0; i < data.results.length; i++ ) {
-				$( '#search_results' ).append( '<li><a href="' + mod_root + '/' + data.results[i].type + '/' + data.results[i].id + '"><span class="title">' + data.results[i].title + '</span><span class="type">' + data.results[i].type + '</span></a></li>' );
+			if( data.users.length > 0 ) {
+				$( '#search_results' ).append( '<li class="title">Users</li>' );
+
+				for( var i = 0; i < data.users.length; i++ ) {
+					$( '#search_results' ).append( '<li class="search_user"><a href="' + mod_root + '/source/' + data.users[i].id + '"><span class="title">' + ( data.users[i].avatar.length > 0 ? '<img src="' + data.users[i].avatar + '"/>' : '' ) + data.users[i].title + '</span><span class="type">user</span></a></li>' );
+				}
+			}
+
+			if( data.articles.length > 0 ) {
+				$( '#search_results' ).append( '<li class="title">Articles</li>' );
+
+				for( var i = 0; i < data.articles.length; i++ ) {
+					$( '#search_results' ).append( '<li class="search_article"><a href="' + mod_root + '/source/' + data.articles[i].id + '"><span class="title">' + ( data.articles[i].source ? '<img src="http://favicon.fdev.in/' + data.articles[i].source.domain + '"/>' : '' ) + data.articles[i].title + '</span><span class="type">article' + ( data.articles[i].source ? ' from ' + data.articles[i].source.title : '' ) + '</span></a></li>' );
+				}
 			}
 
 			//no results?
-			if( data.results.length <= 0 ) {
-				$( '#search_results' ).append( '<li class="more">Nothing could be found</li>' );
+			resultslength = data.sources.length + data.users.length + data.articles.length;
+			if( resultslength <= 0 ) {
+				$( '#search_results' ).append( '<li class="title">We couldn\'t find anything :(</li>' );
 			} else {
-				$( '#search_results' ).append( '<li class="more"><a class="load_more_search" href="#"><strong>Load more &#187;</strong></a></li>' );
+				$( '#search_results' ).append( '<li class="more"><a href="#" class="load_more_search"><strong>load more results &darr;</strong></a></li>' );
 				//bind more button
 				$( '.load_more_search' ).bind( 'click', function( ev ) {
 					ev.preventDefault();
-					$( ev.target ).parent().html( '<strong>More results:</strong>' );
 					api.search( el, data.nextOffset );
 				})
 			}
@@ -55,11 +73,7 @@ api.search = function( el, off ) {
 			//display
 			$( 'input[type=submit]', el ).css( 'background-image', 'url( ' + mod_root + '/inc/img/icons/search.png )' );
 			$( '#search_results' ).css( 'display', 'block' );
-			if( data.nextOffset == 1 ) {
-				$( '#search_results' ).scrollTop( 0 );
-			} else {
-				$( '#search_results' ).scrollTop( $( '#search_results' ).scrollTop() + 50 );
-			}
+			$( '#search_results' ).scrollTop( 0 );
 		},
 		function( data, el ) {
 			//uh oh! redirect to default search
@@ -76,7 +90,7 @@ api.hideSearch = function() {
 
 	//remove & hide
 	$( '#search_results' ).css( 'display', 'none' );
-	$( '#search_results' ).html( '' );
+	//$( '#search_results' ).html( '' );
 
 	//start page scroll
 	$( 'body' ).css( 'overflow', 'auto' );

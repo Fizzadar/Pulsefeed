@@ -64,6 +64,7 @@
 			'article-like' => 'article/like',
 			'article-unlike' => 'article/unlike',
 			'article-collect' => 'article/collect',
+			'article-uncollect' => 'article/uncollect',
 			'article-hide' => 'article/hide',
 			'article-tag' => 'article/tag', //todo - can hide
 			'article-untag' => 'article/untag', //todo - can hide
@@ -135,6 +136,7 @@
 			'ArticleUnLiked' => array( 'Article unliked', 'success' ),
 			'ArticleCollected' => array( 'Article collected', 'success' ),
 			'ArticleCollectedNew' => array( 'Article collected in new collection', 'success' ),
+			'ArticleUnCollected' => array( 'Article uncollected', 'success' ),
 			//collection
 			'CollectionDeleted' => array( 'Collection deleted', 'success' ),
 		),

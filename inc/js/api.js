@@ -31,6 +31,11 @@ api.start = function( full ) {
 		ev.preventDefault();
 		api.collect( ev.target );
 	});
+	//bind hide buttons
+	$( '.uncollect_form' ).unbind().bind( 'submit', function( ev ) {
+		ev.preventDefault();
+		api.uncollect( ev.target );
+	});
 
 
 	//full load?

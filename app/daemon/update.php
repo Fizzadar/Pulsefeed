@@ -95,8 +95,7 @@
 		foreach( $items as $key => $item ):
 			//remove any older than update time
 			if( $item['time'] < $source['update_time'] ):
-				unset( $items[$key] );
-				echo 'old article, skipping ' . $item['end_url'] . PHP_EOL;
+				echo 'old article, skipping (' . $key . ' / ' . count( $items ) . ') ' . $item['end_url'] . PHP_EOL;
 				continue; //we're done
 			endif;
 
@@ -104,6 +103,8 @@
 			if( $source['type'] == 'source' ):
 				//article may appear on multiple sources, in this case we're adding it to this source
 				$items[$key]['source_id'] = $item['source_id'] = $source['id'];
+				$items[$key]['source_title'] = $item['source_title'] = $source['site_title'];
+				$items[$key]['source_url'] = $item['source_url'] = $source['site_url'];
 			else:
 				//not a source updating, so lets try find one, first work out root url
 				$url = parse_url( $item['end_url'] );
@@ -144,6 +145,7 @@
 						$items[$key]['source_id'] = $item['source_id'] = $exist[0]['id'];
 						$items[$key]['source_title'] = $item['source_title'] = $exist[0]['site_title'];
 						$items[$key]['source_url'] = $item['source_url'] = $exist[0]['site_url'];
+						echo 'source added: ' . $item['source_id'] . PHP_EOL;
 					endif;
 				else:
 					$items[$key]['source_id'] = $item['source_id'] = 0;
@@ -151,12 +153,18 @@
 				endif;
 			endif;
 
+			//source url set?
+			if( isset( $item['source_url'] ) and isset( $item['source_title'] ) and isset( $item['source_id'] ) ):
+				$tmp = parse_url( $item['source_url'] );
+				$item['source_domain'] = $tmp['host'];
+			endif;
+
 			//work out id, insert where needed (now we have source_id)
 			if( !isset( $item['id'] ) ):
 				//insert the article (update time = article_time + 1800, give articles an 30min to update (in sync with their original post time, NOT our time))
 				$insert = $mod_db->query( '
 					INSERT INTO mod_article
-					( title, url, end_url, description, time, image_quarter, image_third, image_half, update_time )
+					( title, url, end_url, description, time, image_quarter, image_third, image_half, update_time, source_id, source_title, source_data )
 					VALUES(
 						"' . $item['title'] . '",
 						"' . $item['url'] . '",
@@ -166,7 +174,10 @@
 						"' . $item['image_quarter'] . '",
 						"' . $item['image_third'] . '",
 						"' . $item['image_half'] . '",
-						' . ( $item['time'] + 1800 ) . '
+						' . ( $item['time'] + 1800 ) . ',
+						' . ( isset( $item['source_domain'] ) ? $item['source_id'] : 0 ) . ',
+						"' . ( isset( $item['source_domain'] ) ? $item['source_title'] : '' ) . '",
+						\'' . ( isset( $item['source_domain'] ) ? json_encode( array( 'domain' => $item['source_domain'] ) ) : '{}' ) . '\'
 					)
 				' );
 				//all good?
@@ -174,7 +185,6 @@
 					$items[$key]['id'] = $item['id'] = $mod_db->insert_id();
 					echo 'inserted: #' . $item['id'] . ' : ' . $item['end_url'] . PHP_EOL;
 				else:
-					unset( $items[$key] );
 					echo 'insert failed on: ' . $item['end_url'] . ' : ' . mysql_error() . PHP_EOL;
 					continue;
 				endif;

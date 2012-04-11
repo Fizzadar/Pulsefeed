@@ -142,7 +142,7 @@ template.item = function( item, no_image ) {
 		}
 
 		//collect
-		r += '<span class="collect"><a class="collect_button" href="' + mod_root + '/article/' + item.id + '/collect" articleID="' + item.id + '">Collect</a></span> - ';
+		r += '<span class="collect"><a class="collect_button tip mini always" href="' + mod_root + '/article/' + item.id + '/collect" articleID="' + item.id + '">Collect</a></span> - ';
 
 		//like button
 		r += '<form action="' + mod_root + '/process/article-' + ( item.liked ? 'unrecommend' : 'recommend' ) + '" method="post" class="like_form">';

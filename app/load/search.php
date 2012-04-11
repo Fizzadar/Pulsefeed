@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_db, $mod_message;
+	global $mod_db, $mod_message, $mod_data;
 
 	//no query?
 	if( !isset( $_GET['q'] ) or empty( $_GET['q'] ) ):
@@ -23,7 +23,7 @@
 
 	//search sources
 	$sources = $mod_db->query( '
-		SELECT id, site_title AS title, MATCH( site_title ) AGAINST( "' . $_GET['q'] . '" ) AS score, "source" AS type
+		SELECT id, site_title AS title, MATCH( site_title ) AGAINST( "' . $_GET['q'] . '" ) AS score, site_url AS url
 		FROM mod_source
 		WHERE id > 0
 		AND type = "source"
@@ -34,7 +34,7 @@
 
 	//search users
 	$users = $mod_db->query( '
-		SELECT id, name AS title, MATCH( name ) AGAINST( "' . $_GET['q'] . '" ) AS score, "user" AS type
+		SELECT id, name AS title, MATCH( name ) AGAINST( "' . $_GET['q'] . '" ) AS score, avatar_url AS avatar
 		FROM core_user
 		WHERE MATCH( name ) AGAINST( "' . $boolq . '" IN BOOLEAN MODE )
 		ORDER BY score DESC
@@ -43,12 +43,13 @@
 
 	//search articles
 	$articles = $mod_db->query( '
-		SELECT id, title, MATCH( title ) AGAINST( "' . $_GET['q'] . '" ) AS score, "article" AS type
+		SELECT id, title, MATCH( title ) AGAINST( "' . $_GET['q'] . '" ) AS score, source_id, source_title, source_data
 		FROM mod_article
 		WHERE MATCH( title ) AGAINST( "' . $boolq . '" IN BOOLEAN MODE )
 		ORDER BY score DESC
 		LIMIT ' . $offset . ', 10
 	', true, 1440 );
+
 
 	//quick sort func
 	function scoreSort( $a, $b ) {
@@ -63,20 +64,37 @@
 	usort( $users, 'scoreSort' );
 	usort( $articles, 'scoreSort' );
 
-	//combine arrays in order (sources, users, articles)
-	$results = array();
-	foreach( $sources as $source )
-		$results[] = $source;
-	foreach( $users as $user )
-		$results[] = $user;
-	foreach( $articles as $article )
-		$results[] = $article;
+	//manage bits n' bobs
+	foreach( $sources as $key => $source ):
+		//add domain
+		$sources[$key]['domain'] = $mod_data->domain_url( $source['url'] );
+	endforeach;
+
+	foreach( $articles as $key => $article ):
+		//add domain if ok
+		if( $article['source_id'] > 0 and !empty( $article['source_title'] ) and $article['source_data'] != '{}' ):
+			$data = json_decode( $article['source_data'] );
+			$articles[$key]['source'] = array(
+				'domain' => $data->domain,
+				'title' => $article['source_title']
+			);
+		endif;
+
+		//remove other shit
+		unset( $articles[$key]['source_id'] );
+		unset( $articles[$key]['source_title'] );
+		unset( $articles[$key]['source_data'] );
+	endforeach;
+
 
 	//start template
 	$mod_template = new mod_template();
 
 	//add results to template
-	$mod_template->add( 'results', $results );
+	$mod_template->add( 'sources', $sources );
+	$mod_template->add( 'users', $users );
+	$mod_template->add( 'articles', $articles );
+	$mod_template->add( 'result_count', count( $sources ) + count( $users ) + count( $articles ) );
 	//title
 	$mod_template->add( 'pageTitle', 'Search results: ' . $_GET['q'] );
 	//next offset

@@ -318,3 +318,36 @@ api.collectArticle = function( el ) {
 		el
 	);
 }
+
+
+
+//remove/uncollect an article
+api.uncollect = function( el ) {
+	//get data from dom
+	var article_id = $( 'input[name=article_id]', el ).attr( 'value' );
+	var collection_id = $( 'input[name=collection_id]', el ).attr( 'value' );
+
+	//disable the button while we work
+	$( 'input[type=submit]', el ).attr( 'disabled', 'disabled' );
+	$( 'input[type=submit]', el ).addClass( 'disabled' );
+
+	//make our request
+	this.post(
+		'/process/article-uncollect',
+		{
+			article_id: article_id,
+			collection_id: collection_id
+		},
+		function( data, el ) {
+			var article_id = $( 'input[name=article_id]', el ).attr( 'value' );
+			$( '#article_' + article_id ).animate( { height: 'toggle' }, 150, function() {
+				$( this ).remove();
+			});
+		},
+		function( data, el ) {
+			$( 'input[type=submit]', el ).removeAttr( 'disabled' );
+			$( 'input[type=submit]', el ).removeClass( 'disabled' );
+		},
+		el
+	);
+}

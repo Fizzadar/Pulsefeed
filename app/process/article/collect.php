@@ -46,7 +46,7 @@
 				'id' => $_POST['collection_id']
 			)
 		) );
-		if( count( $collection ) == 1 ):
+		if( count( $collection ) == 1 and $collection[0]['user_id'] == $mod_user->get_userid() ):
 			$id = $collection[0]['id'];
 		endif;
 	elseif( !empty( $_POST['collection_name'] ) ):

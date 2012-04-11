@@ -202,6 +202,7 @@ div.item {
 		div.item div.meta input:hover {
 			text-decoration: underline;
 			cursor: pointer;
+			color: #1A1B1B;
 		}
 		div.item div.meta input.disabled:hover {
 			text-decoration: none;
@@ -220,6 +221,9 @@ div.item {
 		div.item div.meta span.likes {
 			color: #666;
 		}
+		div.item div.meta a:hover {
+			text-decoration: underline;
+		}
 		div.item div.meta a.active {
 			text-decoration: underline;
 			color: #1A1B1B;
@@ -231,10 +235,11 @@ div.item {
 			position: absolute;
 			background: #FFFFFF;
 			border: 1px solid #D7D7D7;
-			margin: 7px 0 0 -2px;
+			margin: 24px 0 0 -2px;
 			padding: 5px 10px;
 			width: 150px;
 			box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
+			font-size: 12px;
 		}
 			div.item div.meta ul.collections span.tip {
 				width: 22px;
@@ -253,6 +258,12 @@ div.item {
 					text-decoration: none;
 					cursor: text;
 				}
+	div.item iframe.youtube_video {
+		float: left;
+		width: 100%;
+		height: auto;
+		min-height: 50px;
+	}
 
 div.feature {
 	padding-bottom: 0px;

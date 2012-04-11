@@ -7,20 +7,20 @@
 	//modules
 	global $mod_db, $mod_user, $mod_session, $mod_message, $mod_app, $mod_memcache;
 
-	//redirect dir
-	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/article/' . $_POST['article_id'];
-
 	//token?
 	if( !isset( $_POST['mod_token'] ) or !$mod_session->validate( $_POST['mod_token'] ) ):
 		$mod_message->add( 'InvalidToken' );
-		die( header( 'Location: ' . $redir ) );
+		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
 
 	//check post data
 	if( !isset( $_POST['article_id'] ) or !is_numeric( $_POST['article_id'] ) ):
 		$mod_message->add( 'InvalidPost' );
-		die( header( 'Location: ' . $redir ) );
+		die( header( 'Location: ' . $c_config['root'] ) );
 	endif;
+	
+	//redirect dir
+	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/article/' . $_POST['article_id'];
 
 	//are we logged in?
 	if( !$mod_user->check_login() ):

@@ -85,6 +85,9 @@ server {
 	#Process
 	rewrite ^/process/([aA-zZ-]+)						/index.php?process=$1 last;							#processes?
 
+	#Route .php to index
+	rewrite ^.*\.php$									/index.php
+
 
 	#Handle PHP
 	location ~ .php$ {

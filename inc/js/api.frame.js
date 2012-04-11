@@ -82,7 +82,7 @@ api.collectExternal = function( el, noloop ) {
 				api.collectExternal( el, true );
 			},
 			function( data, el ) {
-				window.location = mod_root + '/article/' + this.collectionArticleId + '/collect';
+				console.log( $( el ).attr( 'href' ) );
 			},
 			el
 		);

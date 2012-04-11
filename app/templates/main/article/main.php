@@ -8,7 +8,7 @@
 ?>
 
 <script type="text/javascript">
-	pf_frameurl = '<?php echo $this->content['article']['url']; ?>';
+	pf_frameurl = '<?php echo $this->content['article']['end_url']; ?>';
 </script>
 
 <div class="iframeborder">
@@ -18,6 +18,6 @@
 		</div>
 	</div>
 	<noscript>
-		<iframe class="externalarticle" src="<?php echo $this->content['article']['url']; ?>"></iframe>
+		<iframe class="externalarticle" src="<?php echo $this->content['article']['end_url']; ?>"></iframe>
 	</noscript>
 </div><!--end frameborder-->

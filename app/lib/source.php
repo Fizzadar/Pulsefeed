@@ -289,12 +289,9 @@
 			foreach( $articles as $key => $article ):
 				if( !isset( $article['id'] ) and ( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) ) ):
 					unset( $articles[$key] );
+					print_r( $article );
+					echo 'removing article for incomplete data: ' . $article['end_url'] . PHP_EOL;
 				endif;
-
-				//youtube link? NO THANKS
-				//if( preg_match( '/youtube.com/', $article['end_url'] ) ):
-				//	unset( $articles[$key] );
-				//endif;
 			endforeach;
 
 			return $articles;

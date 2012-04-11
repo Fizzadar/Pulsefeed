@@ -7,6 +7,7 @@
 	class mod_feed_article {
 		private $images = array();
 		private $content = false;
+		private $summary = false;
 		private $url = false;
 		private $ready = false;
 		private $endlink = false;
@@ -24,7 +25,7 @@
 			endif;
 
 			//set img root
-			$this->imgdir = $lockfile = $c_config['core_dir'] . '/../data/';
+			$this->imgdir = $c_config['core_dir'] . '/../data/';
 
 			//set url
 			$this->url = $url;
@@ -126,8 +127,8 @@
 			//url matching? site plugin?
 			$bits = parse_url( $url );
 			$plugin_name = str_replace( 'www.', '', $bits['host'] );
-			if( isset( $bits['host'] ) and file_exists( 'app/plugins/sites/' . $plugin_name . '.php' ) )
-				if( $this->content = include( 'app/plugins/sites/' . $plugin_name . '.php' ) )
+			if( isset( $bits['host'] ) and file_exists( $c_config['core_dir'] . '/../app/plugins/sites/' . $plugin_name . '.php' ) )
+				if( list( $this->ready, $this->content, $this->summary, $this->riptitle, $this->endlink ) = include( $c_config['core_dir'] . '/../app/plugins/sites/' . $plugin_name . '.php' ) )
 					return $this->content;
 
 			//not ready/content?
@@ -174,6 +175,9 @@
 
 		//get/make our summary
 		public function get_summary() {
+			//got summary?
+			if( $this->summary ) return $this->summary;
+
 			//got content?
 			if( !$this->ready or !$this->content )
 				$this->get_raw_article();
@@ -199,8 +203,11 @@
 			if( strlen( $summary ) < strlen( $article ) )
 				$summary .= '...';
 
+			//save summary
+			$this->summary = $summary;
+
 			//return summary
-			return $summary;
+			return $this->summary;
 		}
 
 		//get/save & generate locally image (select best/main/biggest image)

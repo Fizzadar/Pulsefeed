@@ -4,7 +4,7 @@
 div#top {
 	position: fixed;
 	top: 0;
-	z-index: 4;
+	z-index: 5;
 	width: 100%;
 	height: 35px;
 	background: #A40802;
@@ -107,9 +107,17 @@ div#top.external {
 			div#top ul#search_results li {
 				list-style: none;
 				padding: 0;
+				float: left;
+				width: 100%;
+			}
+			div#top ul#search_results li.title {
+				padding: 8px 5px 0px 5px;
+				border-bottom: 1px solid #D7D7D7;
+				font-weight: bold;
+				background: #F7F7F7;
 			}
 			div#top ul#search_results li.more {
-				padding: 13px 5px 5px 5px;
+				padding: 0;
 			}
 				div#top ul#search_results li a {
 					padding: 13px 5px 5px 5px;
@@ -124,6 +132,12 @@ div#top.external {
 					background: #F9F9F9;
 					color: #A40802;
 				}
+				div#top ul#search_results li.more a {
+					padding: 3px 5px;
+					background: #FFF;
+					font-family: Verdana;
+					font-size: 11px;
+				}
 				div#top ul#search_results li:last-child a {
 					border-bottom: none;
 				}
@@ -137,6 +151,13 @@ div#top.external {
 					font-size: 11px;
 					font-family: Verdana;
 					line-height: 0;
+				}
+				div#top ul#search_results li img {
+					float: left;
+					margin-right: 5px;
+					border-radius: 3px;
+					width: 16px;
+					height: 16px;
 				}
 	div#top ul#account {
 		float: right;
@@ -592,49 +613,30 @@ div#sidebars.notop {
 				color: #1A1B1B;
 				text-decoration: underline;
 			}
-		div#sidebars div.right div#recommendations {
-			float: left;
-			width: 100%;
-			margin-bottom: 20px;
-			margin-top: 0px;
-		}
-			div#sidebars div.right div#recommendations div {
-				float: left;
-				width: 100%;
-				border-bottom: 1px solid #F7F7F7;
-				padding: 10px 0;
-			}
-			div#sidebars div.right div#recommendations div:last-child {
-				border-bottom: none;
-			}
-				div#sidebars div.right div#recommendations div img {
-					width: 16px;
-					float: left;
-					margin-right: 4px;
-					border-radius: 3px;
-					margin-top: 4px;
-				}
-				div#sidebars div.right div#recommendations div a.title {
-					display: block;
-					font-size: 14px;
-					line-height: 24px;
-				}
-				div#sidebars div.right div#recommendations div span.meta {
-					font-size: 11px;
-					font-family: Verdana;
-					color: #666;
-					line-height: 11px;
-					margin-top: 4px;
-					display: block;
-				}
-				div#sidebars div.right div#recommendations div span.meta span.time {
-					visibility: hidden;
-				}
-				div#sidebars div.right div#recommendations div:hover span.meta span.time {
-					visibility: visible;
-				}
 	div#sidebars h3 {
 		font-weight: normal;
+	}
+	div#sidebars div.infobox {
+		padding: 5px;
+		margin: 0 0 20px 0;
+		border: 1px solid;
+		font-size: 11px;
+		font-family: Verdana;
+	}
+		div#sidebars div.infobox img {
+			float: left;
+			margin-top: 5px;
+		}
+		div#sidebars div.infobox p {
+			margin: 0 0 0 25px;
+		}
+	div#sidebars div.infobox.info {
+		background: #BDE5F8;
+		color: #00529B;
+	}
+	div#sidebars div.infobox.success {
+		background: #DFF2BF;
+		color: #4F8A10;
 	}
 
 

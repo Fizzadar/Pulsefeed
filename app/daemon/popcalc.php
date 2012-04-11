@@ -7,14 +7,27 @@
 	//load modules
 	global $mod_db, $mod_config, $mod_memcache;
 
-	//get users
-	$users = $mod_db->query( '
-		SELECT id
-		FROM core_user
-	' );
+	//remove mod_db
+	$mod_db->__destruct();
+	unset( $mod_db );
 
-	//loop users
-	foreach( $users as $user ):
+	//load daemon (db func, thread func, threads, thread time, db time)
+	$daemon = new mod_daemon( 'dbupdate', 'popcalc', 30, 15, 60, 'popcalc' );
+
+	//and go!
+	$daemon->start();
+
+	//popcal a user
+	function popcalc( $user ) {
+		global $mod_config;
+
+		//new db
+		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
+		$mod_db->connect();
+
+		//memcache
+		$mod_memcache = new mod_memcache( $mod_db );
+
 		//get users non-expired article ids
 		$ids = $mod_db->query( '
 			SELECT article_id AS id, source_id, source_type, origin_id
@@ -22,9 +35,11 @@
 			WHERE expired = 0
 			AND user_id = ' . $user['id'] . '
 		' );
-		if( !$ids or count( $ids ) <= 0 )
-			continue;
-		
+		if( !$ids or count( $ids ) <= 0 ):
+			echo 'user #' . $user['id'] . ' has no articles, exiting' . PHP_EOL;
+			exit( 0 );
+		endif;
+
 		//now get the articles
 		$articledata = $mod_memcache->get( 'mod_article', $ids );
 
@@ -130,8 +145,42 @@
 
 		//echo and done this user!
 		echo 'user #' . $user['id'] . ' streams updated (' . count( $articles ) . ' articles)' . PHP_EOL;
-	endforeach;
+	}
 
-	//echo & we're done!
-	echo 'popcalc complete, updated ' . count( $users ) . ' users' . PHP_EOL;
+	//get user function
+	function dbupdate() {
+		global $mod_config;
+
+		//new db
+		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
+		$mod_db->connect();
+
+		//min 30 min between popcalcs
+		$update_time = time() - 1800;
+
+		//select users to update
+		$users = $mod_db->query( '
+			SELECT *
+			FROM core_user
+			WHERE update_time < ' . $update_time . '
+			ORDER BY update_time ASC
+			LIMIT 100
+		' );
+
+		//update the same set of users update time
+		$mod_db->query( '
+			UPDATE core_user
+			SET update_time = ' . time() . '
+			WHERE update_time < ' . $update_time . '
+			ORDER BY update_time ASC
+			LIMIT 100
+		' );
+
+		//remove db
+		$mod_db->__destruct();
+		unset( $mod_db );
+
+		//return to daemon
+		return $users;
+	}
 ?>
