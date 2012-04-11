@@ -111,7 +111,7 @@ template.item = function( item, no_image ) {
 		switch( item.refs[i].source_type ) {
 			case 'public':
 			case 'source':
-				r += 'http://f.fdev.in/?d=' + item.refs[i].source_data.domain;
+				r += 'http://favicon.fdev.in/' + item.refs[i].source_data.domain;
 				break;
 			case 'twitter':
 			case 'facebook':
@@ -126,7 +126,7 @@ template.item = function( item, no_image ) {
 			orig = true;
 			r += '<a href="' + mod_root + '/source/' + item.refs[i].origin_id + '" class="tip">';
 			r += '<span><strong>' + item.refs[i].origin_title + '</strong><small>Original source</small><span></span></span>';
-			r += '<img src="http://f.fdev.in/?d=' + item.refs[i].origin_data.domain + '" alt="" /></a>';
+			r += '<img src="http://favicon.fdev.in/' + item.refs[i].origin_data.domain + '" alt="" /></a>';
 		}
 	}//end refs
 
@@ -167,7 +167,7 @@ template.source = function( source ) {
 	var r = '<div class="source" id="source_' + source.id + '" style="opacity:0;">';
 
 	//header
-	r += '<h2><img src="http://www.google.com/s2/favicons?domain=' + source.site_domain + '" alt="" />';
+	r += '<h2><img src="http://favicon.fdev.in/' + source.site_domain + '" alt="" />';
 	r += '<a href="' + mod_root + '/source/' + source.id + '">' + source.site_title + '</a>';
 	r += '<span class="url"><a target="_blank" href="' + source.site_url + '">' + source.site_url_trim + '</a></span></h2>';
 

@@ -40,7 +40,7 @@
 		<?php foreach( $this->get( 'sources' ) as $source ): ?>
 			<div class="source">
 				<h2>
-					<img src="http://f.fdev.in/?d=<?php echo $source['site_domain']; ?>" alt="" />
+					<img src="http://favicon.fdev.in/<?php echo $source['site_domain']; ?>" alt="" />
 
 					<a href="<?php echo $c_config['root']; ?>/source/<?php echo $source['id']; ?>"><?php echo $source['site_title']; ?></a>
 
