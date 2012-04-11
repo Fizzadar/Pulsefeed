@@ -45,7 +45,7 @@ api.search = function( el, off ) {
 				$( '#search_results' ).append( '<li class="title">Users</li>' );
 
 				for( var i = 0; i < data.users.length; i++ ) {
-					$( '#search_results' ).append( '<li class="search_user"><a href="' + mod_root + '/source/' + data.users[i].id + '"><span class="title">' + ( data.users[i].avatar.length > 0 ? '<img src="' + data.users[i].avatar + '"/>' : '' ) + data.users[i].title + '</span><span class="type">user</span></a></li>' );
+					$( '#search_results' ).append( '<li class="search_user"><a href="' + mod_root + '/user/' + data.users[i].id + '"><span class="title">' + ( data.users[i].avatar.length > 0 ? '<img src="' + data.users[i].avatar + '"/>' : '' ) + data.users[i].title + '</span><span class="type">user</span></a></li>' );
 				}
 			}
 
@@ -53,7 +53,7 @@ api.search = function( el, off ) {
 				$( '#search_results' ).append( '<li class="title">Articles</li>' );
 
 				for( var i = 0; i < data.articles.length; i++ ) {
-					$( '#search_results' ).append( '<li class="search_article"><a href="' + mod_root + '/source/' + data.articles[i].id + '"><span class="title">' + ( data.articles[i].source ? '<img src="http://favicon.fdev.in/' + data.articles[i].source.domain + '"/>' : '' ) + data.articles[i].title + '</span><span class="type">article' + ( data.articles[i].source ? ' from ' + data.articles[i].source.title : '' ) + '</span></a></li>' );
+					$( '#search_results' ).append( '<li class="search_article"><a href="' + mod_root + '/article/' + data.articles[i].id + '"><span class="title">' + ( data.articles[i].source ? '<img src="http://favicon.fdev.in/' + data.articles[i].source.domain + '"/>' : '' ) + data.articles[i].title + '</span><span class="type">article' + ( data.articles[i].source ? ' from ' + data.articles[i].source.title : '' ) + '</span></a></li>' );
 				}
 			}
 
