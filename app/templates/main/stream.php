@@ -385,7 +385,7 @@
 						<img src="<?php echo $c_config['root']; ?>/inc/img/icons/info/success.png" alt="" />
 						<p>
 							<strong>Welcome to version <?php echo PULSEFEED_VERSION; ?></strong>
-							<br /><a href="#"><strong>Read about the changes &#187;</strong></a></a>
+							<br /><a href="http://blog.pulsefeed.com/post/15" target="_blank"><strong>Read about the changes &#187;</strong></a></a>
 						</p>
 					</div>
 				<?php endif; ?>
