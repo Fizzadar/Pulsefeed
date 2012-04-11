@@ -240,6 +240,7 @@ div.item {
 			width: 150px;
 			box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
 			font-size: 12px;
+			z-index: 4;
 		}
 			div.item div.meta ul.collections span.tip {
 				width: 22px;
