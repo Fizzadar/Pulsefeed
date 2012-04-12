@@ -89,7 +89,7 @@
 
 	<div class="wrap" id="content">
 		<div class="main<?php echo $evencols ? ' evencol' : ''; echo ( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ) ? ' notop' : ''; ?>" id="stream">
-			<?php if( !$mod_user->session_login() ): ?>
+			<?php if( !$mod_user->session_login() and $this->get( 'title' ) == 'public' ): ?>
 				<div id="welcome">
 					<p class="welcome">
 						Pulsefeed is a personalized magazine curated by your Twitter, Facebook &amp; favorite websites/feeds
@@ -346,7 +346,7 @@
 					</ul>
 				<?php endif; ?>
 
-				<?php if( $this->get( 'userid' ) ): ?>
+				<?php if( false and $this->get( 'userid' ) ): ?>
 					<ul class="sources">
 						<li class="title">Sources<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? ' <a href="' . $c_config['root'] . '/sources/me" class="edit">edit</a>' : ''; ?></li>
 						<?php if( $this->get( 'sources' ) ): ?>
