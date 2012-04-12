@@ -346,7 +346,7 @@
 					</ul>
 				<?php endif; ?>
 
-				<?php if( false and $this->get( 'userid' ) ): ?>
+				<?php if( $this->get( 'userid' ) ): ?>
 					<ul class="sources">
 						<li class="title">Sources<?php echo $this->get( 'userid' ) == $mod_user->session_userid() ? ' <a href="' . $c_config['root'] . '/sources/me" class="edit">edit</a>' : ''; ?></li>
 						<?php if( $this->get( 'sources' ) ): ?>
