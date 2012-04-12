@@ -140,18 +140,18 @@
 
 			<div id="add_source" class="hidden">
 				<span class="edit">add sources / <a href="#" onclick="$( '#add_source' ).slideToggle( 100 ); return false;">close</a></span>
-				<a href="<?php echo $c_config['root']; ?>/sources" class="linkthird">
+				<a href="<?php echo $c_config['root']; ?>/settings" class="linkthird">
+					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/twitter.png" alt="" />Add Social Accounts
+					<span>get articles from twitter &amp; facebook</span>
+				</a>
+				<a href="<?php echo $c_config['root']; ?>/sources" class="linkthird middle">
 					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/browse.png" alt="" />
 					Browse Sources
 					<span>Browse the directory of sources</span>
 				</a>
-				<a href="<?php echo $c_config['root']; ?>/sources/add" class="linkthird middle">
+				<a href="<?php echo $c_config['root']; ?>/sources/add" class="linkthird">
 					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/add.png" alt="" />Add Directly
 					<span>By websites, feeds or an opml file</span>
-				</a>
-				<a href="<?php echo $c_config['root']; ?>/sources/me" class="linkthird">
-					<img src="<?php echo $c_config['root']; ?>/inc/img/icons/big/manage.png" alt="" />Manage Sources
-					<span>Manage your current sources</span>
 				</a>
 			</div><!--end add_source-->
 			
