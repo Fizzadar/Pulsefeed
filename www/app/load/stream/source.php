@@ -1,0 +1,123 @@
+<?php
+	/*
+		file: app/load/stream/source.php
+		desc: load source stream
+	*/
+
+	//modules
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load, $mod_memcache;
+
+	//start template
+	$mod_template = new mod_template();
+
+	//offset
+	$offset = 0;
+	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
+		$offset = $_GET['offset'];
+
+	//id?
+	if( !isset( $_GET['id'] ) or !is_numeric( $_GET['id'] ) or $_GET['id'] <= 0 ):
+		$mod_message->add( 'NotFound' );
+		die( header( 'Location: ' . $c_config['root'] ) );
+	endif;
+
+	//get source & check
+	$source = $mod_memcache->get( 'mod_source', array(
+		array(
+			'id' => $_GET['id']
+		)
+	) );
+	if( !isset( $source ) or count( $source ) != 1 ):
+		$mod_message->add( 'NotFound' );
+		die( header( 'Location: ' . $c_config['root'] ) );
+	endif;
+
+	//subscribed
+	$subscribed = false;
+	if( $mod_user->check_login() ):
+		$subscribed = count( $mod_memcache->get( 'mod_user_sources', array(
+			array(
+				'user_id' => $mod_user->get_userid(),
+				'source_id' => $_GET['id']
+			)
+		) ) ) == 1 ? true : false;
+	endif;
+
+	//topics
+	$topic_sources = $mod_db->query( '
+		SELECT topic_id
+		FROM mod_topic_sources
+		WHERE source_id = ' . $_GET['id'] . '
+	' );
+	$topics = array();
+	foreach( $topic_sources as $topic )
+		$topics[] = array(
+			'id' => $topic['topic_id']
+		);
+	$topics = $mod_memcache->get( 'mod_topic', $topics );
+
+	//api?
+	if( !$mod_config['api'] ):
+		//set stream to cookie
+		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
+	endif;
+	
+	//api & logged in?
+	if( !$mod_config['api'] and $mod_user->check_login() ):
+		//load the users sources
+		$sources = $mod_load->load_sources( $mod_user->get_userid() );
+		$mod_template->add( 'sources', $sources );
+
+		//accounts
+		$accounts = $mod_load->load_accounts( $mod_user->get_userid() );
+		$mod_template->add( 'accounts', $accounts );
+		
+		//load the users followings
+		$followings = $mod_load->load_users( $mod_user->get_userid() );
+		$mod_template->add( 'followings', $followings );
+
+		//load users collections
+		$collections = $mod_load->load_collections( $mod_user->get_userid() );
+		$mod_template->add( 'collections', $collections );
+	endif;
+
+	//start our stream
+	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'source' ) : new mod_stream_site( $mod_db, 'source' );
+	//invalid stream?
+	if( !$mod_stream->valid ):
+		$mod_message->add( 'NotFound' );
+		die( header( 'Location: ' . $c_config['root'] ) );
+	endif;
+
+	//set offset
+	$mod_stream->set_offset( $offset );
+
+	//set source id
+	$mod_stream->set_sourceid( $_GET['id'] );
+
+	//prepare, ok to go after this
+	if( !$mod_stream->prepare() ):
+		$mod_message->add( 'DatabaseError' );
+		die( header( 'Location: ' . $c_config['root'] ) );
+	endif;
+
+	//get the data
+	$stream_data = $mod_config['api'] ? $mod_stream->get_data() : $mod_stream->build();
+
+	//add data
+	$mod_template->add( 'stream', $stream_data['items'] );
+	$mod_template->add( 'title', 'source' );
+	$mod_template->add( 'pageTitle', $source[0]['site_title'] . ' Stream' );
+	$mod_template->add( 'userid', $mod_user->session_userid() );
+	$mod_template->add( 'streamid', 0 );
+	$mod_template->add( 'nextOffset', $offset + 1 );
+	$mod_template->add( 'subscribed', $subscribed );
+	$mod_template->add( 'source_id', $_GET['id'] );
+	$mod_template->add( 'source', $source[0] );
+	$mod_template->add( 'source_topics', $topics );
+
+	//load templates
+	$mod_template->load( 'core/header' );
+	$mod_template->load( 'stream' );
+	$mod_template->load( 'core/footer' );
+?>

@@ -1,0 +1,11 @@
+<?php $this->add( 'helpPage', 'Topics' ); ?>
+
+<?php $this->load( 'page/help/header' ); ?>
+
+<div class="wrap" id="content">
+	<div class="main">
+		<p>Coming soon</p>
+	</div><!--end main-->
+</div><!--end wrap-->
+
+<?php $this->load( 'page/help/sidebar' ); ?>

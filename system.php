@@ -1,7 +1,12 @@
 <?php
+	/*
+		file: system.php
+		desc: runs daemons
+	*/
+
 	//are we cli?
 	if( !isset( $argv ) )
-		die( 'Naw. <a href="/">Home &rarr;</a>' );
+		die( header( 'Location: http://pulsefeed.com' ) );
 
 	//set cron
 	$_GET['iscron'] = true;
@@ -9,8 +14,13 @@
 	//set some server vars
 	$_SERVER['HTTP_HOST'] = '';
 
+	//ignore user abort
+	ignore_user_abort( true );
+	//time limit
+	set_time_limit( 0 );
+	
 	//get index, which returns early
-	require( 'index.php' );
+	require( 'www/index.php' );
 
 	//special cron func
 	function get_memcache() {
@@ -24,6 +34,23 @@
 
 		//return the object
 		return $mod_mcache;
+	}
+
+	//special cron func
+	function get_db( $mod_mcache = false ) {
+		global $mod_config;
+
+		//db
+		if( $mod_mcache )
+			$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'], $mod_mcache );
+		else
+			$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
+
+		//connect
+		$mod_db->connect();
+
+		//return
+		return $mod_db;
 	}
 
 	//no cron time set?
