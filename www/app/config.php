@@ -227,7 +227,10 @@
 			'help-accounts' => 'help/accounts',
 			'help-topics' => 'help/topics',
 			'help-collections' => 'help/collections',
-			'help-sources' => 'help/sources'
+			'help-sources' => 'help/sources',
+			'about' => 'about',
+			'contact' => 'contact',
+			'suggest' => 'suggest',
 		),
 		'is' => array(
 			'an RSS reader on steroids',

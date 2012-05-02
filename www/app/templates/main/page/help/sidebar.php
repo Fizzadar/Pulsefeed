@@ -23,6 +23,13 @@
 				</li>
 				<?php endforeach; ?>
 			</ul>
+
+			<ul>
+				<li class="title">More</li>
+				<li><a href="<?php echo $c_config['root']; ?>/about">About Pulsefeed</a></li>
+				<li><a href="<?php echo $c_config['root']; ?>/suggest">Make a Suggestion</a></li>
+				<li><a href="<?php echo $c_config['root']; ?>/contact">Contact Us</a></li>
+			</ul>
 		</div><!--end left-->
 
 		<div class="right">
