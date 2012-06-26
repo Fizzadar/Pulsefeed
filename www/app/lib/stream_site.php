@@ -56,7 +56,7 @@
 						endfor;*/
 						$col = 1;
 						foreach( $this->data as $item ):
-							if( $item['used'] ) continue;
+							if( isset( $item['used'] ) ) continue;
 						
 							$articles['col' . $col][] = $item;
 							$col++;
