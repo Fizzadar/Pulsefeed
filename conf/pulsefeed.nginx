@@ -111,10 +111,10 @@ server {
 
 
 	#Route everything else non-static to 404
-	rewrite ^.*[^\.png|\.jpg|\.gif|\.jpeg|\.js|\.css]$	/inc/error/404.html last;
+	rewrite ^/.*[^\.png|\.jpg|\.gif|\.jpeg|\.js|\.css]$	/inc/error/404.html last;
 
 	#Hide Sub-Dir PHP
-	rewrite ^.*/.*\.php$								/inc/error/404.html last;
+	#rewrite ^.*/.*\.php$								/inc/error/404.html last;
 
 
 
