@@ -169,8 +169,10 @@
 				return 'deauthed';
 
 			//not an array?
-			if( !is_array( $home ) )
+			if( !is_array( $home ) ):
+				var_dump( $home );
 				return false;
+			endif;
 
 			$tweets = array();
 			//locate tweets with urls
