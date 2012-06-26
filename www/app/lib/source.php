@@ -157,9 +157,10 @@
 			$request = array(
 				'count' => 100,
 				'include_entities' => true,
-				'exclude_replies' => true,
-				'since_id' => $this->since_id
+				'exclude_replies' => true
 			);
+			if( $this->since_id > 0 )
+				$request['since_id'] = $this->since_id;
 
 			//load request
 			$home = $tw->get( 'statuses/home_timeline', $request );
