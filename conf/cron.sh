@@ -10,7 +10,8 @@
 * * * * * root php /home/pulsefeed/system.php popularity
 
 #popcalc daemon
-* * * * * root php /home/pulsefeed/system.php popcalc
+* * * * * root php /home/pulsefeed/system.php popcalc user
+* * * * * root php /home/pulsefeed/system.php popcalc topic
 
 #cleanup daemon
 * * * * * root php /home/pulsefeed/system.php cleanup
