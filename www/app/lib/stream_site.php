@@ -42,7 +42,7 @@
 						//get col3, items from length - third to length
 						for( $i = $length - $third; $i < $length; $i++ ):
 							$articles['col3'][] = $this->data[$i];
-							unset( $this->data[$i] );
+							$this->data[$i]['used'] = true;
 						endfor;
 
 						//now generate other 2 cols
@@ -56,6 +56,8 @@
 						endfor;*/
 						$col = 1;
 						foreach( $this->data as $item ):
+							if( $item['used'] ) continue;
+						
 							$articles['col' . $col][] = $item;
 							$col++;
 							if( $col == 3 )
