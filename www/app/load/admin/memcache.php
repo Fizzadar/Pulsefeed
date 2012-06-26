@@ -35,7 +35,7 @@
 	endforeach;
 
 	//get stats, add to template
-	$mod_template->add( 'memcaches', @$memcache->getExtendedStats() );
+	$mod_template->add( 'memcaches', $memcache->getExtendedStats() );
 	$mod_template->add( 'memcache_names', $memcache_names );
 
 	//template
