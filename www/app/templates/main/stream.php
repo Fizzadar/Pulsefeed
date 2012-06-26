@@ -18,7 +18,7 @@
 <script type="text/javascript">
 	pulsefeed.streamType = '<?php echo $this->get( 'title' ); ?>';
 	pulsefeed.streamOffset = <?php echo $this->get( 'nextOffset' ); ?>;
-<?php if( $this->get( 'title' ) == 'source' ): ?>
+<?php if( $this->get( 'title' ) == 'website' ): ?>
 	pulsefeed.streamWebsite = <?php echo $this->get( 'website_id' ); ?>;
 	pulsefeed.streamSubscribed = <?php echo $this->get( 'subscribed' ) ? 'true' : 'false'; ?>;
 <?php elseif( $this->get( 'title' ) == 'account' ): ?>
