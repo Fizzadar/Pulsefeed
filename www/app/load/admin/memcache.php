@@ -18,24 +18,29 @@
 
 	//host:port => name
 	$memcache_names = array();
+	$used = array();
 
 	//memcache
 	$memcache = new memcache;
 	foreach( $mod_config['memcache'] as $key => $memcaches ):
 		foreach( $memcaches as $host => $port ):
-			$memcache->addServer( $host, $port );
-
 			//name
 			if( !isset( $memcache_names[$host . ':' . $port] ) )
 				$memcache_names[$host . ':' . $port] = array();
 
 			//names
 			$memcache_names[$host . ':' . $port][] = $key;
+
+			if( isset( $used[$host . $port] ) )
+				continue;
+
+			$memcache->addServer( $host, $port );
+			$used[$host . $port] = true;
 		endforeach;
 	endforeach;
 
 	//get stats, add to template
-	$mod_template->add( 'memcaches', $memcache->getExtendedStats() );
+	$mod_template->add( 'memcaches', @$memcache->getExtendedStats() );
 	$mod_template->add( 'memcache_names', $memcache_names );
 
 	//template
