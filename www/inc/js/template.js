@@ -126,7 +126,6 @@ template.item = function( item, no_image, header ) {
 					r += '<ul>';
 					r += '<li><small class="edit">author</small> ' + ( item.author ? 'Unknown' : item.autho ) + '</li>';
 					r += '<li><small class="edit">date</small> ' + item.time + '</li>';
-					r += '<li><small class="edit">subscribers</small> ' + ( item.refs[i].source_data.subscribers ? item.refs[i].source_data.subscribers : 0 ) + '</li>';
 					r += '</ul>';
 
 					if( item.refs[i].source_type == 'website' ) {

@@ -109,7 +109,6 @@
 						<ul>
 							<li><small class="edit">author</small> <?php echo empty( $item['author'] ) ? 'Unknown' : $item['author']; ?></li>
 							<li><small class="edit">date</small> <?php echo date( 'jS F', $item['time'] ); ?></li>
-							<li><small class="edit">subscribers</small> <?php echo isset( $ref['source_data']['subscribers'] ) ? $ref['source_data']['subscribers'] : 0; ?></li>
 						</ul>
 						<?php if( $ref['source_type'] == 'website' ): ?>
 							<form action="<?php echo $c_config['root']; ?>/process/website-<?php echo $ref['subscribed'] ? 'un' : ''; ?>subscribe" method="post" id="subunsub" class="website_subscribe">
