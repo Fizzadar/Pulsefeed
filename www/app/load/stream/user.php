@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load;
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load, $mod_memcache, $mod_app, $user_id, $mod_template, $mod_streamcache;
 
 	//work out userid
 	$user_id = 0;
@@ -34,18 +34,23 @@
 		$stream_type = 'popular';
 
 	//get user, check if exists
-	$user = $mod_db->query( '
-		SELECT core_user.name' . ( $mod_user->check_login() ? ', mod_user_follows.user_id AS following' : '' ) . '
-		FROM core_user
-		' . ( $mod_user->check_login() ?
-			'LEFT JOIN mod_user_follows ON core_user.id = mod_user_follows.following_id AND mod_user_follows.user_id = ' . $mod_user->get_userid() : ''
-		) . '
-		WHERE core_user.id = ' . $user_id . '
-		LIMIT 1
-	' );
+	$user = $mod_memcache->get( 'core_user', array( array(
+		'id' => $user_id
+	) ) );
 	if( !isset( $user ) or count( $user ) != 1 ):
 		$mod_message->add( 'NotFound' );
 		die( header( 'Location: ' . $c_config['root'] ) );
+	endif;
+
+	//following
+	$following = false;
+	if( $mod_user->check_login() ):
+		$following = count( $mod_memcache->get( 'mod_user_follows', array(
+			array(
+				'user_id' => $mod_user->get_userid(),
+				'following_id' => $user_id
+			)
+		) ) ) == 1 ? true : false;
 	endif;
 
 	//start template
@@ -59,30 +64,11 @@
 
 	//api?
 	if( !$mod_config['api'] ):
-		//set stream to cookie
-		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
-	
-		//load the users sources
-		$sources = $mod_load->load_sources( $user_id );
-		$mod_template->add( 'sources', $sources );
-
-		//load accounts if current user
-		if( $mod_user->get_userid() == $user_id ):
-			$accounts = $mod_load->load_accounts( $mod_user->get_userid() );
-			$mod_template->add( 'accounts', $accounts );
-		endif;
-
-		//load the users followings
-		$followings = $mod_load->load_users( $user_id );
-		$mod_template->add( 'followings', $followings );
-
-		//load users collections
-		$collections = $mod_load->load_collections( $user_id );
-		$mod_template->add( 'collections', $collections );
+		$mod_app->load( 'load/stream/userconf' );
 	endif;
 
 	//start our stream
-	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, $stream_type ) : new mod_stream_site( $mod_db, $stream_type );
+	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, $stream_type, $mod_streamcache ) : new mod_stream_site( $mod_db, $stream_type, $mod_streamcache );
 	//invalid stream?
 	if( !$mod_stream->valid ):
 		$mod_message->add( 'NotFound' );
@@ -115,8 +101,9 @@
 	$mod_template->add( 'pageTitle', $name . ' ' . ( isset( $stream_name ) ? $stream_name : ucfirst( $stream_type ) ) . ' Stream' );
 	$mod_template->add( 'userid', $user_id );
 	$mod_template->add( 'username', $user[0]['name'] );
-	$mod_template->add( 'following', isset( $user[0]['following'] ) and $user[0]['following'] != NULL );
+	$mod_template->add( 'following', $following );
 	$mod_template->add( 'nextOffset', $offset + 1 );
+	$mod_template->add( 'user', $user[0] );
 
 	//load templates
 	$mod_template->load( 'core/header' );

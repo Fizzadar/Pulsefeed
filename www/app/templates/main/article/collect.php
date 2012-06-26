@@ -4,14 +4,14 @@
 		desc: minimal collection list for no-js
 	*/
 	
-	global $mod_token;
+	global $mod_token, $mod_cookie;
 
 ?>
 
 <div id="header">
 	<div class="wrap">
 		<div class="left noborder">
-			
+			<a class="button blue" href="<?php echo $mod_cookie->get( 'RecentStream' ) ? $mod_cookie->get( 'RecentStream' ) : $c_config['root']; ?>">&larr; Back to Stream</a>
 		</div>
 
 		<h1>Collect Article #<?php echo $_GET['id']; ?></h1>

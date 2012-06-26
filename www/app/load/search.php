@@ -24,9 +24,8 @@
 	//search sources
 	$sources = $mod_db->query( '
 		SELECT id, site_title AS title, MATCH( site_title ) AGAINST( "' . $_GET['q'] . '" ) AS score, site_url AS url
-		FROM mod_source
+		FROM mod_website
 		WHERE id > 0
-		AND type = "source"
 		AND MATCH( site_title ) AGAINST( "' . $boolq . '" IN BOOLEAN MODE )
 		ORDER BY score DESC
 		LIMIT ' . $offset . ', 10
@@ -43,7 +42,7 @@
 
 	//search articles
 	$articles = $mod_db->query( '
-		SELECT id, title, MATCH( title ) AGAINST( "' . $_GET['q'] . '" ) AS score, source_id, source_title, source_data
+		SELECT id, title, MATCH( title ) AGAINST( "' . $_GET['q'] . '" ) AS score, source_id, source_title, source_data, time
 		FROM mod_article
 		WHERE MATCH( title ) AGAINST( "' . $boolq . '" IN BOOLEAN MODE )
 		ORDER BY score DESC
@@ -79,6 +78,9 @@
 				'title' => $article['source_title']
 			);
 		endif;
+
+		//set time ago
+		$articles[$key]['time_ago'] = $mod_data->time_ago( $article['time'] );
 
 		//remove other shit
 		unset( $articles[$key]['source_id'] );

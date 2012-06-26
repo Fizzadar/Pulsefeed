@@ -8,9 +8,10 @@
 		private $pie;
 		private $type = 'source';
 		private $url;
+		private $since_id;
 
 		//start the class
-		public function __construct( $url = '', $type = 'source' ) {
+		public function __construct( $url = '', $type = 'source', $since_id = 0 ) {
 			global $mod_config;
 
 			//make sure type is valid
@@ -19,6 +20,9 @@
 
 			//set url (or data)
 			$this->url = $url;
+
+			//set since id
+			$this->since_id = $since_id;
 
 			//switch our types
 			switch( $this->type ):
@@ -69,6 +73,8 @@
 
 		//load
 		public function load() {
+			if( !isset( $this->type ) ) return false;
+			
 			switch( $this->type ):
 				case 'source':
 					return $this->loadSource();
@@ -76,6 +82,8 @@
 					return $this->loadTwitter();
 				case 'facebook':
 					return $this->loadFacebook();
+				default:
+					return false;
 			endswitch;
 		}
 
@@ -119,9 +127,11 @@
 					'url' => $item->get_permalink(),
 					'end_url' => $i->get_end_url(),
 					'summary' => $i->get_summary(),
-					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'author' => $item->get_author() ? $item->get_author()->get_name() : 'Unknown',
+					'image_thumb' => isset( $images['thumb'] ) ? $images['thumb'] : '',
+					'image_tall' => isset( $images['tall'] ) ? $images['tall'] : '',
+					'image_wide' => isset( $images['wide'] ) ? $images['wide'] : '',
+					'image_wide_big' => isset( $images['wide_big'] ) ? $images['wide_big'] : '',
 					'time' => $item->get_time(),
 					'type' => $i->get_type(),
 					'xframe' => $i->get_xframe()
@@ -143,22 +153,34 @@
 			//start oauth
 			$tw = new TwitterOAuth( $mod_config['apps']['twitter']['id'], $mod_config['apps']['twitter']['token'], $data->token, $data->secret );
 
-			//load home stream
-			$home = $tw->get( 'statuses/home_timeline', array(
+			//build request
+			$request = array(
 				'count' => 100,
 				'include_entities' => true,
-				'exclude_replies' => true
-			) );
+				'exclude_replies' => true,
+				'since_id' => $this->since_id
+			);
+
+			//load request
+			$home = $tw->get( 'statuses/home_timeline', $request );
+
+			//autherror?
+			if( isset( $home->error ) and $home->error == 'Could not authenticate you.' )
+				return 'deauthed';
 
 			//not an array?
 			if( !is_array( $home ) )
-				return array();
+				return false;
 
 			$tweets = array();
 			//locate tweets with urls
 			foreach( $home as $tweet ):
+				//skip protected tweets
+				if( $tweet->user->protected ) continue;
+
 				foreach( $tweet->entities->urls as $url ):
 					$tweets[] = array(
+						'id' => $tweet->id,
 						'url' => $url->url,
 						'user' => $tweet->user->screen_name,
 						'user_id' => $tweet->user->id,
@@ -186,6 +208,8 @@
 				if( $check and is_array( $check ) ):
 					$check['ex_username'] = $tweet['user'];
 					$check['ex_userid'] = $tweet['user_id'];
+					$check['ex_text'] = htmlentities( $tweet['tweet'], ENT_QUOTES );
+					$check['ex_postid'] = $tweet['id'];
 					$articles[] = $check;
 					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
 					continue;
@@ -196,12 +220,16 @@
 					'url' => $tweet['url'],
 					'end_url' => $i->get_end_url(),
 					'summary' => $i->get_summary(),
-					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'author' => 'Unknown',
+					'image_thumb' => isset( $images['thumb'] ) ? $images['thumb'] : '',
+					'image_tall' => isset( $images['tall'] ) ? $images['tall'] : '',
+					'image_wide' => isset( $images['wide'] ) ? $images['wide'] : '',
+					'image_wide_big' => isset( $images['wide_big'] ) ? $images['wide_big'] : '',
 					'time' => $tweet['time'],
 					'ex_username' => $tweet['user'],
 					'ex_userid' => $tweet['user_id'],
+					'ex_text' => htmlentities( $tweet['tweet'], ENT_QUOTES ),
+					'ex_postid' => $tweet['id'],
 					'type' => $i->get_type(),
 					'xframe' => $i->get_xframe()
 				);
@@ -223,26 +251,46 @@
 				'secret' => $mod_config['apps']['facebook']['token']
 			) );
 
-			//get home stream
-			$home = $fb->api( '/me/home', 'GET', array(
-				'access_token' => $data->token,
-				'limit' => 100
-			) );
+			//lets go
+			try {
+				//get home stream
+				$home = $fb->api( '/me/home', 'GET', array(
+					'access_token' => $data->token,
+					'limit' => 100,
+					'since' => $this->since_id
+				) );
+			} catch( FacebookApiException $e ) {
+				$result = $e->getResult();
+				if( $result['error'] and $result['error']['type'] == 'OAuthException' )
+					if( preg_match( '/authorized application/', $result['error']['message'] ) )
+						return 'deauthed';
+					else
+						return 'authexpire';
+
+				return false;
+			}
 
 			//loop items
 			$links = array();
 			foreach( $home['data'] as $item ):
-				if( $item['type'] == 'link' ):
+				if( $item['type'] == 'link' and isset( $item['link'] ) ):
 					//skip internal links
 					if( preg_match( '/facebook.com/', $item['link'] ) )
 						continue;
 
+					//get post id
+					$bits = explode( '_', $item['id'] );
+					$item['id'] = $bits[1];
+
+					//build array
 					$links[] = array(
+						'id' => $item['id'],
 						'url' => $item['link'],
 						'user' => $item['from']['name'],
 						'user_id' => $item['from']['id'],
-						'title' => $item['name'],
-						'time' => strtotime( $item['created_time'] )
+						'title' => isset( $item['name'] ) ? $item['name'] : 'Unknown',
+						'time' => strtotime( $item['created_time'] ),
+						'status' => isset( $item['message'] ) ? $item['message'] : ( isset( $item['description'] ) ? $item['description'] : '' )
 					);
 				endif;
 			endforeach;
@@ -265,6 +313,8 @@
 				if( $check and is_array( $check ) ):
 					$check['ex_username'] = $link['user'];
 					$check['ex_userid'] = $link['user_id'];
+					$check['ex_text'] = htmlentities( $link['status'], ENT_QUOTES );
+					$check['ex_postid'] = $link['id'];
 					$articles[] = $check;
 					echo 'skipping, already got: ' . $i->get_end_url() . PHP_EOL;
 					continue;
@@ -275,12 +325,16 @@
 					'url' => $link['url'],
 					'end_url' => $i->get_end_url(),
 					'summary' => $i->get_summary(),
-					'image_quarter' => isset( $images['quarter'] ) ? $images['quarter'] : '',
-					'image_third' => isset( $images['third'] ) ? $images['third'] : '',
-					'image_half' => isset( $images['half'] ) ? $images['half'] : '',
+					'author' => 'Unknown',
+					'image_thumb' => isset( $images['thumb'] ) ? $images['thumb'] : '',
+					'image_tall' => isset( $images['tall'] ) ? $images['tall'] : '',
+					'image_wide' => isset( $images['wide'] ) ? $images['wide'] : '',
+					'image_wide_big' => isset( $images['wide_big'] ) ? $images['wide_big'] : '',
 					'time' => $link['time'],
 					'ex_username' => $link['user'],
 					'ex_userid' => $link['user_id'],
+					'ex_text' => htmlentities( $link['status'], ENT_QUOTES ),
+					'ex_postid' => $link['id'],
 					'type' => $i->get_type(),
 					'xframe' => $i->get_xframe()
 				);
@@ -293,7 +347,7 @@
 		private function articleClean( $articles ) {
 			//not got right data?
 			foreach( $articles as $key => $article ):
-				if( !isset( $article['id'] ) and ( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) ) ):
+				if( !isset( $article['id'] ) and ( empty( $article['title'] ) or empty( $article['url'] ) or empty( $article['end_url'] ) or empty( $article['summary'] ) ) ):
 					unset( $articles[$key] );
 					print_r( $article );
 					echo 'removing article for incomplete data: ' . $article['end_url'] . PHP_EOL;
@@ -340,7 +394,8 @@
 						'title' => $article['title'],
 						'url' => $article['url'],
 						'end_url' => $article['end_url'],
-						'time' => $article['time']
+						'time' => $article['time'],
+						'type' => $article['type']
 					);
 					return $article;
 				endif;

@@ -26,6 +26,9 @@
 		//child db conn
 		$mod_db = get_db( $mod_mcache );
 
+		//memcache
+		$mod_memcache = new mod_memcache( $mod_db );
+
 		//build url
 		$bits = parse_url( $article['end_url'] );
 
@@ -50,7 +53,7 @@
 		endif;
 
 		//get twitter data, stop if over api, and only deal with articles in 24 hours (tweets after that lost)
-		if( !@$mod_mcache->get( 'twitter_overload' ) ):
+		/*if( false and !@$mod_mcache->get( 'twitter_overload' ) ):
 			$tw = $mod_data->get_data( 'http://api.tweetmeme.com/url_info.json?url=' . $url );
 			if( $tw ):
 				$tw2 = json_decode( $tw );
@@ -71,7 +74,24 @@
 		else:
 			$tw_links = $article['twitter_links'];
 			echo 'twitter skipped, overload set' . PHP_EOL;
+		endif;*/
+
+		//new twitter
+		if( $tw = $mod_data->get_data( 'http://urls.api.twitter.com/1/urls/count.json?url=' . $url ) ):
+			$tw = json_decode( $tw );
+			if( $tw and isset( $tw->count ) and is_numeric( $tw->count ) ):
+				$tw_links = $tw->count;
+			else:
+				$tw_links = $article['twitter_links'];
+				var_dump( $tw );
+				echo 'twitter failed: ' . PHP_EOL;
+			endif;
+		else:
+			$tw_links = $article['twitter_links'];
+			var_dump( $tw );
+			echo 'twitter failed: ' . PHP_EOL;
 		endif;
+
 
 		//get delicious data
 		if( $dl = $mod_data->get_data( 'http://feeds.delicious.com/v2/json/urlinfo/' . md5( $url ) ) ):
@@ -92,7 +112,7 @@
 		endif;
 
 		//linked in
-		if( $ln = $mod_data->get_data( 'http://www.linkedin.com/cws/share-count?url=' . $url ) ):
+		if( $ln = $mod_data->get_data( 'http://www.linkedin.com/countserv/count/share?url=' . $url ) ):
 			$ln = str_replace( 'IN.Tags.Share.handleCount(', '', $ln );
 			$ln = json_decode( $ln );
 			$ln_shares = isset( $ln->count ) ? $ln->count : $article['linkedin_shares'];
@@ -102,7 +122,8 @@
 		endif;
 
 		//google plus
-		$gl = $mod_data->get_data( 'https://clients6.google.com/rpc?key=AIzaSyCKSbrvQasunBoV16zDH9R33D88CeLr9gQ', true, '[{"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id":"' . urldecode( $url ) . '","source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"}]' );
+		/*$gl = $mod_data->get_data( 'https://clients6.google.com/rpc?key=AIzaSyCKSbrvQasunBoV16zDH9R33D88CeLr9gQ', true, '[{"method":"pos.plusones.get","id":"p","params":{"nolog":true,"id":"' . urldecode( $url ) . '","source":"widget","userId":"@viewer","groupId":"@self"},"jsonrpc":"2.0","key":"p","apiVersion":"v1"}]' );
+
 		if( $gl ):
 			$gl = json_decode( $gl );
 			if( is_array( $gl ) and isset( $gl[0]->result->metadata->globalCounts->count ) ):
@@ -111,14 +132,15 @@
 				$gl_pluses = $article['google_shares'];
 				echo 'google failed on #' . $article['id'] . PHP_EOL;
 			endif;
-		else:
+		else:*/
 			$gl_pluses = $article['google_shares'];
-			echo 'google failed on #' . $article['id'] . PHP_EOL;
-		endif;
+			//echo 'google failed on #' . $article['id'] . PHP_EOL;
+		//endif;
 
 		//hacker news <= api too shit
 
 		//reddit
+		/*
 		$rd = $mod_data->get_data( 'http://www.reddit.com/api/info.json?url=' . $url );
 		if( $rd ):
 			$rd = json_decode( $rd );
@@ -127,10 +149,10 @@
 			else:
 				$rd_score = $article['reddit_score'];
 			endif;
-		else:
+		else:*/
 			$rd_score = $article['reddit_score'];
-			echo 'reddit failed on #' . $article['id'] . PHP_EOL;
-		endif;
+			//echo 'reddit failed on #' . $article['id'] . PHP_EOL;
+		//endif;
 
 		//calculate popularity
 		//facebook
@@ -143,15 +165,17 @@
 		//diggs
 		$pop += $dg_diggs * $mod_config['popularity']['digg_diggs'];
 		//reddit
-		$pop += round( $rd_score * $mod_config['popularity']['reddit_score'] );
+		$pop += $rd_score * $mod_config['popularity']['reddit_score'];
 		//linkedin
 		$pop += $ln_shares * $mod_config['popularity']['linked_shares'];
 		//google plus
 		$pop += $gl_pluses * $mod_config['popularity']['google_pluses'];
-		//pulsefeed likes
-		$pop += $article['likes'] * $mod_config['popularity']['like'];
+
+		//finally, round it
+		$pop = round( $pop );
 
 		//update the article
+		/*
 		$update = $mod_db->query( '
 			UPDATE mod_article
 			SET
@@ -167,10 +191,22 @@
 			WHERE id = ' . $article['id'] . '
 			LIMIT 1
 		' );
+		*/
+		$update = $mod_memcache->set( 'mod_article', array( array(
+			'id' => $article['id'],
+			'facebook_shares' => $fb_shares,
+			'twitter_links' => $tw_links,
+			'delicious_saves' => $dl_saves,
+			'digg_diggs' => $dg_diggs,
+			'reddit_score' => $rd_score,
+			'linkedin_shares' => $ln_shares,
+			'google_shares' => $gl_pluses,
+			'popularity' => $pop
+		) ), false );
 
 		//updated?
 		if( $update )
-			echo 'Article updated: id#' . $article['id'] . ': ' . urldecode( $url ) . PHP_EOL;
+			echo 'Article updated: id#' . $article['id'] . ', popularity += ' . ( $pop - $article['popularity'] ) . ': ' . urldecode( $url ) . PHP_EOL;
 		elseif( !$update )
 			echo 'Article update failed: id#' . $article['id'] . ': ' . urldecode( $url ) . ' //: ' . mysql_error() . PHP_EOL;
 
@@ -195,7 +231,7 @@
 
 		//select articles to update
 		$articles = $mod_db->query( '
-			SELECT id, url, end_url, time, likes, facebook_shares, facebook_comments, twitter_links, delicious_saves, digg_diggs, reddit_score, linkedin_shares, google_shares
+			SELECT id, url, end_url, time, shares, facebook_shares, facebook_comments, twitter_links, delicious_saves, digg_diggs, reddit_score, linkedin_shares, google_shares, popularity
 			FROM mod_article
 			WHERE expired = 0
 			AND update_time < ' . $update_time . '

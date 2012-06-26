@@ -8,14 +8,16 @@
 ?>
 
 <script type="text/javascript">
-	pf_frameurl = '<?php echo $this->content['article']['end_url']; ?>';
-	pf_xframe = false;
+	pulsefeed.frameurl = '<?php echo $this->content['article']['end_url']; ?>';
+	pulsefeed.xframe = <?php echo $this->content['article']['xframe'] ? 'true' : 'false'; ?>;
+	pulsefeed.article_id = <?php echo $this->content['article']['id']; ?>;
+	pulsefeed.article_type = '<?php echo $this->content['article']['type']; ?>';
 </script>
 
 <div class="iframeborder">
 	<?php if( $this->content['article']['xframe'] and $this->content['article']['type'] == 'text' ): ?>
 		<script type="text/javascript">
-			pf_xframe = true;
+			pulsefeed.xframe = true;
 		</script>
 
 		<div id="xframe">
@@ -26,9 +28,12 @@
 
 	<?php else: ?>
 
-		<noscript>
-			<iframe class="externalarticle" src="<?php echo $this->content['article']['end_url']; ?>"></iframe>
-		</noscript>
+	<noscript>
+		<iframe class="externalarticle" src="<?php echo $this->content['article']['end_url']; ?>"></iframe>
+	</noscript>
+	<?php if( $mod_cookie->get( 'no_js' ) ): ?>
+		<iframe class="externalarticle" src="<?php echo $this->content['article']['end_url']; ?>"></iframe>
+	<?php endif; ?>
 
 	<?php endif; ?>
 </div><!--end frameborder-->

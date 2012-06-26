@@ -29,17 +29,6 @@
 	endif;
 	//setup bits
 	$url = empty( $article[0]['end_url'] ) ? $article[0]['url'] : $article[0]['end_url'];
-
-	//recommended?
-	$article[0]['liked'] = false;
-	if( $mod_user->check_login() )
-		if( count( $mod_memcache->get( 'mod_user_likes', array(
-			array(
-				'user_id' => $mod_user->get_userid(),
-				'article_id' => $_GET['id']
-			)
-		) ) ) == 1 )
-			$article[0]['liked'] = true;
 	
 	//add to template
 	$mod_template->add( 'article', $article[0] );

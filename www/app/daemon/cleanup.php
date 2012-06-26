@@ -26,8 +26,8 @@
 		//memcache
 		$mod_memcache = new mod_memcache( $mod_db );
 
-		//remove images older than 24 hour - was 48
-		$oldtime = time() - ( 3600 * 24 );
+		//remove images older than 48
+		$oldtime = time() - ( 3600 * 48 );
 		$images = glob( $c_config['core_dir'] . '/../data/images/*' );
 		foreach( $images as $img ):
 			if( filemtime( $img ) < $oldtime ):
@@ -36,8 +36,8 @@
 			endif;
 		endforeach;
 
-		//24 hours ago - was 48
-		$expire_stream = time() - ( 3600 * 24 );
+		//48 hours ago
+		$expire_stream = time() - ( 3600 * 48 );
 
 		//expire articles
 		$mod_db->query( '
@@ -66,6 +66,7 @@
 		' );
 		echo $mod_db->affected_rows() . ' topic_articles set to expired' . PHP_EOL;
 
+
 		//week ago
 		$delete_time = time() - ( 3600 * 24 * 7 );
 
@@ -82,7 +83,7 @@
 			WHERE article_time < ' . $delete_time . '
 		' );
 		echo $mod_db->affected_rows()  . ' topic_articles deleted' . PHP_EOL;
-
+		
 		//delete old mod_user_hides
 		$mod_db->query( '
 			DELETE FROM mod_user_hides
@@ -96,9 +97,20 @@
 			WHERE time < ' . $delete_time . '
 		' );
 		echo $mod_db->affected_rows() . ' user_reads deleted' . PHP_EOL;
+
+		//delete old mod_user_shares
+		$mod_db->query( '
+			DELETE FROM mod_user_shares
+			WHERE time < ' . $delete_time . '
+		' );
+		echo $mod_db->affected_rows() . ' user_shares deleted' . PHP_EOL;
 		
 		//sync required tables
-		$mod_memcache->sync( 'mod_user_likes' );
+		$mod_memcache->sync( 'mod_user_websites' );
+		$mod_memcache->sync( 'mod_user_topics' );
+		$mod_memcache->sync( 'mod_user_hides' );
+		$mod_memcache->sync( 'mod_user_follows' );
+		$mod_memcache->sync( 'mod_user_shares' );
 		$mod_memcache->sync( 'mod_article', 'expired = 0' );
 
 		echo 'tables synced with memcache' . PHP_EOL;

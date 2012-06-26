@@ -5,10 +5,10 @@
 	*/
 
 	//modules
-	global $mod_session, $mod_user, $mod_db, $mod_message;
+	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_memcache;
 
 	//redirect dir
-	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/sources';
+	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/users';
 
 	//token?
 	if( !isset( $_POST['mod_token'] ) or !$mod_session->validate( $_POST['mod_token'] ) ):
@@ -28,13 +28,27 @@
 		die( header( 'Location: ' . $redir ) );
 	endif;
 
+	//test
+	$test = $mod_memcache->get( 'mod_user_follows', array( array(
+		'user_id' => $mod_user->get_userid(),
+		'following_id' => $_POST['user_id']
+	) ) );
+
 	//delete from user follows
-	$mod_db->query( '
-		DELETE FROM mod_user_follows
-		WHERE following_id = ' . $_POST['user_id'] . '
-		AND user_id = ' . $mod_user->get_userid() . '
-		LIMIT 1
-	' );
+	$insert = $mod_memcache->delete( 'mod_user_follows', array( array(
+		'user_id' => $mod_user->get_userid(),
+		'following_id' => $_POST['user_id']
+	) ) );
+
+	//affected?
+	if( is_array( $test ) and count( $test ) == 1 ):
+		$mod_db->query( '
+			UPDATE core_user
+			SET followers = followers - 1
+			WHERE id = ' . $_POST['user_id'] . '
+			LIMIT 1
+		' );
+	endif;
 
 	//done!
 	$mod_message->add( 'UserUnFollowed' );

@@ -18,8 +18,8 @@ setInterval( function() {
 //free our links from the grips of the buster!
 $( document ).ready( function() {
 	//add iframe
-	if( !pf_xframe )
-		$( '.iframeborder' ).append( '<iframe class="externalarticle" src="' + pf_frameurl + '"></iframe>' );
+	if( !pulsefeed.xframe || pulsefeed.article_type == 'video' )
+		$( '.iframeborder' ).append( '<iframe class="externalarticle" src="' + pulsefeed.frameurl + '"></iframe>' );
 	else
 		$( '.iframeborder' ).append( '<iframe class="externalarticle" src="about:blank"></iframe>' );
 

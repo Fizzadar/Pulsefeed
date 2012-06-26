@@ -1,13 +1,16 @@
 #update daemons
-* * * * * root php /home/pulsefeed/www/system.php update source
-* * * * * root php /home/pulsefeed/www/system.php update facebook
-* * * * * root php /home/pulsefeed/www/system.php update twitter
+* * * * * root php /home/pulsefeed/system.php update website
+* * * * * root php /home/pulsefeed/system.php update facebook
+* * * * * root php /home/pulsefeed/system.php update twitter
+
+#recommend daemons
+* * * * * root php /home/pulsefeed/system.php recommend user
 
 #popularity daemon
-* * * * * root php /home/pulsefeed/www/system.php popularity
+* * * * * root php /home/pulsefeed/system.php popularity
 
 #popcalc daemon
-* * * * * root php /home/pulsefeed/www/system.php popcalc
+* * * * * root php /home/pulsefeed/system.php popcalc
 
 #cleanup daemon
-* * * * * root php /home/pulsefeed/www/system.php cleanup
+* * * * * root php /home/pulsefeed/system.php cleanup

@@ -30,21 +30,21 @@ server {
 
 	#Article
 	rewrite ^/article/([0-9]+)/collect$					/index.php?load=article-collect&id=$1 last;
+	rewrite ^/article/([0-9]+)/share$					/index.php?load=article-share&id=$1 last;
 	rewrite ^/article/([0-9]+)$							/index.php?load=article&id=$1 last;
-
 
 	#Public Stream
 	rewrite ^/public$									/index.php?load=public last;						#the public stream
 
-	#Tag Stream
-	rewrite ^/tag/([0-9]+)$								/index.php?load=tag&id=$1 last;						#tag stream
+	#Topic Stream
+	rewrite ^/topic/([0-9]+)$							/index.php?load=topic&id=$1 last;					#topic stream
 
 	#Source Stream
-	rewrite ^/source/([0-9]+)$							/index.php?load=source&id=$1 last;					#source stream
+	rewrite ^/website/([0-9]+)$							/index.php?load=website&id=$1 last;					#website stream
 
 	#Account Stream
 	rewrite ^/account/([aA-zZ]+)/([0-9]+)$				/index.php?load=account&type=$1&userid=$2 last;		#account with userid set
-	rewrite ^/account/([aA-zZ]+)$						/index.php?load=account&type=$1 last;				#source (via /account) stream
+	rewrite ^/account/([aA-zZ]+)$						/index.php?load=account&type=$1 last;				#account stream
 
 	#User Streams
 	rewrite ^/user/([0-9]+)+$							/index.php?load=user&id=$1 last;					#user streams (hybrid)
@@ -53,10 +53,11 @@ server {
 	#Collection Stream
 	rewrite ^/collection/([0-9]+)$						/index.php?load=collection&id=$1 last;				#collection stream
 
+
 	#User settings
 	rewrite ^/settings$									/index.php?load=settings last;						#user settings
-	rewrite ^/settings/accounts$						/index.php?load=settings-accounts last;				#users accounts
-	rewrite ^/settings/collections$						/index.php?load=settings-collections last;			#users collections
+	rewrite ^/settings/accounts$						/index.php?load=settings-accounts last;				#sub-settings
+	rewrite ^/settings/data$							/index.php?load=settings-data last;					#sub-settings
 
 	#User enter invite code
 	rewrite ^/invite$									/index.php?load=invite last;						#enter invite code
@@ -65,30 +66,57 @@ server {
 	rewrite ^/login$									/index.php?load=login last;							#login page
 
 
-	#Source Browsing
-	rewrite ^/sources$									/index.php?load=source-browse last;					#popular
-	rewrite ^/sources/new$								/index.php?load=source-browse&new last;				#new sources
-	rewrite ^/sources/me$								/index.php?load=source-browse&me last;				#subscribed sources
-	rewrite ^/sources/add$								/index.php?load=source-add last;					#add source
-	rewrite ^/sources/([a-z0-9]+)$						/index.php?load=source-browse&tag=$1 last;			#browse by tag
-	#see source stream
+	#Add Website
+	rewrite ^/websites/add$								/index.php?load=website-add last;					#add website
 
-	#Collection Browsing
+	#Source Browsing
+	rewrite ^/websites$									/index.php?load=website-browse last;				#popular websites
+	rewrite ^/websites/new$								/index.php?load=website-browse&new last;			#new websites
+	rewrite ^/websites/me$								/index.php?load=website-browse&me last;				#my websites
+
+	rewrite ^/topics$									/index.php?load=topic-browse last;					#popular topics
+	rewrite ^/topics/new$								/index.php?load=topic-browse&new last;				#new topics
+	rewrite ^/topics/me$								/index.php?load=topic-browse&me last;					#my topics
+
 	rewrite ^/collections$								/index.php?load=collection-browse last;				#popular collections
 	rewrite ^/collections/new$							/index.php?load=collection-browse&new last;			#new collections
 	rewrite ^/collections/me$							/index.php?load=collection-browse&me last;			#my collections
-	rewrite ^/collections/add$							/index.php?load=collection-add last;				#add collections
-	rewrite ^/collections/([0-9]+)						/index.php?load=collection-view last;				#see a specific collection
+
+	#rewrite ^/users$									/index.php?load=user-browse last;					#popular users
+	#rewrite ^/users/new$								/index.php?load=user-browse&new last;				#new users
 
 
 	#Search
 	rewrite ^/search$									/index.php?load=search last;						#search
 
 	#Process
-	rewrite ^/process/([aA-zZ-]+)						/index.php?process=$1 last;							#processes?
+	rewrite ^/process/([aA-zZ-]+)$						/index.php?process=$1 last;							#processes?
 
-	#Route .php to index
-	rewrite ^/.*\.php$									/index.php last;
+	#Stats
+	rewrite ^/stats$									/index.php?load=stats last;							#stats
+
+	#Help Pages
+	rewrite ^/help$										/index.php?load=page&page=help last;				#help index
+	rewrite ^/help/([aA-zZ]+)$							/index.php?load=page&page=help-$1 last;				#help pages
+
+	#Other Pages
+	rewrite ^/about$									/index.php?load=page&page=about last;				#about page
+	rewrite ^/contact$									/index.php?load=page&page=contact last;				#contact page
+	rewrite ^/suggest$									/index.php?load=page&page=suggest last;				#suggest/feedback page
+
+
+	#Admin Pages
+	rewrite ^/admin$									/index.php?load=admin last;							#admin home
+	rewrite ^/admin/([aA-zZ0-9]+)$						/index.php?load=admin-$1 last;						#admin permissions
+
+
+	#Route everything else non-static to 404
+	rewrite ^.*[^\.png|\.jpg|\.gif|\.jpeg|\.js|\.css]$	/inc/error/404.html last;
+
+	#Hide Sub-Dir PHP
+	rewrite ^.*/.*\.php$								/inc/error/404.html last;
+
+
 
 
 	#Handle PHP

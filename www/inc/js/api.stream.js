@@ -8,54 +8,6 @@ api.collections = new Array();
 api.collectionId = 0;
 api.collectionArticleId = 0;
 
-//stream like/unlike
-api.like = function( el ) {
-	//get data from dom
-	var article_id = $( 'input[name=article_id]', el ).attr( 'value' );
-	var action = $( el ).attr( 'action' );
-
-	//disable the button while we work
-	$( 'input[type=submit]', el ).attr( 'disabled', 'disabled' );
-	$( 'input[type=submit]', el ).addClass( 'disabled' );
-
-	//do we like or unlike?
-	if( action == mod_root + '/process/article-like' ) {
-		this.post(
-			'/process/article-like',
-			{ article_id: article_id },
-			function( data, el ) {
-				$( 'input[type=submit]', el ).attr( 'value', 'Unlike' );
-				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
-				$( 'input[type=submit]', el ).removeClass( 'disabled' );
-				$( 'span.likes span', el ).html( parseInt( $( 'span.likes span', el ).html() ) + 1 );
-				$( el ).attr( 'action', mod_root + '/process/article-unlike' );
-			},
-			function( data, el ) {
-				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
-				$( 'input[type=submit]', el ).removeClass( 'disabled' );
-			},
-			el
-		);
-	} else {
-		this.post(
-			'/process/article-unlike',
-			{ article_id: article_id },
-			function( data, el ) {
-				$( 'input[type=submit]', el ).attr( 'value', 'Like' );
-				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
-				$( 'input[type=submit]', el ).removeClass( 'disabled' );
-				$( 'span.likes span', el ).html( parseInt( $( 'span.likes span', el ).html() ) - 1 );
-				$( el ).attr( 'action', mod_root + '/process/article-like' );
-			},
-			function( data, el ) {
-				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
-				$( 'input[type=submit]', el ).removeClass( 'disabled' );
-			},
-			el
-		);
-	}
-}
-
 //stream read article
 api.read = function( el ) {
 	//get data from dom
@@ -81,21 +33,6 @@ api.read = function( el ) {
 		},
 		el
 	);
-}
-
-//read whole topics
-api.readTopic = function( el ) {
-	//hide
-	$( el ).parent().parent().slideUp();
-	
-	var forms = $( el ).parent().parent().find( 'form.hide_form' );
-
-	//remove each item
-	for( var i = 0; i < forms.length; i++ ) {
-		queue.add( function( args ) {
-			$( args.el ).submit();
-		}, 2000, { el: forms[i] } );
-	}
 }
 
 //stream follow/unfollow user
@@ -149,9 +86,9 @@ api.follow = function( el ) {
 }
 
 //stream subscribe/unsubscribe source
-api.subscribe = function( el ) {
+api.subscribeWebsite = function( el ) {
 	//get data from dom
-	var source_id = $( 'input[name=source_id]', el ).attr( 'value' );
+	var website_id = $( 'input[name=website_id]', el ).attr( 'value' );
 	var action = $( el ).attr( 'action' );
 
 	//disable the button while we work
@@ -159,17 +96,17 @@ api.subscribe = function( el ) {
 	$( 'input[type=submit]', el ).addClass( 'disabled' );
 
 	//do we like or unlike?
-	if( action == mod_root + '/process/subscribe' ) {
+	if( action == mod_root + '/process/website-subscribe' ) {
 		this.post(
-			'/process/subscribe',
-			{ source_id: source_id },
+			'/process/website-subscribe',
+			{ website_id: website_id },
 			function( data, el ) {
 				$( 'input[type=submit]', el ).attr( 'value', 'Unsubscribe' );
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
 				$( 'input[type=submit]', el ).removeClass( 'disabled' );
 				$( 'input[type=submit]', el ).removeClass( 'green' );
 				$( 'input[type=submit]', el ).addClass( 'red' );
-				$( el ).attr( 'action', mod_root + '/process/unsubscribe' );
+				$( el ).attr( 'action', mod_root + '/process/website-unsubscribe' );
 			},
 			function( data, el ) {
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
@@ -179,15 +116,65 @@ api.subscribe = function( el ) {
 		);
 	} else {
 		this.post(
-			'/process/unsubscribe',
-			{ source_id: source_id },
+			'/process/website-unsubscribe',
+			{ website_id: website_id },
 			function( data, el ) {
 				$( 'input[type=submit]', el ).attr( 'value', '+ Subscribe' );
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
 				$( 'input[type=submit]', el ).removeClass( 'disabled' );
 				$( 'input[type=submit]', el ).removeClass( 'red' );
 				$( 'input[type=submit]', el ).addClass( 'green' );
-				$( el ).attr( 'action', mod_root + '/process/subscribe' );
+				$( el ).attr( 'action', mod_root + '/process/website-subscribe' );
+			},
+			function( data, el ) {
+				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
+				$( 'input[type=submit]', el ).removeClass( 'disabled' );
+			},
+			el
+		);
+	}
+}
+
+//stream subscribe/unsubscribe topic
+api.subscribeTopic = function( el ) {
+	//get data from dom
+	var topic_id = $( 'input[name=topic_id]', el ).attr( 'value' );
+	var action = $( el ).attr( 'action' );
+
+	//disable the button while we work
+	$( 'input[type=submit]', el ).attr( 'disabled', 'disabled' );
+	$( 'input[type=submit]', el ).addClass( 'disabled' );
+
+	//do we like or unlike?
+	if( action == mod_root + '/process/topic-subscribe' ) {
+		this.post(
+			'/process/topic-subscribe',
+			{ topic_id: topic_id },
+			function( data, el ) {
+				$( 'input[type=submit]', el ).attr( 'value', 'Unsubscribe' );
+				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
+				$( 'input[type=submit]', el ).removeClass( 'disabled' );
+				$( 'input[type=submit]', el ).removeClass( 'green' );
+				$( 'input[type=submit]', el ).addClass( 'red' );
+				$( el ).attr( 'action', mod_root + '/process/topic-unsubscribe' );
+			},
+			function( data, el ) {
+				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
+				$( 'input[type=submit]', el ).removeClass( 'disabled' );
+			},
+			el
+		);
+	} else {
+		this.post(
+			'/process/topic-unsubscribe',
+			{ topic_id: topic_id },
+			function( data, el ) {
+				$( 'input[type=submit]', el ).attr( 'value', '+ Subscribe' );
+				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
+				$( 'input[type=submit]', el ).removeClass( 'disabled' );
+				$( 'input[type=submit]', el ).removeClass( 'red' );
+				$( 'input[type=submit]', el ).addClass( 'green' );
+				$( el ).attr( 'action', mod_root + '/process/topic-subscribe' );
 			},
 			function( data, el ) {
 				$( 'input[type=submit]', el ).removeAttr( 'disabled' );
@@ -201,17 +188,22 @@ api.subscribe = function( el ) {
 //collect articles (show list of collections)
 api.collect = function( el, noloop ) {
 	//return here if re-clicking the active one
-	if( $( '.collections', $( el ).parent() ).length > 0 ) {
+	if( $( 'ul.collections', $( el ).parent() ).length > 0 ) {
 		$( '.item .meta .collect_button' ).removeClass( 'active' );
-		return $( '.item .meta ul.collections' ).remove();
+		$( '.item .meta form.share_form input[type=submit]' ).removeClass( 'active' );
+		$( '.item .meta ul.collections' ).remove();
+		$( '.item .meta ul.shares' ).remove();
+		return;
 	}
 
 	//remove any open uls & active buttons
 	$( '.item .meta ul.collections' ).remove();
+	$( '.item .meta ul.shares' ).remove();
 	$( '.item .meta .collect_button' ).removeClass( 'active' );
+	$( '.item .meta form.share_form input[type=submit]' ).removeClass( 'active' );
 
 	//get id
-	var id = $( el ).attr( 'articleID' );
+	var id = $( el ).attr( 'data-articleid' );
 	//save it
 	this.collectionArticleId = id;
 
@@ -249,15 +241,19 @@ api.collect = function( el, noloop ) {
 	$( el ).parent().append( '<ul class="collections"><span class="tip"></span></ul>' );
 
 	//now we have collections, lets add the html
-	var ul = $( '.collections', $( el ).parent() );
+	var ul = $( 'ul.collections', $( el ).parent() );
 
 	//add each collection
 	for( var i = 0; i < this.collections.length; i++ ) {
-		ul.append( '<li><a href="' + mod_root +'/article/' + id + '/collect" collectionID="' + this.collections[i].id + '" articleID="' + id + '" class="submit_collect">' + this.collections[i].name + '</a> <span class="edit inline">' + this.collections[i].articles + ' articles</span>' );
+		ul.append( '<li><a href="' + mod_root +'/article/' + id + '/collect" data-collectionid="' + this.collections[i].id + '" data-articleid="' + id + '" class="submit_collect">' + this.collections[i].name + '</a> <span class="edit inline">' + this.collections[i].articles + ' articles</span>' );
 	}
 
 	//add new collection id
-	ul.append( '<li><form action="' + mod_root + '/article/' + id + '/collect" class="submit_collect" articleID="' + id + '" collectionID="0"><input type="text" value="new collection..." onclick="if( this.value == \'new collection...\' ) { this.value = \'\'; }" onblur="if( this.value == \'\' ) { this.value = \'new collection...\'; }" /></form></li>' );
+	ul.append( '<li><form action="' + mod_root + '/article/' + id + '/collect" class="submit_collect" data-articleid="' + id + '" data-collectionid="0"><input class="meta" type="text" value="new collection..." onclick="if( this.value == \'new collection...\' ) { this.value = \'\'; }" onblur="if( this.value == \'\' ) { this.value = \'new collection...\'; }" /></form></li>' );
+
+	//now we have a height, and since this is js-only, lets move the box up
+	ul.css( { marginTop: -1 * ( ul.height() + 30 ) } );
+	$( '.tip', ul ).css( { marginTop: ul.height() + 5 } );
 
 	//bind the links
 	$( 'a.submit_collect' ).bind( 'click', function( ev ) {
@@ -269,14 +265,19 @@ api.collect = function( el, noloop ) {
 		ev.preventDefault();
 		api.collectArticle( ev.target );
 	});
+	
+	//bind the whole thing
+	$( '.item .meta ul.collections' ).bind( 'click', function( ev ) {
+		ev.stopPropagation();
+	});
 }
 
 //actually do the collect
 api.collectArticle = function( el ) {
 	//get article_id
-	var art_id = $( el ).attr( 'articleID' );
+	var art_id = $( el ).attr( 'data-articleid' );
 	//get collection id
-	var col_id = $( el ).attr( 'collectionID' );
+	var col_id = $( el ).attr( 'data-collectionid' );
 	//name
 	var name = '';
 
@@ -303,12 +304,21 @@ api.collectArticle = function( el ) {
 			article_id: art_id
 		},
 		function( data, el ) {
-			//remove the divs on stream
-			$( '.item .meta ul.collections' ).remove();
-			$( '.item .meta a.collect_button' ).removeClass( 'active' );
-			//remove the div on external
-			$( 'ul#external ul.collections' ).remove();
-			$( 'ul#external a.collect_button_external' ).removeClass( 'active' );
+			//set span text
+			var span = $( 'span', $( el ).parent() );
+			var ul = $( el ).parent().parent();
+
+			span.html( 'added' );
+
+			if( $( el ).attr( 'data-collectionid' ) > 0 ) {
+				$( el ).addClass( 'disabled' );
+			} else {
+				$( el ).parent().before( '<li class="new_collection" style="display:none;">' + $( 'input[type=text]', el ).attr( 'value' ) + ' <span class="edit inline">1 article</span></li>' );
+				$( 'input[type=text]', el ).attr( 'value', '' );
+				$( 'li.new_collection', ul ).slideDown( 300 );
+				ul.animate( { marginTop: -1 * ( ul.height() + 52 ) }, 300 );
+				$( '.tip', ul ).animate( { marginTop: ul.height() + 28 }, 300 );
+			}
 
 			//if collection id was 0, force reload of list
 			if( api.collectionId == 0 ) {
@@ -354,4 +364,179 @@ api.uncollect = function( el ) {
 		},
 		el
 	);
+}
+
+
+
+//share an article
+api.share = function( el ) {
+	//return here if re-clicking the active one
+	if( $( '.shares', $( el ).parent() ).length > 0 ) {
+		$( '.item .meta form.share_form input[type=submit]' ).removeClass( 'active' );
+		$( '.item .meta form.share_form input[type=submit]' ).removeClass( 'disabled' );
+		$( '.item .meta .collect_button' ).removeClass( 'active' );
+		$( '.item .meta ul.shares' ).remove();
+		$( '.item .meta ul.collections' ).remove();
+		return;
+	}
+
+	//remove any open uls & active buttons
+	$( '.item .meta ul.shares' ).remove();
+	$( '.item .meta ul.collections' ).remove();
+	$( '.item .meta form.share_form input[type=submit]' ).removeClass( 'active' );
+	$( '.item .meta .collect_button' ).removeClass( 'active' );
+
+	//get id
+	var id = $( 'input[name=article_id]', el ).attr( 'value' );
+	var fb_shares = $( 'input[name=facebook_shares]', el ).attr( 'value' );
+	var tw_links = $( 'input[name=twitter_links]', el ).attr( 'value' );
+
+	//set active to el
+	$( 'input[type=submit]', $( el ) ).addClass( 'active' );
+	$( 'input[type=submit]', $( el ) ).removeClass( 'disabled' );
+
+	//open collect ul
+	$( 'span.share', el ).append( '<ul class="shares"></ul>' );
+
+	//now we have collections, lets add the html
+	var ul = $( '.shares', $( el ).parent() );
+
+	//get bits
+	var title = $( 'input[name=article_title]', el ).attr( 'value' );
+	var url = $( 'input[name=article_url]', el ).attr( 'value' );
+
+	//append some shizzle
+	//twitter
+	ul.append( '<li><span>' + tw_links + '</span> <a href="javascript:var w=window.open( \'https://twitter.com/share?via=pulsefeed&url=' + url + '&text=' + title + '\', \'test\', \'menubar=0,resizable=0,width=700,height=300\' );w.moveTo($(window).width()/2-350,$(window).height()/2-150);" target="_blank" class="button twitter">+ Twitter</a></li>' );
+
+	//facebook
+	ul.append( '<li><span>' + fb_shares + '</span> <a href="javascript:var w=window.open( \'http://www.facebook.com/sharer.php?u=' + url + '&t=' + title + '\', \'test\', \'menubar=0,resizable=0,width=700,height=300\' );w.moveTo($(window).width()/2-350,$(window).height()/2-150);" target="_blank" class="button facebook">+ Facebook</a></li>' );
+
+	//tip
+	ul.append( '<li class="form"><input type="checkbox" name="share_to_followers" id="share_to_followers" /><label for="share_to_followers">share to followers</label></li><span class="tip"></span>' );
+
+	//now we attempt to share article (doesnt matter if we fail)
+	this.post(
+		'/process/article-share',
+		{
+			article_id: id
+		},
+		function( data, el ) {
+			//success!
+			$( el ).attr( 'checked', 'checked' );
+		},
+		function( data, el ) {
+			//failure!
+		},
+		$( 'ul.shares #share_to_followers' )
+	);
+
+	//bind unshare
+	$( 'ul.shares #share_to_followers' ).bind( 'click', function( ev ) {
+		api.unshare( ev.target );
+		ev.preventDefault();
+	});
+
+	//stop hiding on clicks
+	$( 'ul.shares' ).bind( 'click', function( ev ) {
+		ev.stopPropagation();
+	});
+}
+
+
+
+//unshare article
+api.unshare = function( el ) {
+	//disable
+	$( el ).addClass( 'disabled' );
+
+	//get post id
+	var id = $( 'input[name=article_id]', $( el ).parent().parent().parent().parent() ).attr( 'value' );
+
+	this.post(
+		'/process/article-' + ( !$( el ).attr( 'checked' ) ? 'un' : '' ) + 'share',
+		{
+			article_id: id
+		},
+		function( data, el ) {
+			//default action
+			!$( el ).attr( 'checked' ) ? $( el ).attr( 'checked', 'checked' ) : $( el ).removeAttr( 'checked' );
+			$( el ).removeClass( 'disabled' );
+		},
+		function( data, el ) {
+			//default action
+		},
+		el
+	);
+}
+
+
+
+//option: toggle images
+api.imageToggle = function( el ) {
+	if( cookie.get( 'hide_images' ) ) {
+		//delete cookie
+		cookie.delete( 'hide_images' );
+		//set button
+		$( el ).html( 'Images: on<span>hide images in the stream<span></span></span>' );
+		$( el ).addClass( 'green' ).removeClass( 'red' );
+		//fade in images
+		$( '.col1 .item img.thumb' ).fadeIn();
+		$( '.col2 .item img.thumb' ).fadeIn();
+		if( $( '#stream' ).hasClass( 'evencol' ) ) {
+			$( '.col3 .item img.thumb' ).fadeIn();
+		}
+	} else {
+		//set cookie
+		cookie.set( 'hide_images', true );
+		//set button
+		$( el ).html( 'Images: off<span>show images in the stream<span></span></span>' );
+		$( el ).addClass( 'red' ).removeClass( 'green' );
+		//fade out images
+		$( '.item img.thumb' ).fadeOut();
+	}
+}
+
+
+
+//option: toggle columns
+api.columnToggle = function( el ) {
+	if( cookie.get( 'two_col' ) ) {
+		//delete cookie
+		cookie.delete( 'two_col' );
+		//set button
+		$( el ).html( 'Columns: 3<span>switch between 2 &amp; 3 columns<span></span></span>' );
+		//set two col
+		$( '#stream' ).removeClass( 'twocol' );
+	} else {
+		//set cookie
+		cookie.set( 'two_col', true );
+		//set button
+		$( el ).html( 'Columns: 2<span>switch between 2 &amp; 3 columns<span></span></span>' );
+		//set two col
+		$( '#stream' ).addClass( 'twocol' );
+	}
+}
+
+
+
+//option: toggle message
+api.messageToggle = function( el ) {
+	if( cookie.get( 'hide_message' ) ) {
+		//delete cookie
+		cookie.delete( 'hide_message' );
+		//set button
+		$( el ).html( 'Hide Message<span>hide the login message<span></span></span>' );
+		$( el ).addClass( 'red' ).removeClass( 'green' );
+		//show message
+		$( '.welcome' ).slideDown();
+	} else {
+		//set cookie
+		cookie.set( 'hide_message', true );
+		//set button
+		$( el ).html( 'Show Message<span>show the login message<span></span></span>' );
+		$( el ).addClass( 'green' ).removeClass( 'red' );
+		//hide message
+		$( '.welcome ' ).slideUp();
+	}
 }

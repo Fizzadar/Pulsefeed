@@ -10,13 +10,9 @@ if( !console ) {
 	}
 }
 
-//pf object (general data store)
-var pulsefeed = {};
-pulsefeed.stream = false;
-
 //start pf
 pulsefeed.start = function() {
-	console.log( '[Pulsefeed] Charging up...' );
+	console.log( '[Pulsefeed] Charging up...' ); //red alert 2 <3
 
 	//start stuff
 	message.start();

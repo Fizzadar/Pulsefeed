@@ -1,3 +1,7 @@
+#devmessage {
+	display: none;
+}
+
 /*
 	external styles
 	header:
@@ -5,6 +9,7 @@
 div#top img.loading_icon {
 	position: absolute;
 	margin-top: 11px;
+	margin-left: 5px;
 }
 div#top ul#external {
 	float: left;
@@ -81,6 +86,62 @@ div#top ul#external {
 					display: block;
 					margin: 0;
 					font-size: 13px;
+				}
+	ul#external ul.shares {
+		margin: 0;
+		padding: 0;
+		width: 165px;
+		padding-left: 5px;
+		height: 80px;
+	}
+		ul#external ul.shares li {
+			float: left;
+			width: 50%;
+			padding-bottom: 5px;
+		}
+			div#top ul#external ul.shares li a {
+				width: 75px;
+				padding: 0;
+			}
+div#top ul#external ul.shares li a.button.facebook {
+	color: #FFF;
+	background: rgba( 60, 90, 150, 1 );
+	border: 1px solid rgba( 20, 50, 110, 1 );
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, 0.2 );
+	text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+}
+div#top ul#external ul.shares li a.button.facebook:hover {
+	border: 1px solid #000;
+	background: rgba( 30, 60, 120, 1 );
+	text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+	color: #FFF;
+}
+div#top ul#external ul.shares li a.button.twitter {
+	color: #FFF;
+	background: rgba( 25, 155, 208, 1 );
+	border: 1px solid rgba( 0, 115, 168, 1 );
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, 0.2 );
+	text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+}
+div#top ul#external ul.shares li a.button.twitter:hover {
+	border: 1px solid #000;
+	background: rgba( 5, 135, 188, 1 );
+	text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
+	color: #FFF;
+}
+			div#top ul.shares li.form {
+				clear: both;
+				font-size: 12px;
+				font-family: Verdana;
+				margin-top: 5px;
+				text-align: left;
+				width: 100%;
+			}
+				div#top ul.shares li.form input, ul.shares li.form label {
+					width: auto;
+					float: none;
+					text-transform: lowercase;
+					display: inline;
 				}
 
 

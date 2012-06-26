@@ -22,7 +22,7 @@
 
 		//select articles to update (last article_expire hours, 60 max, lowest update time first)
 		$sources = $mod_db->query( '
-			SELECT user_id, auth_data, "twitter" AS type, 0 AS id, update_time
+			SELECT user_id, auth_data, type, 0 AS id, update_time, o_id, latest_tweet_id AS since_id
 			FROM mod_account
 			WHERE update_time < ' . $update_time . '
 			AND type = "twitter"

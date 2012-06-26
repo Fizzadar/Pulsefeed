@@ -9,14 +9,13 @@ api.loadSource = function( el ) {
 	
 	//make our request
 	this.get(
-		'/sources/' + pulsefeed.sourceType,
+		'/' + pulsefeed.sourceType + 's',
 		{ offset: pulsefeed.sourceOffset },
 		//success, lets distribute those articles
 		function( data, el ) {
-			console.log( data );
 			if( data.result == 'success' ) {
 				if( data.sources == null || data.sources.length == 0 ) {
-					$( el ).html( 'no more sources :(' );
+					$( el ).html( 'no more ' + pulsefeed.sourceType + 's :(' );
 					$( el ).removeClass( 'source_load_more' );
 					$( el ).unbind( 'click' );
 					$( el ).bind( 'click', function( ev ) {
@@ -27,7 +26,7 @@ api.loadSource = function( el ) {
 				} else {
 					//loop sources, add to div
 					for( var i = 0; i < data.sources.length; i++ ) {
-						$( '#sources' ).append( template.source( data.sources[i] ) );
+						$( '.sources' ).append( template.source( data.sources[i], pulsefeed.sourceType ) );
 						//fade in
 						queue.add( function( args ) {
 							$( '#source_' + args.id ).animate( { opacity: 1 }, 250 );
@@ -40,14 +39,14 @@ api.loadSource = function( el ) {
 				//reload links
 				api.start( false );
 				//loading text
-				$( el ).html( 'load more sources &darr;' );
+				$( el ).html( 'load more ' + pulsefeed.sourceType + 's &darr;' );
 			} else {
-				window.location = mod_root + '/sources/' + pulsefeed.sourceType + '?offset=' + pulsefeed.sourceOffset;
+				window.location = mod_root + '/' + pulsefeed.sourceType + 's?offset=' + pulsefeed.sourceOffset;
 			}
 		},
 		//failure!
 		function( data, el ) {
-			window.location = mod_root + '/sources/' + pulsefeed.sourceType + '?offset=' + pulsefeed.sourceOffset;
+			window.location = mod_root + '/' + pulsefeed.sourceType + 's?offset=' + pulsefeed.sourceOffset;
 		},
 		el
 	);
@@ -58,12 +57,14 @@ api.linkStream = function() {
 	switch( pulsefeed.streamType ) {
 		case 'public':
 			return  '/public';
-		case 'source':
-			return '/source/' + pulsefeed.streamSource;
+		case 'website':
+			return '/website/' + pulsefeed.streamWebsite;
 		case 'account':
 			return '/account/' + pulsefeed.streamAccount;
 		case 'collection':
 			return '/collection/' + pulsefeed.streamCollection;
+		case 'topic':
+			return '/topic/' + pulsefeed.streamTopic;
 		default:
 			return '/user/' + pulsefeed.streamUser + '/' + pulsefeed.streamType;
 	}
@@ -134,6 +135,9 @@ api.loadStream = function( el, reload ) {
 //render stream
 api.renderStream = function( stream, recommends ) {
 	var length = 0;
+	var stream_div_id = pulsefeed.streamOffset;
+
+	$( '.stream_load_more' ).before( '<div class="block">&nbsp;</div><div class="stream_' + stream_div_id + '"><div class="col col1"></div><div class="col col2"></div><div class="col col3"></div>' );
 
 	//work out longest length
 	if( stream.col1.length > length )
@@ -147,7 +151,7 @@ api.renderStream = function( stream, recommends ) {
 	for( var i = 0; i < length; i++ ) {
 		//col 1
 		if( stream.col1[i] != undefined ) {
-			$( '.col1' ).append( template.item( stream.col1[i] ) );
+			$( '.stream_' + stream_div_id + ' .col1' ).append( template.item( stream.col1[i] ) );
 			//fade in
 			queue.add( function( args ) {
 				$( '#article_' + args.id ).animate( { opacity: 1 }, 250 );
@@ -155,7 +159,7 @@ api.renderStream = function( stream, recommends ) {
 		}
 		//col 2
 		if( stream.col2[i] != undefined ) {
-			$( '.col2' ).append( template.item( stream.col2[i] ) );
+			$( '.stream_' + stream_div_id + ' .col2' ).append( template.item( stream.col2[i] ) );
 			//fade in
 			queue.add( function( args ) {
 				$( '#article_' + args.id ).animate( { opacity: 1 }, 250 );
@@ -168,10 +172,10 @@ api.renderStream = function( stream, recommends ) {
 				case 'hybrid':
 				case 'popular':
 				case 'public':
-					$( '.col3' ).append( template.item( stream.col3[i], true, 'h4' ) );
+					$( '.stream_' + stream_div_id + ' .col3' ).append( template.item( stream.col3[i], true, 'h4' ) );
 					break;
 				default:
-					$( '.col3' ).append( template.item( stream.col3[i] ) );
+					$( '.stream_' + stream_div_id + ' .col3' ).append( template.item( stream.col3[i] ) );
 			}
 
 			//fade in
@@ -197,7 +201,7 @@ api.buildStream = function( items ) {
 			if( items.length > 2 ) {
 				//get 1/3 length
 				var length = items.length;
-				var third = Math.round( length / 2.4 );
+				var third = Math.round( length / 3 );
 
 				//get col3, items from length - third to length
 				for( var i = length - third; i < length; i++ ) {

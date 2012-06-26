@@ -8,10 +8,10 @@ div.main {
 	font-family: PT Sans;
 }
 div.main.wide {
-	margin-right: 0;
+	margin-right: -10px;
 }
 div.main.notop {
-	margin-top: 10px;
+	margin-top: 0px;
 }
 
 div#content {
@@ -24,7 +24,7 @@ div#content {
 	div.main div#add_source {
 		float: left;
 		width: 100%;
-		margin-bottom: 20px;
+		margin-bottom: 40px;
 	}
 	div.main span.edit {
 		font-size: 11px;
@@ -90,49 +90,36 @@ div#content {
 	stream
 */
 div#stream {
+	margin-top: 60px;
+	margin-right: 20px;
 }
-	div#stream div.item {
-		border-bottom: 1px solid #F7F7F7;
-		padding-bottom: 15px;
-		margin-bottom: 15px;
-		float: left;
-		width: 100%;
-	}
-		div#stream span.edit span.right {
-			margin-right: 6%;
-			width: 20%;
-		}
-	div#stream div.feature {
-		float: left;
-		width: 70%;
-	}
 	div#stream div.col {
 		float: left;
-		width: 34%;
+		width: 34.5%;
 		margin-right: 3%;
 		font-size: 14px;
 	}
 	div#stream div.col.col3 {
 		margin-right: 0;
-		width: 26%;
+		width: 25%;
 		float: right;
 		font-size: 13px;
 		line-height: 22px;
+		margin-top: -20px;
 	}
 	div#stream.evencol {
+		margin-right: 20px;
 	}
 		div#stream.evencol div.col {
-			width: 30%;
+			width: 31%;
 			margin-right: 0;
 		}
 		div#stream.evencol div.col.col2 {
-			float: right;
-			margin-right: 5%;
+			margin-left: 3.5%;
+			margin-right: 10px;
 		}
 		div#stream.evencol div.col.col3 {
-			margin-right: 0;
-			margin-top: 22px;
-			font-size: 14px;
+			margin-right: 10px;
 		}
 	div#stream.twocol {
 	}
@@ -141,25 +128,42 @@ div#stream {
 			width: 47%;
 		}
 		div#stream.twocol div.col3 {
-			display: none;
+			width: 100%;
 		}
 
-
+	div#stream.twocol {
+	}
+		div#stream.twocol div.col12 {
+			float: left;
+			width: 72%;
+		}
+		div#stream.twocol div.col {
+			width: 100%;
+		}
+		div#stream.twocol div.col2 {
+			margin-left: 0;
+		}
+		div#stream.twocol div.col3 {
+			width: 25%;
+			float: right;
+		}
 
 /*
 	item
 */
 div.item {
+	border-bottom: 1px solid #F7F7F7;
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+	float: left;
+	width: 100%;
 }
 	div.item img {
 		width: 100%;
-		border: 1px solid #F7F7F7;
+		margin-bottom: 5px;
+		float: right;
+		border: 1px solid #D7D7D7;
 	}
-		div#stream.col2 div.item img {
-			float: left;
-			max-width: 200px;
-			margin-right: 5px;
-		}
 	div.item h1, div.item h2, div.item h3, div.item h4 {
 		font-family: PT Sans;
 		margin: 3px 0 5px 0;
@@ -191,21 +195,63 @@ div.item {
 	div.item p {
 		margin: 0;
 	}
-	div.item div.meta {
-		font-size: 11px;
-		font-family: Verdana;
-		background: transparent;
+
+	div.item ul.meta {
+		margin: 16px 0 0 0;
+		padding: 0px 0 0 0;
+		font-size: 13px;
 		float: left;
-		width: 100%;
-		margin: 5px 0 0 0;
+	}
+	div.item:hover ul.meta {
+	}
+		div.item ul.meta li {
+			list-style: none;
+			float: left;
+			margin-right: 10px;
+			line-height: 12px;
+			padding: 5px 0;
+			height: 14px;
+		}
+		div.item ul.meta img.icon {
+			width: 16px;
+			height: 16px;
+			border-radius: 3px;
+			float: left;
+			border: none;
+			margin-top: -4px;
+		}
+		div.item ul.meta a.link {
+			color: #666;
+			float: left;
+		}
+			div.item ul.meta li:hover a.link {
+				text-decoration: underline;
+				color: #1A1B1B;
+			}
+		div.item ul.meta li.tip span {
+			margin-top: -120px;
+		}
+			div.item ul.meta li.tip span span {
+				margin-top: -4px;
+			}
+			div.item ul.meta li:nth-child( n + 4 ) {
+				display: none;
+			}
+
+	div.item div.meta {
+		font-size: 13px;
+		background: transparent;
+		float: right;
+		text-align: right;
+		margin: 15px 0 0 0;
 	}
 		div.item div.meta form {
 			display: inline;
 			margin: 0;
 			float: none;
 		}
-		div.item div.meta input {
-			color: #A40802;
+		div.item div.meta input.meta {
+			color: #666;
 			background: transparent;
 			border: none;
 			width: auto;
@@ -213,70 +259,162 @@ div.item {
 			display: inline;
 			margin: 0;
 			padding: 0;
-			font-family: Verdana;
-			font-size: 11px;
+			font-size: 13px;
 			font-weight: normal;
 			text-shadow: none;
 		}
-		div.item div.meta input:hover {
+		div.item div.meta input.meta:hover {
 			text-decoration: underline;
 			cursor: pointer;
 			color: #1A1B1B;
 		}
-		div.item div.meta input.disabled:hover {
+		div.item div.meta input.meta.disabled:hover {
 			text-decoration: none;
 		}
-		div.item div.meta img {
+		div.item div.meta input.meta.active {
+			text-decoration: underline;
+			color: #1A1B1B;
+		}
+		div.item div.meta img, div.item ul.meta img {
 			float: left;
 			margin-top: 2px;
 			margin-right: 3px;
-			border-radius: 7px;
+			border-radius: 3px;
 			height: 16px;
 			width: 16px;
+			border: none;
 		}
 		div.item div.meta span.time {
 			color: #999;
+			font-size: 11px;
+			font-family: Verdana;
 		}
-		div.item div.meta span.likes {
+		div.item div.meta a {
 			color: #666;
 		}
 		div.item div.meta a:hover {
 			text-decoration: underline;
+			color: #1A1B1B;
 		}
 		div.item div.meta a.active {
 			text-decoration: underline;
 			color: #1A1B1B;
 		}
-		div.item div.meta span.collect {
+
+		div.item div.meta span.collect, div.item div.meta span.share {
 			display: inline-block;
 		}
-		div.item div.meta ul.collections {
+		div.item ul.collections {
 			position: absolute;
 			background: #FFFFFF;
 			border: 1px solid #D7D7D7;
-			margin: 24px 0 0 -2px;
+			margin: 0 0 0 -2px;
 			padding: 5px 10px;
 			width: 150px;
 			box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
 			font-size: 12px;
 			z-index: 4;
+			text-align: left;
 		}
-			div.item div.meta ul.collections span.tip {
+			div.item ul.collections span.tip {
 				width: 22px;
 				height: 10px;
-				background: url( '../img/backgrounds/tooltip_top.png' ) center top no-repeat;
+				background: url( '../img/backgrounds/tooltip_bottom.png' ) center top no-repeat;
 				position: absolute;
-				margin-top: -15px;
 			}
 			div.item div.meta ul.collections li {
 				list-style: none;
 			}
-				div.item div.meta ul.collections input {
-					border: 1px solid #D9D9D9;
+				div.item div.meta ul.collections li a {
+					color: #A40802;
+					font-size: 14px;
+				}
+				div.item div.meta ul.collections input, div.item div.meta ul.collections input:hover {
+					border: 1px solid #D7D7D7;
 					padding: 2px;
 					color: #666;
 					text-decoration: none;
 					cursor: text;
+					float: left;
+					width: 100%;
+				}
+				div.item ul.collections img {
+					float: right;
+					width: 14px;
+					height: 14px;
+					margin-top: 2px;
+					cursor: pointer;
+				}
+				div.item ul.collections a.disabled:hover {
+					text-decoration: none;
+					cursor: default;
+				}
+				div.item ul.collections li.new_collection {
+					font-size: 13px;
+				}
+		div.item .button {
+			text-decoration: none;
+			margin-top: 4px;
+		}
+			div.item .tip form {
+				float: right;
+			}
+			div.item .tip a.button {
+				text-decoration: none;
+			}
+		div.item div.meta form.share_form {
+			
+		}
+		div.item ul.shares {
+			position: absolute;
+			background: #FFF;
+			border: 1px solid #D7D7D7;
+			box-shadow: 0px 0px 5px rgba( 0, 0, 0, 0.1 );
+			font-size: 12px;
+			z-index: 4;
+			width: 155px;
+			margin: -110px 0 0 -53px;
+			height: 80px;
+			padding: 0 10px 0 10px;
+		}
+			div.item ul.shares .tip {
+				width: 22px;
+				height: 10px;
+				background: url( '../img/backgrounds/tooltip_bottom.png' ) center top no-repeat;
+				position: absolute;
+				margin: 80px 0 0 -81%;
+			}
+			ul.shares li {
+				list-style: none;
+				float: left;
+				text-align: center;
+				font-size: 15px;
+				margin: 1px 0 0 0;
+			}
+				ul.shares li span {
+					font-size: 14px;
+					text-align: center;
+					display: block;
+				}
+				ul.shares li a.button:hover {
+					text-decoration: none;
+				}
+			ul.shares li.form {
+				clear: both;
+				font-size: 12px;
+				font-family: Verdana;
+				margin-top: 5px;
+				text-align: left;
+				width: 100%;
+			}
+				ul.shares li.form input, ul.shares li.form label {
+					width: auto;
+					float: none;
+					text-transform: lowercase;
+					display: inline;
+				}
+				div.item div.meta ul.shares a.button {
+					color: #FFF;
 				}
 	div.item iframe.youtube_video {
 		float: left;
@@ -284,248 +422,278 @@ div.item {
 		height: auto;
 		min-height: 50px;
 	}
-
-div.feature {
-	padding-bottom: 0px;
-	margin-bottom: 20px;
-	border-bottom: 1px solid #F7F7F7;
-	font-size: 14px;
-}
-div.feature.edit {
-	padding: 0;
-	margin: 0;
-	border-bottom: none;
-}
-	div.feature h1.topics {
-		margin: 0 0 5px 0;
-		font-weight: normal;
-		color: #666;
-	}
-		div.feature h1.topics a, div.feature h1.topics {
-			color: #1A1B1B;
-			text-decoration: none;
-			font-weight: normal;
-			font-size: 20px;
-		}
-		div.feature h1 a:hover {
-			color: #A40802;
-		}
-	div.feature div.left {
+	div.item div.tweet {
 		float: left;
-		width: 48%;
+		width: 100%;
+		margin: 10px 0;
+		background: #F9F9F9;
+		margin-left: -10px;
+		padding: 10px;
 	}
-	div.feature div.right {
-		float: right;
-		width: 48%;
+		div.item div.tweet img {
+			width: 32px;
+			height: 32px;
+			float: left;
+			margin-right: 5px;
+			margin-top: 3px;
+			border: none;
+		}
+		div.item div.tweet a {
+			font-weight: bold;
+		}
+		div.item div.tweet p {
+			font-size: 18px;
+			font-style: italic;
+			margin-left: 32px;
+		}
+
+div#stream.twocol div.item p {
+	float: left;
+	width: 50%;
+	margin-left: 0%;
+}
+div#stream.twocol div.item p.wide {
+	width: 100%;
+}
+div#stream.twocol div.item img.thumb {
+	float: right;
+	width: 47%;
+}
+div#stream.twocol div.item div.meta {
+	text-align: right;
+	width: 30%;
+}
+div#stream.twocol div.item ul.meta {
+	width: 69%;
+}
+div#stream.twocol div.item ul.meta li:nth-child( n + 4 ) {
+	display: inline;
+}
+div#stream.twocol div.item span.extended {
+	display: inline;
+}
+	div#stream.twocol div.col3 div.item span.extended {
+		display: none;
 	}
-	div#stream div.feature div.item {
-		border-bottom: none;
+div#stream.twocol div.item div.tweet {
+	width: 47%;
+	float: right;
+	margin-top: 5px;
+}
+	div#stream.twocol div.item div.tweet p {
+		width: auto;
+		float: none;
+		margin-left: 36px;
 	}
-	
+	div#stream.twocol div.col3 img.thumb {
+		width: 100%;
+	}
+	div#stream.twocol div.col3 div.item div.meta, div#stream.twocol div.col3 div.item ul.meta  {
+		width: auto;
+	}
+	div#stream.twocol div.col3 div.item div.meta {
+		margin-top: 15px;
+	}
+	div#stream.twocol div.col3 div.item p {
+		width: 100%;
+	}
+	div#stream div.col3 div.item div.tweet {
+		display: none;
+	}
+	div#stream div.col3 div.item ul.meta li, div#stream.twocol div.col3 div.item ul.meta li {
+		display: none;
+	}
+	div#stream div.col3 div.item ul.meta li:first-child {
+		display: inline;
+	}
+	div#stream div.col3 div.item ul.meta li ul li {
+		display: inline;
+	}
+	div#stream.evencol div.col3 div.item ul.meta li {
+		display: inline;
+	}
+	div#stream.evencol.twocol div.col3 div.item ul.meta li {
+		display: none;
+	}
+	div#stream.evencol.twocol div.col3 div.item ul.meta li:first-child {
+		display: inline;
+	}
+	div#stream.twocol div.col3 div.item img.thumb {
+		display: none;
+	}
+	div#stream.evencol div.col3 div.item div.tweet {
+		display: block;
+	}
+		div#stream.evencol.twocol div.col3 div.item div.tweet {
+			display: none;
+		}
 
 
 /*
-	source browser
+	source divs
 */
-div#sources {
-	float: left;
-	width: 100%;
-	position: relative;
-	z-index: 2;
+div.sources {
+	margin-right: -2%;
+	margin-top: -15px;
 }
+	div.sources span.edit {
+		margin-bottom: -15px;
+		margin-top: 40px;
+	}
 div.source {
 	float: left;
-	width: 33%;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	padding-bottom: 0px;
-	border-bottom: 1px solid #F7F7F7;
-	word-wrap: break-word;
+	width: 30%;
+	margin-right: 3%;
+	margin-bottom: 3%;
 }
+	div.source img.favicon {
+		width: 16px;
+		height: 16px;
+		border-radius: 2px;
+	}
 	div.source h2 {
-		margin: 0;
-		font-weight: normal;
-		font-family: PT Sans, Arial;
-		font-size: 17px;
+		margin-bottom: 0;
+		height: 30px;
 		overflow: hidden;
-		float: left;
-		width: 90%;
-		line-height: 15px;
-		max-height: 15px;
 	}
 		div.source h2 a {
 			color: #1A1B1B;
 		}
 		div.source h2 a:hover {
-			text-decoration: none;
 			color: #A40802;
+			text-decoration: none;
 		}
-		div.source h2 span {
+		div.source h2 a.edit {
+			color: #666;
+			font-weight: normal;
+			margin-left: 10px;
+		}
+		div.source h2 a.edit:hover {
+			color: #1A1B1B;
+		}
+	div.source div.images {
+		float: left;
+		width: 100%;
+	}
+	div.source div.img {
+		float: left;
+		width: 32%;
+		height: 75px;
+		background: #F7F7F7;
+		overflow: hidden;
+		border: 1px solid #D7D7D7;
+		margin: 0 0 5px 0;
+	}
+	div.source div.img.one {
+		margin-left: -1px;
+		border-right: none;
+	}
+	div.source div.img.three {
+		border-left: none;float:
+	}
+		div.source div.img img {
+			float: left;
+		}
+		div.source div.img span.title {
+			position: absolute;
+			padding: 10px;
+			background: rgba( 0, 0, 0, 0.8 );
+			color: #FFF;
+			font-size: 16px;
+			display: none;
+			margin-top: 75px;
+			max-width: 300px;
+		}
+		div.source div.img:hover span.title {
 			display: block;
-			float: none;
-			line-height: 22px;
 		}
-		div.source h2 img {
-			width: 14px;
-			height: 14px;
-			border-radius: 3px;
-		}
-	div.source div.meta {
-		float: left;
-		width: 100%;
-		margin-right: 10px;
-		margin-top: 0px;
-	}
-	div.source div.meta img {
-		float: left;
-		width: 100%;
-		margin-right: 10px;
-		margin-top: 5px;
-		margin-bottom: 5px;
-		display: none;
-	}
-	div.source span {
-		float: left;
-		font-size: 11px;
-		font-family: Verdana;
-		color: #666;
-	}
-		div.source span a {
-			color: #888;
-		}
-	div.source span.url {
-		margin-top: 0px;
-		margin-bottom: -5px;
-	}
-	div.source form {
-		float: left;
-		width: 100%;
+	div.source ul.meta {
+		padding: 0;
 		margin: 0;
 	}
-	div.source ul.articles {
-		margin: 0px 0 0 0;
-		float: left;
-		width: 90%;
-		padding: 0;
-		font-size: 13px;
-		height: 100px;
-	}
-		div.source ul.articles li {
-			list-style: none;
-			padding: 3px 8px;
-			background: #F7F7F7;
+		div.source ul.meta li {
 			float: left;
-			clear: both;
-			overflow: hidden;
-			height: 24px;
+			list-style: none;
+			font-size: 16px;
+			margin-right: 20px;
 		}
-		div.source ul.articles li:last-child {
-			background: #FFF;
-		}
-		div.source ul.articles li:first-child {
-			font-weight: bold;
-			background: #E7E7E7;
-		}
-
-
-
-/*
-	tour
-*/
-div#tour {
-	display: none;
-	position: fixed;
-	top: 36px;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba( 255, 255, 255, 0.8 );
-	z-index: 10;
-	font-family: PT Sans;
-}
-	div#tour h1 {
-		background: #FFF;
-		float: left;
-		margin-left: 135px;
-		padding: 10px 0;
-		margin-bottom: 0;
-	}
-	div#tour p {
-		padding: 5px;
-		background: #FFF;
-		float: left;
-		clear: both;
-		margin-left: 130px;
-		margin-top: 0;
-		font-size: 18px;
-	}
-	div#tour div.block {
-		padding: 10px;
-		background: #FFF;
-		border: 1px solid #D7D7D7;
-		clear: none;
-	}
-	div#tour div.left {
-		margin-left: 125px;
-		margin-top: 15px;
-		width: 200px;
-		clear: left;
-	}
-	div#tour div.middle {
-		float: left;
-		margin-top: 15px;
-		margin-left: 50px;
-		width: 300px;
-	}
-	div#tour div.right {
-		width: 200px;
-		margin-top: 15px;
-		margin-right: 229px;
+			div.source ul.meta li small {
+				display: block;
+			}
+	div.source form {
 		float: right;
+		margin: 6px 3% 0 0;
 	}
-	div#tour a.button {
-		color: #FFF;
-		float: left;
-		clear: both;
-		margin-left: 125px;
-		padding: 10px 20px;
-		font-size: 23px;
-		font-weight: bold;
-		margin-top: 20px;
-		background: rgba( 85, 147, 58, 1 );
-		border: 1px solid rgba( 44, 81, 21, 1 );
-		box-shadow: inset 0 1px 0 rgba( 255, 255, 255, 0.2 );
-		text-shadow: 1px 1px 0px rgba( 0, 0, 0, 1 );
-		text-decoration: none;
-	}
-	div#tour a.button:hover {
-		border: 1px solid #000;
-		background: rgba( 65, 127, 38, 1 );
-	}
-
+		div.source form input {
+			margin: 0;
+		}
 
 
 /*
-	welcome on public (non-logged in)
+	welcome/home
 */
+div.home_bg {
+	position: absolute;
+	width: 100%;
+	top: 370px;
+	left: 0;
+	z-index: -1;
+	overflow-x: hidden;
+}
+ul.home_bg {
+	width: 200%;
+	margin: 0;
+	padding: 0;
+}
+	ul.home_bg li {
+		list-style: none;
+		display: inline;
+		float: left;
+		width: 50%;
+		line-height: 0;
+		overflow: hidden;
+	}
+	ul.home_bg img {
+		width: 100%;
+	}
+img.home_arrow {
+	margin-top: 400px;
+	opacity: 0.8;
+	margin-left: 50px;
+}
+img.home_arrow.right {
+	margin-right: 50px;
+}
+img.home_arrow:hover {
+	opacity: 1;
+}
+div#home {
+	margin-top: 0px;
+}
 div.welcome {
-	margin: -20px 0 48px -20px;
+	margin: -20px 0 48px 0px;
 	border-bottom: 1px solid #e7e7e7;
 	padding-bottom: 30px;
 	padding-top: 20px;
 	padding-right: 0px;
 	float: left;
 	width: 100%;
-	padding-left: 20px;
+	padding-left: 0px;
 	border-right: 1px solid #F7F7F7;
 }
 div.welcome.top {
 	margin-top: -30px;
 }
+div.welcome.notop {
+	margin-top: -80px;
+}
+div.welcome.noborder {
+	border: none;
+}
 	div.welcome h1 {
 		font-size: 60px;
 		font-weight: bold;
-		margin: 60px 0 0 0;
+		margin: 80px 0 20px 0px;
 		line-height: 60px;
 		max-width: 950px;
 	}
@@ -533,13 +701,18 @@ div.welcome.top {
 		max-width: 550px;
 		font-size: 18px;
 		color: #666;
-		margin: 10px 0 30px 0;
+		margin: 0px 0 20px 0px;
 	}
 	div.welcome div.bigtext {
 		font-size: 14px;
 		color: #666;
-		margin-top: 10px;
+		margin-top: 0px;
 	}
+		div.welcome div.bigtext p {
+			margin-left: 0px;
+			font-size: 14px;
+			margin-top: 10px;
+		}
 		div.welcome div.bigtext a {
 			color: #1a1b1b;
 		}
@@ -557,7 +730,7 @@ div.home.first {
 		margin-right: 2%;
 	}
 	div.home h2 {
-		margin-bottom: 5px;
+		margin-bottom: 0px;
 		font-size: 14px;
 		color: #888;
 		font-weight: normal;
@@ -579,10 +752,14 @@ div.home.first {
 		font-size: 16px;
 		color: #666;
 		margin-top: 10px;
+		background: #FFF;
 	}
 	div.home .third {
 		width: 33%;
 	}
+		div.home .third h4:first-child {
+			margin-top: 0;
+		}
 	div.home .twothird {
 		width: 66%;
 	}
@@ -628,3 +805,24 @@ div.home.first {
 						border-radius: 3px;
 						margin: 3px 0 5px 5px;
 					}
+
+
+
+/*
+	stats
+*/
+ul.stats {
+	font-size: 18px;
+	color: #1A1B1B;
+	margin: 0 0 0 -10px;
+	padding: 0;
+}
+	ul.stats li {
+		list-style: none;
+		margin: 10px;
+		float: left;
+		width: auto;
+	}
+		ul.stats li span {
+			color: #666;
+		}

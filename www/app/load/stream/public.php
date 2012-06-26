@@ -5,7 +5,7 @@
 	*/
 
 	//modules
-	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load;
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load, $user_id, $mod_template, $mod_app, $mod_streamcache;
 
 	//start template
 	$mod_template = new mod_template();
@@ -15,14 +15,8 @@
 	if( isset( $_GET['offset'] ) and is_numeric( $_GET['offset'] ) and $_GET['offset'] > 0 )
 		$offset = $_GET['offset'];
 
-	//api?
-	if( !$mod_config['api'] ):
-		//set stream to cookie
-		$mod_cookie->set( 'RecentStream', $_SERVER['REQUEST_URI'] );
-	endif;
-
 	//start our stream
-	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'public' ) : new mod_stream_site( $mod_db, 'public' );
+	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'public', $mod_streamcache ) : new mod_stream_site( $mod_db, 'public', $mod_streamcache );
 	//invalid stream?
 	if( !$mod_stream->valid ):
 		$mod_message->add( 'NotFound' );
@@ -32,23 +26,10 @@
 	//set offset
 	$mod_stream->set_offset( $offset );
 
-	//api & logged in?
-	if( !$mod_config['api'] and $mod_user->check_login() ):
-		//load the users sources
-		$sources = $mod_load->load_sources( $mod_user->get_userid() );
-		$mod_template->add( 'sources', $sources );
-
-		//accounts
-		$accounts = $mod_load->load_accounts( $mod_user->get_userid() );
-		$mod_template->add( 'accounts', $accounts );
-		
-		//load the users followings
-		$followings = $mod_load->load_users( $mod_user->get_userid() );
-		$mod_template->add( 'followings', $followings );
-
-		//load users collections
-		$collections = $mod_load->load_collections( $mod_user->get_userid() );
-		$mod_template->add( 'collections', $collections );
+	//api?
+	if( !$mod_config['api'] ):
+		$user_id = $mod_user->get_userid();
+		$mod_app->load( 'load/stream/userconf' );
 	endif;
 
 	//prepare, ok to go after this

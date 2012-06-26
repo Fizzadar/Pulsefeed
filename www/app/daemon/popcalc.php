@@ -107,23 +107,22 @@
 
 		//now loop articles
 		foreach( $articles as $key => $article ):
-			//calculate poptime
+			//calculate time in hours
 			$time = time() - $article['time'];
 			$time = round( $time / 3600 );
-			$time = $time ^ 3; //still very-much a guessing game
 
 			//poptime = popularity / hours
 			if( $time <= 1 ) $time = 1;
 			$pop_time = $article['popularity'] / $time;
 			
 			//set array
-			$articles[$key]['popularity_time'] = $pop_time;
+			$articles[$key]['popularity_time'] = $article['popularity_time'] = $pop_time * 1000;
 
 			//no source? add it
 			if( !isset( $sources[$article['source_id']] ) ):
 				$sources[$article['source_id']] = array(
 					'articleCount' => 1,
-					'popTotal' => $pop_time
+					'popTotal' => $article['popularity_time']
 				);
 				continue;
 			endif;
@@ -131,7 +130,7 @@
 			//now update the source info (if poptime > 0)
 			if( $pop_time > 0 ):
 				$sources[$article['source_id']]['articleCount']++;
-				$sources[$article['source_id']]['popTotal'] += $pop_time;
+				$sources[$article['source_id']]['popTotal'] += $article['popularity_time'];
 			endif;
 		endforeach;
 
@@ -147,18 +146,31 @@
 
 		//re-loop sources
 		foreach( $sources as $key => $source ):
+			//big source? return a scale of 1
+			if( $key == $bigsource ):
+				$sources[$key]['scale'] = 1;
+				continue;
+			endif;
+
 			//no division by 0!
 			if( $source['avgPop'] <= 0 )
 				$source['avgPop'] = 1;
 
 			//make source scale
-			$sources[$key]['scale'] = $sources[$bigsource]['avgPop'] / ( $source['avgPop'] );
+			$sources[$key]['scale'] = ( $sources[$bigsource]['avgPop'] / $source['avgPop'] ) * 0.8;
 		endforeach;
 
 		//loop articles
 		foreach( $articles as $key => $article ):
+			//no point updating this
+			if( $article['popularity_time'] == 0 )
+				continue;
+
+			/*
+				the magic formula, a guessing game
+			*/
 			//scale articles using the source scale and # of refs
-			$articles[$key]['popscore'] = $article['popscore'] = round( $article['popularity_time'] * $sources[$article['source_id']]['scale'] * 100 ) * pow( $article['refs'], 1.8 );
+			$articles[$key]['popscore'] = $article['popscore'] = round( $article['popularity_time'] * $sources[$article['source_id']]['scale'] * log( $article['refs'] ) );
 
 			//finally, update db with popscore
 			switch( $item['type'] ):

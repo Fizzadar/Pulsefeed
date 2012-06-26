@@ -108,8 +108,8 @@
 			return $return;
 		}
 
-		//set (insert, update) by data (each array in data must include all keys) <= overwrites values
-		public function set( $table, $keyslist ) {
+		//set (insert, update) by data, where create != false (ie default) all key=>values must be specified or we'll end up with incomplete items + errors in memcache (and db if item not existing)
+		public function set( $table, $keyslist, $create = true ) {
 			//select layout
 			$layout = $this->layout[$table];
 
@@ -121,8 +121,9 @@
 
 			//update all got memcaches
 			foreach( $keys['memcache'] as $id => $key )
-				foreach( $keys['sql'][$id] as $k => $v )
-					$data[$key][$k] = $v;
+				if( $create or isset( $data[$key] ) ) //if create enabled OR already set in memcache
+					foreach( $keys['sql'][$id] as $k => $v )
+						$data[$key][$k] = $v;
 
 			//now save each one
 			foreach( $data as $k => $v )

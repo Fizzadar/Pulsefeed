@@ -7,7 +7,7 @@
 	global $mod_user, $mod_db, $mod_session, $mod_memcache, $mod_message;
 
 	//redirect
-	$redir = $c_config['root'] . '/settings/collections';
+	$redir = $c_config['root'] . '/collections';
 
 	//token?
 	if( !isset( $_POST['mod_token'] ) or !$mod_session->validate( $_POST['mod_token'] ) ):

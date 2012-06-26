@@ -18,8 +18,6 @@ api.search = function( el, off ) {
 	$( 'input[type=submit]', el ).css( 'background-image', 'url( ' + mod_root + '/inc/img/icons/loader.gif )' );
 	//focus on input
 	$( 'input[type=text]', el ).focus();
-	//stop page scroll
-	$( 'body' ).css( 'overflow', 'hidden' );
 	
 	//make our request (url, data, success, failure, element)
 	api.get(
@@ -37,7 +35,11 @@ api.search = function( el, off ) {
 				$( '#search_results' ).append( '<li class="title">Sources</li>' );
 
 				for( var i = 0; i < data.sources.length; i++ ) {
-					$( '#search_results' ).append( '<li class="search_source"><a href="' + mod_root + '/source/' + data.sources[i].id + '"><span class="title"><img src="http://favicon.fdev.in/' + data.sources[i].domain + '"/> ' + data.sources[i].title + '</span><span class="type">source / ' + data.sources[i].url + '</span></a></li>' );
+					$( '#search_results' ).append( '<li class="search_source' + ( i >= 3 ? ' hidden' : '' ) + '"><a href="' + mod_root + '/website/' + data.sources[i].id + '"><span class="title"><img src="http://favicon.fdev.in/' + data.sources[i].domain + '"/> ' + data.sources[i].title + '</span><span class="type">website / ' + data.sources[i].url + '</span></a></li>' );
+				}
+
+				if( data.sources.length > 3 ) {
+					$( '#search_results' ).append( '<li class="more"><a href="#" class="show_more_sources"><strong>show more sources &darr;</strong></a></li>')
 				}
 			}
 
@@ -53,7 +55,7 @@ api.search = function( el, off ) {
 				$( '#search_results' ).append( '<li class="title">Articles</li>' );
 
 				for( var i = 0; i < data.articles.length; i++ ) {
-					$( '#search_results' ).append( '<li class="search_article"><a href="' + mod_root + '/article/' + data.articles[i].id + '"><span class="title">' + ( data.articles[i].source ? '<img src="http://favicon.fdev.in/' + data.articles[i].source.domain + '"/>' : '' ) + data.articles[i].title + '</span><span class="type">article' + ( data.articles[i].source ? ' from ' + data.articles[i].source.title : '' ) + '</span></a></li>' );
+					$( '#search_results' ).append( '<li class="search_article"><a href="' + mod_root + '/article/' + data.articles[i].id + '"><span class="title">' + ( data.articles[i].source ? '<img src="http://favicon.fdev.in/' + data.articles[i].source.domain + '"/>' : '' ) + data.articles[i].title + '</span><span class="type">article' + ( data.articles[i].source ? ' from ' + data.articles[i].source.title : '' ) + ' - ' + data.articles[i].time_ago + '</span></a></li>' );
 				}
 			}
 
@@ -68,12 +70,27 @@ api.search = function( el, off ) {
 					ev.preventDefault();
 					api.search( el, data.nextOffset );
 				})
+				//bind more sources button
+				$( '.show_more_sources' ).bind( 'click', function( ev ) {
+					ev.preventDefault();
+					$( '.search_source.hidden' ).fadeIn();
+					api.searchActive = true;
+					$( ev.target ).parent().remove();
+				});
 			}
 
 			//display
 			$( 'input[type=submit]', el ).css( 'background-image', 'url( ' + mod_root + '/inc/img/icons/search.png )' );
 			$( '#search_results' ).css( 'display', 'block' );
 			$( '#search_results' ).scrollTop( 0 );
+
+			//stop click propagation
+			$( '#search_results' ).bind( 'click', function( ev ) {
+				ev.stopPropagation();
+			});
+			$( 'form#search' ).bind( 'click', function( ev ) {
+				ev.stopPropagation();
+			});
 		},
 		function( data, el ) {
 			//uh oh! redirect to default search
@@ -81,17 +98,4 @@ api.search = function( el, off ) {
 		},
 		el
 	);
-}
-
-//hide search
-api.hideSearch = function() {
-	if( api.searchActive )
-		return;
-
-	//remove & hide
-	$( '#search_results' ).css( 'display', 'none' );
-	//$( '#search_results' ).html( '' );
-
-	//start page scroll
-	$( 'body' ).css( 'overflow', 'auto' );
 }

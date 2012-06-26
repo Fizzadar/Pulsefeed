@@ -14,8 +14,7 @@
 		global $mod_config;
 
 		//new db
-		$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'] );
-		$mod_db->connect();
+		$mod_db = get_db();
 
 		//min 30 min between popcalcs
 		$update_time = time() - 1800;

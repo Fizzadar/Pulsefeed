@@ -44,7 +44,7 @@ div#login {
 			border-bottom: 1px solid #D7D7D7;
 			padding: 10px;
 		}
-		div#login div#buttons a.login {
+		div#login div#buttons .login {
 			float: left;
 			width: 230px;
 			font-size: 17px;
@@ -76,3 +76,18 @@ div#login {
 				line-height: 8px;
 				text-decoration: none;
 			}
+	div#login div#buttons form.login {
+		margin: 15px 0 0px 15px;
+	}
+		div#login div#buttons form.login input {
+			float: right;
+			width: 159px;
+			font-size: 17px;
+			font-family: 'PT Sans';
+			padding: 3px 5px;
+		}
+		div#login div#buttons form.login input[type=submit] {
+			width: 28px;
+			min-width: 0;
+			padding: 3px 0;
+		}

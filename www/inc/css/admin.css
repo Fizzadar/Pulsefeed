@@ -1,0 +1,99 @@
+/*
+	admin.css
+*/
+
+ul.permissions {
+	float: left;
+	width: 29%;
+	margin: 20px 0;
+	margin-right: 2%;
+	padding: 0;
+	min-height: 240px;
+	overflow: hidden;
+	padding: 1%;
+	border: 1px solid #D7D7D7;
+}
+	ul.permissions li {
+		float: left;
+		width: 100%;
+		list-style: none;
+	}
+	ul.permissions ul {
+		float: left;
+		width: 50%;
+		padding: 0;
+		margin: 0;
+	}
+
+
+ul.topics_general {
+	float: left;
+	width: 20%;
+	margin: 0;
+	padding: 0;
+}
+	ul.topics_general li {
+		list-style: none;
+	}
+
+ul.topics {
+	float: left;
+	width: 80%;
+	margin: 0;
+	padding: 0;
+}
+	ul.topics li {
+		float: left;
+		width: 30%;
+		margin-right: 3%;
+		list-style: none;
+		clear: left;
+	}
+		ul.topics li ul {
+			margin: 0;
+			padding: 0;
+			margin-bottom: 20px;
+			float: left;
+			width: 100%;
+			border: 1px solid #D7D7D7;
+			padding-left: 5px;
+			margin-left: -6px;
+		}
+			ul.topics li ul li {
+				width: auto;
+				margin-right: 10px;
+				clear: both;
+			}
+					ul.topics li ul li ul li {
+						clear: none;
+					}
+
+form#admin_add_topic {
+	display: none;
+}
+
+table.admin {
+	float: left;
+	width: 100%;
+}
+	table.admin tr {
+		padding: 5px 0;
+		}
+		table.admin tr th {
+			background: #F7F7F7;
+			border-top: 1px solid #D7D7D7;
+			border-left: 1px solid #D7D7D7;
+			border-bottom: 1px solid #D7D7D7;
+			text-align: left;
+			padding: 5px;
+		}
+		table.admin tr th:first-child {
+			border-left: none;
+		}
+		table.admin tr td {
+			padding: 5px;
+			border-bottom: 1px solid #F7F7F7;
+		}
+		table.admin tr:hover td {
+			background: #F9F9F9;
+		}

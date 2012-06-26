@@ -23,7 +23,7 @@
 		if( $auth['provider'] == 'twitter' or $auth['provider'] == 'facebook' ):
 			$urldata = json_encode( array( 'oid' => $auth['o_id'], 'token' => $auth['token'], 'secret' => $auth['secret'] ) );
 		
-			$mod_db->query( '
+			$insert = $mod_db->query( '
 				INSERT INTO mod_account
 				( user_id, type, o_id, auth_data )
 				VALUES (

@@ -27,6 +27,15 @@ design.start = function() {
 	$( 'input[type=submit]' ).bind( 'click', function( ev ) {
 		$( ev.target ).addClass( 'disabled' );
 	});
+
+	//set 2col once if under 1280 wide
+	if( pulsefeed.streamType && $( window ).width() <= 1280 && !cookie.get( 'auto_columns' ) && !cookie.get( 'two_col' ) ) {
+		//toggle
+		api.columnToggle( $( '.stream_column_toggle' ) );
+		//set cookie
+		cookie.set( 'auto_columns', true );
+		cookie.set( 'two_col', true );
+	}
 }
 
 //scroll to function

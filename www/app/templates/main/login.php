@@ -31,9 +31,9 @@
 				<img src="<?php echo $c_config['root']; ?>/inc/img/login/yahoo.png" /> Login with Yahoo
 			</a>
 
-			<a class="login" href="#">
-				<img src="<?php echo $c_config['root']; ?>/inc/img/login/openid.png" /> <strike>Login with OpenID</strike>
-			</a>
+			<form class="login" action="<?php echo $c_config['root']; ?>/process/openid" method="GET">
+				<img src="<?php echo $c_config['root']; ?>/inc/img/login/openid.png" /> <input type="submit" value="&#187;" /> <input type="text" name="openid" value="Type OpenID Here" onclick="if( this.value == 'Type OpenID Here' ) { this.value = ''; }" onblur="if( this.value == '' ) { this.value = 'Type OpenID Here'; }" />
+			</form>
 		</div><!--end buttons-->
 	</div><!--end login-->
 </body>

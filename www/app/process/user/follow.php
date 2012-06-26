@@ -5,10 +5,10 @@
 	*/
 
 	//modules
-	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_config;
+	global $mod_session, $mod_user, $mod_db, $mod_message, $mod_config, $mod_memcache;
 
 	//redirect dir
-	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/sources';
+	$redir = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $c_config['root'] . '/users';
 
 	//token?
 	if( !isset( $_POST['mod_token'] ) or !$mod_session->validate( $_POST['mod_token'] ) ):
@@ -34,27 +34,39 @@
 		die( header( 'Location: ' . $redir ) );
 	endif;
 	
-	//locate our source
-	$user = $mod_db->query( '
-		SELECT id
-		FROM core_user
-		WHERE id = ' . $_POST['user_id'] . '
-		LIMIT 1
-	' );
+	//locate our user
+	$user = $mod_memcache->get( 'core_user', array( array(
+		'id' => $_POST['user_id']
+	) ) );
 	if( !$user or count( $user ) != 1 ):
 		$mod_message->add( 'NoSource' );
 		die( header( 'Location: ' . $redir ) );
 	endif;
 
+	//test
+	$test = $mod_memcache->get( 'mod_user_follows', array( array(
+		'user_id' => $mod_user->get_userid(),
+		'following_id' => $_POST['user_id']
+	) ) );
+
 	//insert the follow
-	$insert = $mod_db->query( '
-		REPLACE INTO mod_user_follows
-		( user_id, following_id )
-		VALUES( ' . $mod_user->get_userid() . ', ' . $_POST['user_id'] . ' )
-	' );
+	$insert = $mod_memcache->set( 'mod_user_follows', array( array(
+		'user_id' => $mod_user->get_userid(),
+		'following_id' => $_POST['user_id']
+	) ) );
 
 	//redirect
 	if( $insert ):
+		if( is_array( $test ) and count( $test ) == 0 ):
+			//increase follower count
+			$mod_db->query( '
+				UPDATE core_user
+				SET followers = followers + 1
+				WHERE id = ' . $_POST['user_id'] . '
+				LIMIT 1
+			' );
+		endif;
+
 		//message, redirect
 		$mod_message->add( 'UserFollowed' );
 		header( 'Location: ' . $redir );

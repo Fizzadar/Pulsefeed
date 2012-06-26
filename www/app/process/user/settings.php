@@ -22,6 +22,8 @@
 
 	//make username 30 chars long
 	$_POST['username'] = substr( $_POST['username'], 0, 30 );
+	//remove non-alphanumerics
+	$_POST['username'] = preg_replace( '/[^aA-zZ0-9]/', '', $_POST['username'] );
 
 	//validate the email (as much as we can)
 	if( !empty( $_POST['email'] ) and !filter_var( $_POST['email'], FILTER_VALIDATE_EMAIL ) ):

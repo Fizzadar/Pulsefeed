@@ -15,9 +15,9 @@
 	//start template
 	$mod_template = new mod_template;
 
-	//display templates
-	$mod_template->load( 'core/header' );
-
+	//home on api? ie $_GET['load'] not set
+	$_GET['load'] = isset( $_GET['load'] ) ? $_GET['load'] : 'settings';
+	
 	//switch load type
 	switch( $_GET['load'] ):
 		case 'settings-accounts':
@@ -50,16 +50,18 @@
 			//get oids
 			$oids = $mod_user->get_openids();
 			$mod_template->add( 'oids', $oids );
-			$mod_template->add( 'pageTitle', 'Settings / Accounts' );
-			$mod_template->load( 'user/accounts' );
+			$mod_template->add( 'pageTitle', 'Settings: Accounts' );
+			$template = 'user/accounts';
 			break;
 
-		case 'settings-collections':
-			//get collections
-			$collections = $mod_load->load_collections( $mod_user->get_userid() );
-			$mod_template->add( 'collections', $collections );
-			$mod_template->add( 'pageTitle', 'Settings / Collections' );
-			$mod_template->load( 'user/collections' );
+		case 'settings-data':
+			if( !$mod_user->session_permission( 'Debug' ) ):
+				$mod_message->add( 'NotFound' );
+				die( header( 'Location: ' . $c_config['root'] ) );
+			endif;
+
+			$mod_template->add( 'pageTitle', 'Settings: Data' );
+			$template = 'user/data';
 			break;
 
 		default:
@@ -69,8 +71,11 @@
 			unset( $user['auth_key'] );
 			$mod_template->add( 'settings', $user );
 			$mod_template->add( 'pageTitle', 'Settings' );
-			$mod_template->load( 'user/settings' );
+			$template = 'user/settings';
 	endswitch;
+
+	$mod_template->load( 'core/header' );
+	$mod_template->load( $template );
 
 	//footer
 	$mod_template->load( 'core/footer' );

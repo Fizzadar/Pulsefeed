@@ -15,7 +15,7 @@
 	<div class="wrap" id="content">
 		<div class="main">
 			<form action="<?php echo $c_config['root']; ?>/process/settings" method="post" class="left half">
-				<label for="username">Username <small>(30 character max)</small>:</label>
+				<label for="username">Username <small>(30 character max, alphanumeric)</small>:</label>
 				<input type="text" name="username" id="username" value="<?php echo $settings['name']; ?>" maxlength="30" />
 
 				<label for="email">Email <small>(optional)</small>:</label>
@@ -44,7 +44,7 @@
 				<ul>
 					<li>Profile Setup &rarr;</li>
 					<li><a href="<?php echo $c_config['root']; ?>/settings/accounts">Accounts</a></li>
-					<li><a href="<?php echo $c_config['root']; ?>/settings/collections">Collections</a></li>
+					<?php if( $mod_user->session_permission( 'Debug' ) ): ?><li><a href="<?php echo $c_config['root']; ?>/settings/data">Data</a></li><?php endif; ?>
 				</ul>
 			</div><!--end left-->
 		</div><!--end wrap-->

@@ -53,12 +53,10 @@
 	if( $delete ):
 		//up article count
 		if( $delete_rows == 1 ):
-			$mod_db->query( '
-				UPDATE mod_collection
-				SET articles = articles - 1
-				WHERe id = ' . $_POST['collection_id'] . '
-				LIMIT 1
-			' );
+			$mod_memcache->set( 'mod_collection', array( array(
+				'id' => $collection['id'],
+				'articles' => $collection['articles'] - 1
+			) ), false );
 		endif;
 
 

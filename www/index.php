@@ -15,6 +15,12 @@
 	if( $_SERVER['HTTP_HOST'] != 'pulsefeed.dev' and !isset( $argv ) )
 		ini_set( 'display_errors', 0 );
 
+	//set cookie params for subdomain access
+	if( substr( $_SERVER['HTTP_HOST'], 0, 13 ) == 'api.pulsefeed' )
+		session_set_cookie_params( 86400, '/', '.' . str_replace( 'api.', '', $_SERVER['HTTP_HOST'] ) );
+	else
+		session_set_cookie_params( 86400, '/', '.' . $_SERVER['HTTP_HOST'] );
+
 	//get the core
 	require( 'core/core.php' );
 
@@ -38,6 +44,12 @@
 	foreach( $mod_config['memcache']['query'] as $host => $port )
 		$mod_querycache->addServer( $host, $port );
 
+	//start stream memcache
+	$mod_streamcache = new Memcache;
+	//add servers
+	foreach( $mod_config['memcache']['stream'] as $host => $port )
+		$mod_streamcache->addServer( $host, $port );
+
 	//start our db
 	$mod_db = new c_db( $mod_config['dbhost'], $mod_config['dbuser'], $mod_config['dbpass'], $mod_config['dbname'], $mod_querycache );
 
@@ -52,18 +64,12 @@
 	$mod_user->set_facebook( $mod_config['apps']['facebook']['id'], $mod_config['apps']['facebook']['token'] );
 	$mod_user->set_twitter( $mod_config['apps']['twitter']['id'], $mod_config['apps']['twitter']['token'] );
 
-	//enable debug if requested & allowed (and allow error display, even if not localhost)
-	if( isset( $_GET['debug'] ) and !$mod_config['api'] and !$mod_config['ajax'] and $mod_user->check_permission( 'Debug' ) ):
-		$c_debug->enable();
-		ini_set( 'display_errors', E_ALL );
-	endif;
-
 	//session
 	$mod_session = new c_session;
 	$mod_token = $mod_session->generate();
 
 	//cookie management
-	$mod_cookie = new mod_cookie( 'pulsefeed_' );
+	$mod_cookie = new c_cookie( 'pulsefeed_' );
 
 	//message (after session to get that started)
 	$mod_message = new mod_message( $mod_config['messages'] );
@@ -97,6 +103,7 @@
 	endif;
 
 
-	//debug (only works if enabled above)
-	$c_debug->display();
+	//debug (no query normally due to session check first)
+	if( $mod_user->check_permission( 'Debug' ) and !$mod_config['iapi'] )
+		$c_debug->display();
 ?>

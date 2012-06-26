@@ -14,7 +14,7 @@
 			if( count( $bit ) == 2 and $bit[0] == 'v' ):
 				$id = $bit[1];
 				//get data from youtube
-				if( $data = file_get_contents( 'http://gdata.youtube.com/feeds/api/videos/' . $id . '?alt=json' ) ):
+				if( $data = @file_get_contents( 'http://gdata.youtube.com/feeds/api/videos/' . $id . '?alt=json' ) ):
 					if( $data = json_decode( $data ) ):
 						if( isset( $data->entry->title ) ):
 							$title = false;
@@ -27,8 +27,8 @@
 								$title = ucwords( strtolower( $title ) );
 								$return = array(
 									true, //success ?
-									'<iframe class="youtube_video" src="http://www.youtube.com/embed/' . $id . '?controls=0" frameborder="0" allowfullscreen></iframe>', //desc
-									'<iframe class="youtube_video" src="http://www.youtube.com/embed/' . $id . '?controls=0" frameborder="0" allowfullscreen></iframe>', //summary
+									'<iframe class="youtube_video" src="http://www.youtube.com/embed/' . $id . '?controls=0" frameborder="0"></iframe>', //desc
+									'<iframe class="youtube_video" src="http://www.youtube.com/embed/' . $id . '?controls=0" frameborder="0"></iframe>', //summary
 									$title, //title
 									'http://www.youtube.com/embed/' . $id, //link
 									'video' //text

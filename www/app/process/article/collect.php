@@ -39,6 +39,7 @@
 
 	//do we have collection id?
 	$id = false;
+	$articles = 0;
 	if( $_POST['collection_id'] > 0 ):
 		//check for collection
 		$collection = $mod_memcache->get( 'mod_collection', array(
@@ -48,6 +49,7 @@
 		) );
 		if( count( $collection ) == 1 and $collection[0]['user_id'] == $mod_user->get_userid() ):
 			$id = $collection[0]['id'];
+			$articles = $collection[0]['articles'];
 		endif;
 	elseif( !empty( $_POST['collection_name'] ) ):
 		//add collection
@@ -90,12 +92,10 @@
 	if( $insert ):
 		//up article count
 		if( $insert_rows == 1 ):
-			$mod_db->query( '
-				UPDATE mod_collection
-				SET articles = articles + 1
-				WHERe id = ' . $id . '
-				LIMIT 1
-			' );
+			$mod_memcache->set( 'mod_collection', array( array(
+				'id' => $id,
+				'articles' => $articles + 1
+			) ), false );
 		endif;
 
 		//redirect

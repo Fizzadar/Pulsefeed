@@ -4,7 +4,7 @@
    #
    #  Author:    Jarrod Oberto
    #  Version:	 1.0
-   #  Date:      17-Jan-10
+   #  Date:      17-Jan-10 //modified by fizzadar, line 34 & 35 to stop error when img is false
    #  Purpose:   Resizes and saves image
    #  Requires : Requires PHP5, GD library.
    #  Usage Example:
@@ -31,8 +31,8 @@
 				$this->image = $this->openImage($fileName);
 
 			    // *** Get width and height
-			    $this->width  = imagesx($this->image);
-			    $this->height = imagesy($this->image);
+			    $this->width  = @imagesx($this->image);
+			    $this->height = @imagesy($this->image);
 			}
 
 			## --------------------------------------------------------

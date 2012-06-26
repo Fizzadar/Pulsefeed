@@ -5,6 +5,7 @@
 	//login
 	$login = 0;
 	$redir = $mod_cookie->get( 'redirectUrl' ) ? $mod_cookie->get( 'redirectUrl' ) : $c_config['root'];
+	
 	//facebook
 	if( $_GET['process'] == 'login-facebook' ):
 		$login = $mod_user->fb_login();

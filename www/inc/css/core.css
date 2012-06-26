@@ -4,7 +4,7 @@
 div#top {
 	position: fixed;
 	top: 0;
-	z-index: 5;
+	z-index: 6;
 	width: 100%;
 	height: 35px;
 	background: #A40802;
@@ -180,7 +180,7 @@ div#top.external {
 		border-top: none;
 		border-bottom: none;
 		padding: 0 10px;
-		margin-right: 0px;
+		margin-right: 20px;
 	}
 	div#top ul#account:hover {
 		background: #FFF;
@@ -314,7 +314,6 @@ div#messages {
 	position: absolute;
 	width: 100%;
 	margin-bottom: 50px;
-	z-index: 5;
 }
 	div#messages div.message {
 		font-size: 18px;
@@ -327,6 +326,8 @@ div#messages {
 		margin: 0 auto;
 		width: 800px;
 		border-radius: 0 0 5px 5px;
+		position: relative;
+		z-index: 5;
 	}
 		div#messages div.message div.wrap {
 			text-indent: 20px;
@@ -392,6 +393,7 @@ div#header {
 	div#header div.right {
 		width: auto;
 		text-align: right;
+		margin-right: 40px;
 	}
 	div#header a.top {
 		display: block;
@@ -424,6 +426,12 @@ div#header {
 	div#header h1.noborder {
 		border-left: 1px solid #FFF;
 	}
+		div#header h1 img.avatar {
+			max-width: 32px;
+			max-height: 32px;
+			float: left;
+			margin-right: 5px;
+		}
 
 
 
@@ -453,6 +461,9 @@ div#sidebars.notop {
 		position: relative;
 		z-index: 3;
 	}
+	div#sidebars.nobg div.left {
+		background: transparent;
+	}
 	div#sidebars.hightop div.left {
 		padding-top: 480px;
 	}
@@ -472,10 +483,18 @@ div#sidebars.notop {
 				font-weight: bold;
 				border-bottom: 1px solid #D7D7D7;
 			}
+				div#sidebars div.left li.title a {
+					color: #1A1B1B;
+					text-decoration: none;
+				}
+				div#sidebars div.left li.title a:hover {
+					color: #A40802;
+				}
 				div#sidebars div.left li.title a.edit {
 					font-weight: normal;
 					display: none;
 					line-height: 0;
+					color: #666;
 				}
 				div#sidebars div.left li.title a.edit:hover {
 					text-decoration: none;
@@ -735,7 +754,7 @@ div#footer {
 	}
 	div#footer div.inner {
 		margin-left: 150px;
-		margin-right: 240px;
+		margin-right: 0px;
 	}
 	div#footer div.bottom {
 		font-size: 11px;

@@ -5,7 +5,7 @@
 	*/
 
 //modules
-	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load, $mod_memcache;
+	global $mod_user, $mod_db, $mod_message, $mod_cookie, $mod_config, $mod_data, $mod_load, $mod_app, $mod_memcache, $user_id, $mod_template, $mod_streamcache;
 
 	//offset
 	$offset = 0;
@@ -33,6 +33,12 @@
 	endif;
 	$collection = $collection[0];
 
+	//increase views
+	$mod_memcache->set( 'mod_collection', array( array(
+		'id' => $collection['id'],
+		'views' => $collection['views'] + 1
+	) ), false );
+
 	//our collection?
 	$mod_template->add( 'owner', $collection['user_id'] == $mod_user->session_userid() );
 
@@ -56,29 +62,14 @@
 		$mod_template->add( 'userid', $mod_user->session_userid() );
 	endif;
 
-	//api & logged in?
-	if( !$mod_config['api'] and $mod_template->get( 'userid' ) ):
-		//load the users sources
-		$sources = $mod_load->load_sources( $mod_template->get( 'userid' ) );
-		$mod_template->add( 'sources', $sources );
-
-		//accounts
-		if( $mod_template->get( 'userid' ) == $mod_user->get_userid() ):
-			$accounts = $mod_load->load_accounts( $mod_user->get_userid() );
-			$mod_template->add( 'accounts', $accounts );
-		endif;
-		
-		//load the users followings
-		$followings = $mod_load->load_users( $mod_template->get( 'userid' ) );
-		$mod_template->add( 'followings', $followings );
-
-		//load users collections
-		$collections = $mod_load->load_collections( $mod_template->get( 'userid' ) );
-		$mod_template->add( 'collections', $collections );
+	//api?
+	if( !$mod_config['api'] ):
+		$user_id = $mod_template->get( 'userid' );
+		$mod_app->load( 'load/stream/userconf' );
 	endif;
 
 	//start our stream
-	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'collection' ) : new mod_stream_site( $mod_db, 'collection' );
+	$mod_stream = $mod_config['api'] ? new mod_stream( $mod_db, 'collection', $mod_streamcache ) : new mod_stream_site( $mod_db, 'collection', $mod_streamcache );
 	//invalid stream?
 	if( !$mod_stream->valid ):
 		$mod_message->add( 'NotFound' );

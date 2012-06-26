@@ -40,8 +40,8 @@
 				<?php endforeach; ?>
 
 				<br />
-				<a class="button twitter" href="<?php echo $c_config['root']; ?>/process/tw-out">+ add Twitter</a> 
-				<a class="button facebook" href="<?php echo $c_config['root']; ?>/process/fb-out">+ add Facebook</a>
+				<a class="button twitter" href="<?php echo $c_config['root']; ?>/process/tw-out">+ Add Twitter</a> 
+				<a class="button facebook" href="<?php echo $c_config['root']; ?>/process/fb-out">+ Add Facebook</a>
 			</div><!--end left half-->
 
 			<div class="right half">
@@ -64,7 +64,7 @@
 				<?php endif; ?>
 
 				<br />
-				<a class="button green" href="<?php echo $c_config['root']; ?>/login">+ add OpenID</a>
+				<a class="button green" href="<?php echo $c_config['root']; ?>/login">+ Add OpenID</a>
 			</div><!--end right-->
 		</div><!--end main-->
 	</div><!--end wrap-->
@@ -76,7 +76,7 @@
 				<ul>
 					<li><a href="<?php echo $c_config['root']; ?>/settings">Profile Setup</a></li>
 					<li>Accounts &rarr;</li>
-					<li><a href="<?php echo $c_config['root']; ?>/settings/collections">Collections</a></li>
+					<?php if( $mod_user->session_permission( 'Debug' ) ): ?><li><a href="<?php echo $c_config['root']; ?>/settings/data">Data</a></li><?php endif; ?>
 				</ul>
 			</div><!--end left-->
 		</div><!--end wrap-->

@@ -26,8 +26,24 @@
 			if( $mod_config['ajax'] and substr( $template, 0, 4 ) == 'core' )
 				return;
 
-			//load template
-			parent::load( $template );
+			//start output buffer
+			if( $template != 'core/head' and !isset( $_GET['unmin'] ) ):
+				ob_start();
+
+				//load template
+				parent::load( $template );
+
+				//flush buffer & grab html
+				$content = ob_get_clean();
+
+				//display w/o tabs,newlines
+				echo str_replace( array( "\n", "\t" ), '', $content ) . PHP_EOL;
+			else:
+				parent::load( $template );
+
+				if( !isset( $_GET['unmin'] ) )
+					ob_flush();
+			endif;
 		}
 
 		public function __destruct() {

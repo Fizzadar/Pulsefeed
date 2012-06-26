@@ -8,14 +8,21 @@ var template = {};
 template.item = function( item, no_image, header ) {
 	var long = true;
 
-	//source or origin ref
-	var source = false;
-	var orig = false;
-	for( var i = 0; i < item.refs.length; i++ ) {
-		if( item.refs[i]['source_type'] == 'source' ) {
-			source = true;
-		}
-	}
+	//if cookie
+	if( cookie.get( 'hide_images' ) )
+		no_image = true;
+
+	//been image?
+	var been_image = false;
+
+	//is tweet/fb?
+	var is_tweet = false;
+	var is_post = false;
+	for( var i = 0; i < item.refs.length; i++ )
+		if( item.refs[i].source_type == 'twitter' && item.refs[i].source_data.text )
+			is_tweet = i;
+		else if( item.refs[i].source_type == 'facebook' && item.refs[i].source_data.text )
+			is_post = i;
 
 	//build string
 	var r = '<div class="item" id="article_' + item.id + '" style="opacity:0;">';
@@ -23,132 +30,204 @@ template.item = function( item, no_image, header ) {
 	r += '<a href="' + mod_root + '/article/' + item.id + '" class="article_link" rel="nofollow">' + item.title + '</a>';
 	r += header ? '</' + header + '>' : '</h3>';
 
-	//image?
-	if( item.image_half != '' && !no_image ) {
-		long = false;
+	if( !no_image && item.image_wide_big && cookie.get( 'two_col' ) ) {
+		been_image = true;
 		r += '<a href="' + mod_root + '/article/' + item.id + '" class="article_link" rel="nofollow">';
-		r += '<img class="thumb" src="' + mod_root + '/' + item.image_half + '" alt="' + item.title + '" />';
+		r += '<img class="thumb" src="' + mod_root + '/' + item.image_wide_big + '" alt="' + item.title + '" />';
 		r += '</a>';
-	} else if( item.image_third != '' && !no_image ) {
-		long = false;
+	} else if( !no_image && item.image_wide ) {
+		been_image = true;
 		r += '<a href="' + mod_root + '/article/' + item.id + '" class="article_link" rel="nofollow">';
-		r += '<img class="thumb" src="' + mod_root + '/' + item.image_third + '" alt="' + item.title + '" />';
+		r += '<img class="thumb" src="' + mod_root + '/' + item.image_wide + '" alt="' + item.title + '" />';
 		r += '</a>';
 	}
 
 	//content
-	r += '<p>';
-	//long?
-	if( long ) {
-		r += item.short_description;
-	} else {
-		r += item.shorter_description;
-	}
-	r += ' <a href="' + mod_root + '/article/' + item.id + '" class="article_link" rel="nofollow">';
+	r += '<p' + ( been_image || is_tweet || is_post ? '' : ' class="wide"' ) + '>';
+	r += item.short_description ? html_entity_decode( item.short_description ) : html_entity_decode( item.description );
+	r += '<span class="extended hidden">' + ( item.extended_description ? html_entity_decode( item.extended_description ) : '' ) + '</span>';
 	switch( item.type ) {
 		case 'video':
-			r += '';
 			break;
 		default:
-			r += 'read article &rarr;';
+			r += '... <a href="' + mod_root + '/article/' + item.id + '" class="article_link" rel="nofollow">read article&nbsp;&rarr;</a>';
 	}
-	r += '</a></p>';
+	r += '</p>';
+
+	//tweet/facebook
+	if( !been_image && is_tweet ) {
+		r += '<div class="tweet">';
+		r += '<img src="http://tweeter.fdev.in/' + item.refs[is_tweet].source_id + '" alt="" />';
+		r += '<a href="' + mod_root + '/account/twitter/' + item.refs[is_tweet].source_id + '">@' + item.refs[is_tweet].source_title + '</a>';
+		r += '<p>' + item.refs[is_tweet].source_data.text + '</p>';
+		r += '</div>';
+	} else if( !been_image && is_post ) {
+		r += '<div class="tweet">';
+		r += '<img src="http://tweeter.fdev.in/' + item.refs[is_post].source_id + '" alt="" />';
+		r += '<a href="' + mod_root + '/account/twitter/' + item.refs[is_post].source_id + '">' + item.refs[is_post].source_title + '</a>';
+		r += '<p>' + item.refs[is_post].source_data.text + '</p>';
+		r += '</div>';
+	}
+
+
 
 	//meta
-	r += '<div class="meta">';
+	r += '<ul class="meta">';
 
 	//refs
 	for( var i = 0; i < item.refs.length; i++ ) {
-		r += '<a href="' + mod_root + '/';
+		var link = mod_root + '/';
 		switch( item.refs[i].source_type ) {
-			case 'source':
+			case 'website':
 			case 'public':
-				r += 'source/' + item.refs[i].source_id;
+				link += 'website' + '/' + item.refs[i].source_id;
 				break;
 			case 'like':
-				r += 'user/' + item.refs[i].source_id;
+				link += 'user' + '/' + item.refs[i].source_id;
 				break;
 			case 'facebook':
 			case 'twitter':
-				r += 'account/' + item.refs[i].source_type + '/' + item.refs[i].source_id;
+				link += 'account/' + item.refs[i].source_type + '/' + item.refs[i].source_id;
+				break;
+			case 'topic':
+				link += 'topic/' + item.refs[i].source_id;
+				break;
+			case 'share':
+				link += 'user/' + item.refs[i].source_id;
 				break;
 			default:
-				r += '#';
+				link = '#';
 		}
-		r += '" class="tip hover">';
-		r += '<span>';
+		r += '<li class="tip hover big"><span>';
+
+
+		//work out info texts
+		switch( item.refs[i].source_type ) {
+				case 'twitter':
+				case 'facebook':
+					//avatar
+					r += '<img src="' + ( item.refs[i].source_type == 'twitter' ? 'http://tweeter.fdev.in/' + item.refs[i].source_id : 'http://graph.facebook.com/' + item.refs[i].source_id + '/picture' ) + '" class="avatar" />';
+
+					//text
+					r += '<em class="big">"' + ( item.refs[i].source_data.text ? html_entity_decode( item.refs[i].source_data.text ) : 'No post / tweet located' ) + '</em>';
+
+					//link to post
+					if( item.refs[i].source_data.postid ) {
+						r += '<a target="_blank" href=';
+						r += item.refs[i].source_type == 'twitter' ? 'http://twitter.com/' + item.refs[i].source_title + '/status/' + item.refs[i].source_data.postid : 'http://facebook.com/' + item.refs[i].source_id + '/posts/' + item.refs[i].source_data.postid;
+						r += '" class="button right ' + item.refs[i].source_type + '">View ' + ( item.refs[i].source_type =='twitter' ? 'Tweet' : 'Post' ) + '</a>';
+						r += '<a target="_blank" href="';
+						r += item.refs[i].source_type == 'twitter' ? 'http://twitter.com/' + item.refs[i].source_title : 'http://facebook.com/' + item.refs[i].source_id;
+						r += '" class="button right green">Profile</a>';
+					}
+					break;
+
+				default:
+					r += '<ul>';
+					r += '<li><small class="edit">author</small> ' + ( item.author ? 'Unknown' : item.autho ) + '</li>';
+					r += '<li><small class="edit">date</small> ' + item.time + '</li>';
+					r += '<li><small class="edit">subscribers</small> ' + ( item.refs[i].source_data.subscribers ? item.refs[i].source_data.subscribers : 0 ) + '</li>';
+					r += '</ul>';
+
+					if( item.refs[i].source_type == 'website' ) {
+						r += '<form action="' + mod_root + '/process/website-' + ( item.refs[i].subscribed ? 'un' : '' ) + 'subscribe" method="post" id="subunsub" class="website_subscribe">';
+						r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
+						r += '<input type="hidden" name="website_id" value="' + item.refs[i].source_id + '" />';
+						r += '<input type="submit" value="' + ( item.refs[i].subscribed ? 'Unsubscribe' : '+ Subscribe' ) + '" class="button ' + ( item.refs[i].subscribed ? 'red' : 'green' ) + '" />';
+						r += '</form>';
+					} else if( item.refs[i].source_type == 'topic' ) {
+						r += '<form action="' + mod_root + '/process/topic-' + ( item.refs[i].subscribed ? 'un' : '' ) + 'subscribe" method="post" id="subunsub" class="topic_subscribe">';
+						r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
+						r += '<input type="hidden" name="website_id" value="' + item.refs[i].source_id + '" />';
+						r += '<input type="submit" value="' + ( item.refs[i].subscribed ? 'Unsubscribe' : '+ Subscribe' ) + '" class="button ' + ( item.refs[i].subscribed ? 'red' : 'green' ) + '" />';
+						r += '</form>';
+					} else if( item.refs[i].source_type == 'share' ) {
+						r += '<form action="' + mod_root + '/process/' + ( item.refs[i].subscribed ? 'un' : '' ) + 'follow" method="post" id="subunsub" class="user_follow">';
+						r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
+						r += '<input type="hidden" name="website_id" value="' + item.refs[i].source_id + '" />';
+						r += '<input type="submit" value="' + ( item.refs[i].subscribed ? 'Unsubscribe' : '+ Follow' ) + '" class="button ' + ( item.refs[i].subscribed ? 'red' : 'green' ) + '" />';
+						r += '</form>';
+					}
+		}
+
 		switch( item.refs[i].source_type ) {
 			case 'twitter':
 			case 'facebook':
+			case 'website':
+			case 'topic':
 				r += '<img src="' + mod_root + '/inc/img/icons/share/' + item.refs[i].source_type + '.png" />';
 		}
-		r += '<strong>';
-		if( item.refs[i].source_type == 'twitter' ) {
-			r += '@';
+
+		r += '<strong><a href="' + link + '">';
+		switch( item.refs[i].source_type ) {
+			case 'twitter':
+				r += '@';
+				break;
+			case 'topic':
+				r += 'Topic: ';
+				break;
 		}
-		r += item.refs[i].source_title + '</strong><small>';
+		r += item.refs[i].source_title + '</a></strong><small>';
+
+		//tip text
 		switch( item.refs[i].source_type ) {
 			case 'public':
 				r += 'Public source';
 				break;
-			case 'source':
-				if( pulsefeed.streamType == 'source' ) {
-					if( pulsefeed.streamSubscribed ) {
-						r += 'You are subscribed';
-					} else {
-						r += 'Not subscribed';
-					}
-				} else if( pulsefeed.streamType == 'collection' ) {
-					r += 'Original Source';
+
+			case 'website':
+			case 'topic':
+				if( pulsefeed.streamUser == mod_userid ) {
+					r += item.refs[i].subscribed ? 'You are subscribed' : 'Not subscribed';
 				} else {
-					if( pulsefeed.streamUser == mod_userid ) {
-						r += 'You are subscribed';
-					} else {
-						r += pulsefeed.streamUsername + ' is subscribed';
-					}
+					r += pulsefeed.streamUsername + ' is subscribed';
 				}
 				break;
+
+			case 'share':
+				if( pulsefeed.streamUser == mod_userid ) {
+					r += item.refs[i].subscribed ? 'You are subscribed' : 'Not subscribed';
+				} else {
+					r += pulsefeed.streamUsername + ' is subscribed';
+				}
+				break;
+
 			case 'facebook':
 				r += 'You are subscribed';
 				break;
+
 			case 'twitter':
-			case 'like':
-				if( pulsefeed.streamUser == mod_userid ) {
-					r += 'You follow them';
-				} else {
-					r += pulsefeed.streamUsername + ' follows them';
-				}
+				r += ( pulsefeed.streamUser == mod_userid ? 'You follow' : pulsefeed.streamUsername + 'follows' ) + ' them';
 				break;
+
 			default:
 				r += 'Unknown';
 		}
 		r += '</small><span></span></span>';
-		r += '<img src="';
+
+		r += '<a class="link" href="' + link + '">';	
 		switch( item.refs[i].source_type ) {
 			case 'public':
-			case 'source':
-				r += 'http://favicon.fdev.in/' + item.refs[i].source_data.domain;
+			case 'website':
+				r += '<img class="icon" src="http://favicon.fdev.in/' + item.refs[i].source_data.domain + '" alt="" />';
 				break;
 			case 'twitter':
-				r += 'http://tweeter.fdev.in/' + item.refs[i].source_id;
+				r += '<img class="icon" src="http://tweeter.fdev.in/' + item.refs[i].source_id + '" alt="" />';
 				break;
 			case 'facebook':
-				r += 'http://graph.facebook.com/' + item.refs[i].source_id + '/picture';
+				r += '<img class="icon" src="http://graph.facebook.com/' + item.refs[i].source_id + '/picture" alt="" />';
 				break;
-			case 'like':
-				r += mod_root + '/inc/img/icons/share/' + item.refs[i].source_type + '.png';
+			case 'topic':
+				r += '#';
 				break;
-			default:
-				r += mod_root + '/inc/img/icons/sidebar/original.png';
 		}
-		r += '" alt="" /></a>';
-		if( !orig && !source && item.refs[i].origin_id && item.refs[i].origin_id > 0 && item.refs[i].origin_title != '' && item.refs[i].origin_data ) {
-			orig = true;
-			r += '<a href="' + mod_root + '/source/' + item.refs[i].origin_id + '" class="tip">';
-			r += '<span><strong>' + item.refs[i].origin_title + '</strong><small>Original source</small><span></span></span>';
-			r += '<img src="http://favicon.fdev.in/' + item.refs[i].origin_data.domain + '" alt="" /></a>';
-		}
+		r += item.refs[i].source_title + '</a></li>';
 	}//end refs
+	r += '</ul>';
+
+
+	//right meta
+	r+= '<div class="meta">';
 
 	//logged in?
 	if( mod_userid > 0 ) {
@@ -157,21 +236,25 @@ template.item = function( item, no_image, header ) {
 			r += '<form action="' + mod_root + '/process/article-hide" method="post" class="hide_form">';
 			r += '<input type="hidden" name="article_id" value="' + item.id + '" />';
 			r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
-			r += '<input type="submit" value="Hide" />';
+			r += '<input type="submit" value="Hide" class="meta" />';
 			r += '</form> - ';
 		}
 
 		//collect
-		r += '<span class="collect"><a class="collect_button tip mini always" href="' + mod_root + '/article/' + item.id + '/collect" articleID="' + item.id + '">Collect</a></span> - ';
+		r += '<span class="collect"><a class="collect_button tip mini always" href="' + mod_root + '/article/' + item.id + '/collect" data-articleid="' + item.id + '">Collect</a></span> - ';
 
-		//like button
-		r += '<form action="' + mod_root + '/process/article-' + ( item.liked ? 'unrecommend' : 'recommend' ) + '" method="post" class="like_form">';
-		r += '<input type="hidden" name="article_id" value="' + item.id + '" />';
-		r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
-		r += '<input type="submit" value="' + ( item.liked ? 'Unlike' : 'Like' ) + '" /> <span class="likes">(<span>' + item.likes + '</span>)</span>';
-		r += '</form>';
 	}
 	
+	//share
+	r += '<form action="' + mod_root + '/process/article-share" method="post" class="share_form">';
+	r += '<input type="hidden" name="article_id" value="' + item.id + '" />';
+	r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
+	r += '<input type="hidden" name="twitter_links" value="' + item.twitter_links + '" />';
+	r += '<input type="hidden" name="facebook_shares" value="' + item.facebook_shares + '" />';
+	r += '<input type="submit" value="Share" class="meta" />';
+	r += '<span class="share"></span>';
+	r += '</form>';
+
 	r += '<span class="time"> - ' + item.time_ago + '</span>';
 
 	r += '</div>';
@@ -182,43 +265,77 @@ template.item = function( item, no_image, header ) {
 }
 
 //source browse template
-template.source = function( source ) {
-	//build string
-	var r = '<div class="source" id="source_' + source.id + '" style="opacity:0;">';
+template.source = function( source, type ) {
+	//start string
+	var r = '<div class="source" style="opacity:0;" id="source_' + source.id + '">';
 
-	//header
-	r += '<h2><img src="http://favicon.fdev.in/' + source.site_domain + '" alt="" /> ';
-	r += '<a href="' + mod_root + '/source/' + source.id + '">' + source.site_title + '</a>';
-	r += '<span class="url"><a target="_blank" href="' + source.site_url + '">' + source.site_url_trim + '</a></span></h2>';
+	//title
+	r += '<h2><a href="' + mod_root +  '/' + type + '/' + source.id + '">';
+	r += type == 'website' ? '<img class="favicon" src="http://favicon.fdev.in/' + source.site_domain + '" alt="" /> ' : '';
+	r += source.title;
+	r += '</a>'; 
+	r += type == 'website' ? '<a href="' + source.site_url + '" class="edit" target="_blank">' + source.site_url + '</a>' : '';
+	r += type == 'collection' ? '<a href="' + mod_root + '/user/' + source.user_id + '" class="edit">' + ( source.owned ? 'your collection' : source.username ) + '</span></a>' : '';
+	r += '</h2>';
+
+	//images
+	r += '<div class="images"><div class="img one">';
+	if( source.articles[0] ) {
+		r += '<a href="' + mod_root + '/article/' + source.articles[0].id + '">';
+		r += '<span class="title">' + source.articles[0].title + '</span><img src="' + mod_root + '/' + source.articles[0].image_thumb + '" alt="" />';
+		r += '</a>';
+	}
+	r += '</div><div class="img two">';
+	if( source.articles[1] ) {
+		r += '<a href="' + mod_root + '/article/' + source.articles[1].id + '">';
+		r += '<span class="title">' + source.articles[1].title + '</span><img src="' + mod_root + '/' + source.articles[1].image_thumb + '" alt="" />';
+		r += '</a>';
+	}
+	r += '</div><div class="img three">';
+	if( source.articles[2] ) {
+		r += '<a href="' + mod_root + '/article/' + source.articles[2].id + '">';
+		r += '<span class="title">' + source.articles[2].title + '</span><img src="' + mod_root + '/' + source.articles[2].image_thumb + '" alt="" />';
+		r += '</a>';
+	}
+	r += '</div></div>';
 
 	//meta
-	r += '<div class="meta">';
-		//thumbnail
-		r += '<a href="' + mod_root + '/source/' + source.id + '">';
-		r += '<img src="http://screenshots.fanaticaldev.com/?u=' + source.site_url + '" alt="" />';
-		r += '</a>';
-	r += '<span class="meta">Subscribers: <strong>' + source.subscribers + '</strong> - Last Updated: ' + source.time_ago + '</span>';
-	r += '</div>';
+	r += '<ul class="meta">';
+	switch( type ) {
+		case 'topic':
+		case 'website':
+			r += '<li><small class="edit">subscribers</small>' + source.subscribers + '</li>';
+			r += '<li><small class="edit">articles</small>' + source.article_count + '</li>';
+			break;
 
-	//articles
-	r += '<ul class="articles">';
-		for( var i = 0; i < source.articles.length; i++ ) {
-			r += '<li><a href="' + mod_root + '/article/' + source.articles[i].id + '">' + source.articles[i].title + ' &rarr;</a></li>';
-		}
-		if( source.articles.length <= 0 ) {
-			r += '<li>This source has no articles!</li>';
-		}
-	r += '</ul><!--end articles-->';
-	
-	//logged in?
-	if( mod_userid > 0 ) {
-		r += '<form action="' + mod_root + '/process/' + ( source.subscribed ? 'unsubscribe' : 'subscribe' ) + '" method="post" class="source_subscribe">';
-		r += '<input type="hidden" name="source_id" value="' + source.id + '" />';
-		r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
-		r += '<input type="submit" value="' + ( source.subscribed ? 'Unsubscribe" class="button red"' : '+ Subscribe" class="green button"' ) + ' />';
-		r += '</form>';
+		case 'collection':
+			r += '<li><small class="edit">views</small>' + source.views + '</li>';
+			r += '<li><small class="edit">articles</small>' + source.article_count + '</li>';
+			break;
+	}
+	r += '</ul>';
+
+	switch( type ) {
+		case 'topic':
+		case 'website':
+			r += '<form method="post" action="' + mod_root + '/process/' + type + '-' + ( source.subscribed ? 'unsubscribe' : 'subscribe' ) + '" class="' + type + '_subscribe">';
+			r += '<input type="submit" class="button ' + ( source.subscribed ? 'red' : 'green' ) + '" value="' + ( source.subscribed ? 'Unsubscribe' : '+ Subscribe' ) + '" />';
+			r += '<input type="hidden" name="' + type + '_id" value="' + source.id + '" />';
+			r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
+			r += '</form>';
+			break;
+
+		case 'collection':
+			r += '<form method="post" action="' + mod_root + '/process/collection-delete">';
+			r += '<a href="' + mod_root + '/collection/' + source.id + '" class="button blue">View</a>';
+			r += source.owned ? '<input type="submit" class="button red" value="Delete" />' : '';
+			r += '<input type="hidden" name="' + type + '_id" value="' + source.id + '" />';
+			r += '<input type="hidden" name="mod_token" value="' + mod_token + '" />';
+			r += '</form>';
+			break;
 	}
 
+	//end
 	r += '</div><!--end source-->';
 
 	//return

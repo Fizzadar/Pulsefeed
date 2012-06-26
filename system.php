@@ -71,6 +71,9 @@
 		case 'cleanup':
 			$mod_app->load( 'daemon/cleanup' );
 			break;
+		case 'recommend':
+			$mod_app->load( 'daemon/recommend' );
+			break;
 		default:
 			die( 'invalid cron' . PHP_EOL );
 	endswitch;

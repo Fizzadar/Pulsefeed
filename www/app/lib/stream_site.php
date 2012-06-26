@@ -28,6 +28,7 @@
 			//now re-do keys
 			$this->data = array_values( $this->data );
 
+			//decide if we're even cols
 			switch( $this->stream_type ):
 				//2 col main, 1 col upcoming
 				case 'hybrid':
@@ -36,27 +37,30 @@
 					if( count( $this->data ) > 2 ):
 						//get 1/3 length
 						$length = count( $this->data );
-						$third = round( $length / 2.4 );
+						$third = round( $length / 3 );
 
 						//get col3, items from length - third to length
 						for( $i = $length - $third; $i < $length; $i++ ):
-							$this->data[$i]['short_description'] = $this->data[$i]['shorter_description'];
 							$articles['col3'][] = $this->data[$i];
+							unset( $this->data[$i] );
 						endfor;
 
 						//now generate other 2 cols
-						$col2 = false;
-						for( $i = 0; $i < $length - $third; $i++ ):
+						/*for( $i = 0; $i < $length - $third; $i++ ):
 							//choose the col
-							if( $col2 ):
-								$articles['col2'][] = $this->data[$i];
-							else:
+							if( $i < ( ( $length - $third ) / 2 ) ):
 								$articles['col1'][] = $this->data[$i];
+							else:
+								$articles['col2'][] = $this->data[$i];
 							endif;
-
-							//switch
-							$col2 = !$col2;
-						endfor;
+						endfor;*/
+						$col = 1;
+						foreach( $this->data as $item ):
+							$articles['col' . $col][] = $item;
+							$col++;
+							if( $col == 3 )
+								$col = 1;
+						endforeach;
 						break;
 					endif;
 
@@ -82,106 +86,6 @@
 		//build features <=== needs COMPLETE re-work (only balances 2 words currently)
 		private function build_features() {
 			return array();
-			
-			//list of topics (big words)
-			$topics = array();
-			//the actual features
-			$features = array();
-			//return array
-			$return = array();
-
-			//build list of topics and ids
-			foreach( $this->data as $key => $item ):
-				$words = explode( ' ', $item['title'] );
-				foreach( $words as $word ):
-					if( strlen( $word ) >= 5 ):
-						if( !isset( $topics[$word] ) ):
-							$topics[$word] = array(
-								'count' => 1,
-								'ids' => array(
-									$key
-								)
-							);
-						else:
-							$topics[$word]['count']++;
-							$topics[$word]['ids'][] = $key;
-						endif;
-					endif;
-				endforeach;
-			endforeach;
-
-			//remove all shit topics (min 2)
-			foreach( $topics as $key => $topic )
-				if( $topic['count'] < 2 )
-					unset( $topics[$key] );
-
-			//match common topics
-			foreach( $topics as $word1 => $topic1 ):
-				foreach( $topics as $word2 => $topic2 ):
-					//ignore same/reverse words
-					if( $word1 == $word2 or isset( $features[$word2 . '_' . $word1] ) )
-						continue;
-
-					//loop ids from each topic
-					foreach( $topic1['ids'] as $id1 ):
-						foreach( $topic2['ids'] as $id2 ):
-							//matching id's!
-							if( $id1 == $id2 ):
-								if( !isset( $features[$word1 . '_' . $word2] ) ):
-									$features[$word1 . '_' . $word2] = array(
-										$id1
-									);
-								elseif( !in_array( $id1, $features[$word1 . '_' . $word2] ) ):
-									$features[$word1 . '_' . $word2][] = $id1;
-								endif;
-							endif;
-						endforeach;
-					endforeach;
-				endforeach;
-			endforeach;
-
-			//finally, build them features
-			foreach( $features as $words => $ids ):
-				//min 3 topics
-				if( count( $ids ) < 2 )
-					continue;
-
-				//build the feature
-				$tmp = array(
-					'topics' => explode( '_', $words ),
-					'articles' => array()
-				);
-				foreach( $ids as $id ):
-					$tmp['articles'][] = $this->data[$id];
-				endforeach;
-				
-				//sort the articles
-				usort( $tmp['articles'], array( 'mod_stream', 'sortPopscore' ) );
-
-				//make sure first item has an image (well, try)
-				if( empty( $tmp['articles'][0]['image_half'] ) and empty( $tmp['articles'][0]['image_quarter'] ) ):
-					foreach( $tmp['articles'] as $article ):
-						if( !empty( $article['image_half'] ) ):
-							$tmp['articles'][0]['image_half'] = $article['image_half'];
-							break;
-						elseif( !empty( $article['image_quarter'] ) ):
-							$tmp['articles'][0]['image_quarter'] = $article['image_quarter'];
-							break;
-						endif;
-					endforeach;
-				endif;
-
-				//add to return
-				$return[] = $tmp;
-			endforeach;
-
-			//remove used articles
-			foreach( $features as $ids )
-				foreach( $ids as $id )
-					unset( $this->data[$id] );
-
-			//return
-			return $return;
 		}
 	}
 ?>

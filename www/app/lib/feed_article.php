@@ -56,19 +56,27 @@
 		public function get_end_url() {
 			if( $this->endlink ) return $this->endlink;
 
-			$return = $this->url;
-
 			//find end-url by curling it
 			$curl = curl_init( $this->url );
 			curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
+			curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false );
 			curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 			curl_setopt( $curl, CURLOPT_HEADER, true );
 			curl_setopt( $curl, CURLOPT_NOBODY, true );
+			curl_setopt( $curl, CURLOPT_TIMEOUT, 30 );
+			curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 5 );
+			curl_setopt( $curl, CURLOPT_MAXREDIRS, 3 );
 			$headers = curl_exec( $curl );
 
 			//worked?
-			if( !curl_errno( $curl ) )
-				$return = curl_getinfo( $curl );
+			if( !curl_errno( $curl ) ):
+				$info = curl_getinfo( $curl );
+			else:
+				curl_close( $curl );
+				return $this->url;
+			endif;
+
+			//close curl
 			curl_close( $curl );
 
 			//work out headers
@@ -85,7 +93,7 @@
 				$this->xframe = true;
 
 			//split up url
-			$bits = parse_url( $return['url'] );
+			$bits = parse_url( $info['url'] );
 			if( !isset( $bits['path'] ) ) $bits['path'] = '';
 			if( !isset( $bits['scheme'] ) ) $bits['scheme'] = 'http';
 
@@ -110,6 +118,10 @@
 			else:
 				$bits['query'] = '';
 			endif;
+
+			//not got our bits?
+			if( !isset( $bits['scheme'] ) or !isset( $bits['host'] ) or !isset( $bits['path'] ) or !isset( $bits['query'] ) )
+				return $this->url;
 
 			//rebuilt return
 			$return = $bits['scheme'] . '://' . $bits['host'] . $bits['path'] . $bits['query'];
@@ -182,13 +194,12 @@
 				$img->height = 'auto';
 
 				//fix img src
-				$urlbits = parse_url( $url );
 				$urlbits2 = parse_url( $img->src );
 				if( substr( $img->src, 0, 1 ) == '/' ):
 					$img->src = ltrim( $img->src, '/' );
 				endif;
 				if( !isset( $urlbits2['host'] ) or empty( $urlbits2['host'] ) ):
-					$img->src = $urlbits['scheme'] . '://' . $urlbits['host'] . '/' . $img->src;
+					$img->src = $bits['scheme'] . '://' . $bits['host'] . '/' . $img->src;
 				endif;
 				if( substr( $img->src, 0, 4 ) != 'http' ):
 					$img->src = 'http://' . $img->src;
@@ -206,7 +217,7 @@
 			unset( $html );
 
 			//return our article
-			return $this->content;
+			return trim( $this->content );
 		}
 
 		//get/make our summary
@@ -239,8 +250,11 @@
 			if( strlen( $summary ) < strlen( $article ) )
 				$summary .= '...';
 
+			//html entities
+			$summary = htmlentities( $summary, ENT_QUOTES );
+
 			//save summary
-			$this->summary = $summary;
+			$this->summary = trim( $summary );
 
 			//return summary
 			return $this->summary;
@@ -248,26 +262,12 @@
 
 		//get/save & generate locally image (select best/main/biggest image)
 		public function get_thumbs() {
-			//config
-			$config = array(
-				'quarter' => array(
-					'w' => 187,
-					'h' => 51,
-				),
-				'third' => array(
-					'w' => 281,
-					'h' => 77,
-				),
-				'half' => array(
-					'w' => 374,
-					'h' => 102,
-				),
-			);
+			global $mod_config;
 
 			$return = array();
 
 			//loop size options
-			foreach( $config as $conf_key => $conf ):
+			foreach( $mod_config['image_sizes'] as $conf_key => $conf ):
 				//loop the images for this item, pick the best (biggest?)
 				$max_size = 0;
 				$thumb_img = -1;
@@ -290,7 +290,7 @@
 					$size = $s[0] * $s[1];
 
 					//image too small? fuck it
-					if( $s[0] < ( $conf['w'] * 0.7 ) or $s[1] < ( $conf['h'] * 0.7 ) ):
+					if( $s[0] < ( $conf['w'] * 0.7 ) or $s[1] < ( $conf['h'] * $conf['scale'] ) ):
 						//echo 'image too small: ' . $image . PHP_EOL;
 						continue;
 					endif;
@@ -314,8 +314,8 @@
 						//generate the thumbnail
 						$resize = new resize( $this->images[$thumb_img] );
 						//attempt resize, save
-						$resize->resizeImage( $conf['w'], $conf['h'], 'crop' );
-						$resize->saveImage( $thumb_name, 80 );
+						@$resize->resizeImage( $conf['w'], $conf['h'], 'crop' );
+						@$resize->saveImage( $thumb_name, 80 );
 					endif;
 
 					//last check!
